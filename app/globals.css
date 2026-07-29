@@ -1,26 +1,78 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/*
+ * Always-dark design system (this dashboard has no light mode — matches the
+ * legacy app's intent and the "preto profundo + azul vivo" brief).
+ *
+ * Funnel ramp, status colors and the vivid-blue accent were checked against
+ * this exact canvas (#03050a) with the dataviz skill's validator
+ * (scripts/validate_palette.js --ordinal / --mode dark --surface "#03050a"):
+ * all four ordinal funnel steps pass monotone-lightness + adjacent-ΔL +
+ * light-end-contrast, and all four status colors clear 3:1+ against canvas.
+ */
+@theme {
+  --color-canvas: #03050a;
+  --color-surface-1: rgba(255, 255, 255, 0.035);
+  --color-surface-2: rgba(255, 255, 255, 0.065);
+  --color-hairline: rgba(255, 255, 255, 0.1);
+  --color-hairline-strong: rgba(255, 255, 255, 0.16);
+
+  --color-primary: #ffffff;
+  --color-secondary: #c3c2b7;
+  --color-muted: #898781;
+
+  /* vivid blue accent family */
+  --color-accent-primary: #3987e5;
+  --color-accent-solid: #2563eb;
+  --color-accent-solid-hover: #1d4ed8;
+  --accent-primary-soft: rgba(57, 135, 229, 0.15);
+  --accent-primary-glow: rgba(57, 135, 229, 0.35);
+
+  /* status — fixed meaning, never reused as chart identity */
+  --color-status-good: #0ca30c;
+  --color-status-warning: #fab219;
+  --color-status-serious: #ec835a;
+  --color-status-critical: #d03b3b;
+
+  /* funnel ordinal ramp — one hue, monotone light -> dark */
+  --color-funnel-1: #86b6ef;
+  --color-funnel-2: #3987e5;
+  --color-funnel-3: #256abf;
+  --color-funnel-4: #184f95;
+
+  --font-sans: var(--font-inter);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  color-scheme: dark;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-canvas);
+  background-image:
+    radial-gradient(circle at 10% 40%, rgba(57, 135, 229, 0.07), transparent 40%),
+    radial-gradient(circle at 90% 60%, rgba(37, 99, 235, 0.05), transparent 40%);
+  color: var(--color-primary);
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-hairline-strong);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
 }

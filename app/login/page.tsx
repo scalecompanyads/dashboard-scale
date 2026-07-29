@@ -1,0 +1,94 @@
+"use client";
+
+import { useState } from "react";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
+
+export default function LoginPage() {
+  const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [pending, setPending] = useState(false);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setPending(true);
+    setError(null);
+
+    const supabase = createClient();
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+
+    if (error) {
+      setError("E-mail ou senha inválidos.");
+      setPending(false);
+      return;
+    }
+
+    router.replace("/comercial");
+    router.refresh();
+  }
+
+  return (
+    <main className="flex min-h-screen items-center justify-center bg-canvas px-4">
+      <div className="w-full max-w-sm rounded-2xl border border-hairline bg-surface-1 p-8 shadow-2xl backdrop-blur-xl">
+        <div className="mb-8 flex flex-col items-center gap-3">
+          <Image src="/scale-logo.svg" alt="Scale Company" width={130} height={32} className="h-8 w-auto opacity-95" priority />
+          <h1 className="text-lg font-semibold text-primary">Dashboard Comercial</h1>
+        </div>
+
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="email" className="text-xs font-semibold uppercase tracking-wide text-muted">
+              E-mail
+            </label>
+            <input
+              id="email"
+              type="email"
+              required
+              autoComplete="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="rounded-lg border border-hairline bg-black/30 px-3 py-2.5 text-sm text-primary outline-none transition focus:border-accent-primary focus:shadow-[0_0_0_3px_var(--accent-primary-soft)]"
+              autoFocus
+            />
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="password" className="text-xs font-semibold uppercase tracking-wide text-muted">
+              Senha
+            </label>
+            <input
+              id="password"
+              type="password"
+              required
+              autoComplete="current-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="rounded-lg border border-hairline bg-black/30 px-3 py-2.5 text-sm text-primary outline-none transition focus:border-accent-primary focus:shadow-[0_0_0_3px_var(--accent-primary-soft)]"
+            />
+          </div>
+
+          {error && (
+            <p className="rounded-lg border border-status-critical/30 bg-status-critical/10 px-3 py-2 text-sm text-status-critical">
+              {error}
+            </p>
+          )}
+
+          <button
+            type="submit"
+            disabled={pending}
+            className="mt-2 rounded-lg bg-accent-solid px-4 py-2.5 text-sm font-semibold text-white shadow-[0_0_20px_var(--accent-primary-glow)] transition hover:bg-accent-solid-hover disabled:opacity-60"
+          >
+            {pending ? "Entrando…" : "Entrar"}
+          </button>
+        </form>
+
+        <p className="mt-6 text-center text-xs text-muted">
+          Acesso por convite. Fale com o administrador do time se precisar de uma conta.
+        </p>
+      </div>
+    </main>
+  );
+}
