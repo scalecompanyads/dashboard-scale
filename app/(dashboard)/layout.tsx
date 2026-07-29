@@ -7,7 +7,15 @@ import { StaleDataBanner } from "@/components/stale-data-banner";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
-  const [{ data: { user } }, syncStates] = await Promise.all([supabase.auth.getUser(), getSyncStates(supabase)]);
+
+  const [{ data: { user } }, syncStates] = await Promise.all([
+    supabase.auth.getUser(),
+    // Falls back to "never synced" instead of crashing the whole layout —
+    // the most common cause is the Supabase migrations not being applied
+    // yet (supabase/migrations/*.sql), which would otherwise take down
+    // every page under (dashboard) with a raw Postgrest error.
+    getSyncStates(supabase).catch(() => []),
+  ]);
 
   const health = overallSyncHealth(syncStates);
 
