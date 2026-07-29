@@ -16,7 +16,12 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="pt-BR" className={`${inter.variable} antialiased`}>
-      <body className="min-h-screen">{children}</body>
+      {/* suppressHydrationWarning: some browser extensions (ColorZilla, Grammarly, etc.)
+          inject attributes like cz-shortcut-listen into <body> before React hydrates,
+          which otherwise falsely reports as a hydration mismatch. */}
+      <body className="min-h-screen" suppressHydrationWarning>
+        {children}
+      </body>
     </html>
   );
 }
