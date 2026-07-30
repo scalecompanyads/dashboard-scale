@@ -5,7 +5,7 @@ import { calcKPIs } from "@/lib/metrics/kpis";
 import { calcClosers } from "@/lib/metrics/closers";
 import { calcSDRs } from "@/lib/metrics/sdrs";
 import { buildFunnel } from "@/lib/metrics/funnel";
-import { monthKeyOf, MONTHS } from "@/lib/constants";
+import { monthKeyOf } from "@/lib/constants";
 import { MonthYearSelect } from "@/components/month-year-select";
 import { ClosingFilterTabs } from "@/components/closing-filter-tabs";
 import { KpiRow } from "@/components/kpi-row";
@@ -56,7 +56,6 @@ export default async function ComercialPage({
   const sdrs = calcSDRs(agendaItems);
   const funnel = buildFunnel(kpis);
 
-  const label = `${MONTHS[month - 1]} ${year}`;
   const metaPct = goal > 0 ? (kpis.tcvTotal / goal) * 100 : 0;
   // Só o verde (meta batida) e o vermelho (bem atrás) carregam sentido de
   // status aqui — o intervalo do meio fica no azul neutro da marca em vez
@@ -68,7 +67,7 @@ export default async function ComercialPage({
   const gapAtingida = goal > 0 && gap <= 0;
   const gapColor = !goal ? "muted" : gapAtingida ? "good" : kpis.tcvTotal / goal >= 0.7 ? "primary" : "critical";
   const gapDisplayValue = goal ? Math.abs(gap) : null;
-  const gapSubTxt = !goal ? "sem meta definida" : gapAtingida ? "✓ meta superada" : undefined;
+  const gapSubTxt = !goal ? "sem meta definida" : gapAtingida ? "✓ meta superada" : `${Math.max(0, Math.round(100 - metaPct))}% restante`;
 
   return (
     <div className="flex flex-col gap-5">
@@ -80,32 +79,32 @@ export default async function ComercialPage({
       <KpiRow cols={7} staggerBase={60}>
         <KpiCard
           featured
-          label={`TCV Fechado — ${label}`}
+          label="TCV Fechado"
           value={<AnimatedNumber value={kpis.tcvTotal} format={{ type: "currency" }} />}
           sub={`${kpis.tcvCount} contratos fechados`}
         >
           {prevKpis.tcvTotal > 0 && (
-            <div className="flex justify-center">
+            <div className="flex justify-start">
               <TrendBadge current={kpis.tcvTotal} previous={prevKpis.tcvTotal} />
             </div>
           )}
         </KpiCard>
         <KpiCard
-          label={`MRR Fechado — ${label}`}
+          label="MRR Fechado"
           accent="primary"
           value={<AnimatedNumber value={kpis.mrrTotal} format={{ type: "currency" }} />}
           sub={`${kpis.mrrCount} contratos fechados`}
         >
           {prevKpis.mrrTotal > 0 && (
-            <div className="flex justify-center">
+            <div className="flex justify-start">
               <TrendBadge current={kpis.mrrTotal} previous={prevKpis.mrrTotal} />
             </div>
           )}
         </KpiCard>
-        <GoalCard monthKey={monthKey} goalValue={goal} />
+        <GoalCard monthKey={monthKey} goalValue={goal} progressPct={goal > 0 ? metaPct : undefined} />
         <KpiCard
           featured
-          label="Gap para Meta do Mês"
+          label="Gap para Meta"
           accent={gapColor}
           value={<AnimatedNumber value={gapDisplayValue} format={{ type: "currency", sign: gapAtingida }} />}
           sub={gapSubTxt}
@@ -129,8 +128,28 @@ export default async function ComercialPage({
             </div>
           )}
         </KpiCard>
-        <KpiCard label="Ticket Médio TCV" value={<AnimatedNumber value={kpis.ticketMedioTCV} format={{ type: "currency" }} />} />
-        <KpiCard label="Ticket Médio MRR" value={<AnimatedNumber value={kpis.ticketMedioMRR} format={{ type: "currency" }} />} />
+        <KpiCard
+          label="Ticket Médio TCV"
+          value={<AnimatedNumber value={kpis.ticketMedioTCV} format={{ type: "currency" }} />}
+          sub={`${kpis.tcvCount} contratos`}
+        >
+          {prevKpis.ticketMedioTCV > 0 && (
+            <div className="flex justify-start">
+              <TrendBadge current={kpis.ticketMedioTCV} previous={prevKpis.ticketMedioTCV} />
+            </div>
+          )}
+        </KpiCard>
+        <KpiCard
+          label="Ticket Médio MRR"
+          value={<AnimatedNumber value={kpis.ticketMedioMRR} format={{ type: "currency" }} />}
+          sub={`${kpis.mrrCount} contratos`}
+        >
+          {prevKpis.ticketMedioMRR > 0 && (
+            <div className="flex justify-start">
+              <TrendBadge current={kpis.ticketMedioMRR} previous={prevKpis.ticketMedioMRR} />
+            </div>
+          )}
+        </KpiCard>
       </KpiRow>
 
       <div className="animate-enter grid grid-cols-1 gap-4 lg:h-[440px] lg:grid-cols-[6fr_7fr_7fr]" style={{ animationDelay: "440ms" }}>

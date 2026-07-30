@@ -5,6 +5,7 @@ import { useState } from "react";
 import { fmtBRL } from "@/lib/constants";
 import { AnimatedNumber } from "@/components/animated-number";
 import { CardSpotlight } from "@/components/card-spotlight";
+import { ProgressIndicator } from "@/components/progress-indicator";
 
 function EditIcon() {
   return (
@@ -15,7 +16,8 @@ function EditIcon() {
   );
 }
 
-export function GoalCard({ monthKey, goalValue }: { monthKey: string; goalValue: number }) {
+/** progressPct: how much of THIS goal has been reached so far (same figure the %Meta card plots), shown as a small fill under the value — the "small visual indicator" every metric card now carries. */
+export function GoalCard({ monthKey, goalValue, progressPct }: { monthKey: string; goalValue: number; progressPct?: number }) {
   const router = useRouter();
   const [editing, setEditing] = useState(false);
   const [value, setValue] = useState(String(goalValue || ""));
@@ -40,7 +42,7 @@ export function GoalCard({ monthKey, goalValue }: { monthKey: string; goalValue:
 
   return (
     <CardSpotlight
-      className="group flex h-full min-w-0 flex-col items-center overflow-hidden rounded-card p-4 shadow-[0_6px_20px_rgba(0,0,0,0.35)] backdrop-blur-xl transition-all duration-200 hover:-translate-y-0.5 hover:brightness-125"
+      className="group flex h-full min-w-0 flex-col items-start overflow-hidden rounded-card p-3.5 shadow-[0_6px_20px_rgba(0,0,0,0.35)] backdrop-blur-xl transition-all duration-200 hover:-translate-y-0.5 hover:brightness-125"
       style={{
         containerType: "inline-size",
         backgroundImage:
@@ -62,13 +64,11 @@ export function GoalCard({ monthKey, goalValue }: { monthKey: string; goalValue:
         </button>
       )}
 
-      <div className="relative mb-2 flex w-full items-center justify-center gap-1.5">
-        <span
-          className="h-1.5 w-1.5 shrink-0 rounded-full"
-          style={{ backgroundColor: "var(--color-status-good)", opacity: 0.55 }}
-          aria-hidden
-        />
-        <p className="truncate text-[clamp(10px,2.1cqw,12.5px)] font-bold uppercase tracking-wide text-secondary">Meta do Mês</p>
+      <div className="relative mb-1.5 flex w-full items-start justify-start gap-1.5">
+        <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full" style={{ backgroundColor: "var(--color-status-good)", opacity: 0.55 }} aria-hidden />
+        <p className="line-clamp-2 text-left text-[clamp(10px,2.1cqw,12.5px)] font-bold uppercase leading-snug tracking-wide text-secondary">
+          Meta do Mês
+        </p>
       </div>
 
       {editing ? (
@@ -85,14 +85,14 @@ export function GoalCard({ monthKey, goalValue }: { monthKey: string; goalValue:
             if (e.key === "Enter") (e.target as HTMLInputElement).blur();
             if (e.key === "Escape") setEditing(false);
           }}
-          className="relative w-full rounded-md border border-accent-primary bg-canvas px-2 py-1 text-center font-bold leading-none tabular-nums text-primary outline-none"
+          className="relative w-full rounded-md border border-accent-primary bg-canvas px-2 py-1 text-left font-bold leading-none tabular-nums text-primary outline-none"
           style={{ fontSize: "clamp(1rem, 11cqw, 3.1rem)" }}
         />
       ) : (
         <button
           onClick={() => setEditing(true)}
           title={goalValue ? fmtBRL(goalValue) : undefined}
-          className="relative overflow-hidden whitespace-nowrap rounded-md text-center font-extrabold leading-none tracking-tight tabular-nums text-primary transition-colors duration-200 hover:text-accent-light"
+          className="relative overflow-hidden whitespace-nowrap rounded-md text-left font-extrabold leading-none tracking-tight tabular-nums text-primary transition-colors duration-200 hover:text-accent-light"
           style={{ fontSize: "clamp(1rem, 11cqw, 3.1rem)" }}
         >
           {/* compact by default ("R$ 150k") — metas costumam ser números
@@ -103,9 +103,15 @@ export function GoalCard({ monthKey, goalValue }: { monthKey: string; goalValue:
       )}
 
       {(editing || !goalValue) && (
-        <p className="relative mt-1.5 text-center text-[clamp(11px,2.4cqw,14px)] font-medium text-secondary">
+        <p className="relative mt-1 text-left text-[clamp(11px,2.4cqw,14px)] font-medium text-secondary">
           {editing ? "Enter para salvar · Esc para cancelar" : "nenhuma meta definida"}
         </p>
+      )}
+
+      {!editing && goalValue > 0 && progressPct !== undefined && (
+        <div className="relative mt-2 w-full">
+          <ProgressIndicator pct={progressPct} tone={progressPct >= 100 ? "good" : "accent"} />
+        </div>
       )}
     </CardSpotlight>
   );

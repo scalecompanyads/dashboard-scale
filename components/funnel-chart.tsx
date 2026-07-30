@@ -1,5 +1,5 @@
 import type { FunnelData } from "@/lib/metrics/funnel";
-import { StatusBadge, toneFromPct } from "@/components/status-badge";
+import { StatusBadge } from "@/components/status-badge";
 import { glassPanelClass, glassPanelStyle } from "@/lib/glass-panel";
 
 // Same vivid brand blue as the base for every stage (not the pale end of
@@ -28,10 +28,17 @@ export function FunnelChart({ data }: { data: FunnelData }) {
     <div className={`relative flex h-full flex-col overflow-hidden ${glassPanelClass}`} style={glassPanelStyle}>
       <div className="relative mb-4 flex flex-wrap items-center justify-between gap-2">
         <h3 className="text-[14px] font-bold text-primary">Funil de Conversão</h3>
-        <StatusBadge label={`${data.totalConversionPct.toFixed(1)}%`} tone={toneFromPct(data.totalConversionPct)} />
+        {/* purely informative (no target to fall short of), so always the
+            neutral blue tone — red/green would wrongly imply a goal */}
+        <StatusBadge label={`${data.totalConversionPct.toFixed(1)}% conversão total`} tone="accent" />
       </div>
 
-      <div className="relative flex w-full flex-1 flex-col justify-center gap-4">
+      {/* min-h-0 lets this flex-1 child actually shrink to the space the
+          panel has (440px minus header/padding) instead of forcing the
+          panel taller than its row — the classic flexbox overflow trap.
+          justify-between (gap as a floor) spreads the 4 bars evenly across
+          that space instead of clumping in the vertical center. */}
+      <div className="relative flex min-h-0 w-full flex-1 flex-col justify-between gap-3">
         {data.stages.map((stage, i) => (
           <div key={stage.key} className="group relative">
             {/* bar-wrapper: the % badge anchors to THIS (the bar), not the
@@ -47,7 +54,7 @@ export function FunnelChart({ data }: { data: FunnelData }) {
                 style={{
                   clipPath: CLIP_PATH[i],
                   background: STAGE_GRADIENT[i],
-                  borderRadius: 6,
+                  borderRadius: 7,
                   boxShadow: "inset 0 2px 0 rgba(255,255,255,0.4), inset 0 -10px 14px rgba(0,0,0,0.4)",
                   filter: "drop-shadow(0 8px 12px rgba(0,0,0,0.5))",
                 }}
