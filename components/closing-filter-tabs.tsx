@@ -33,7 +33,7 @@ export function ClosingFilterTabs({
 
   return (
     <div className="flex flex-wrap items-center gap-3">
-      <span className="text-[11px] font-semibold uppercase tracking-wide text-muted">Fechamentos</span>
+      <span className="text-[12px] font-bold uppercase tracking-wide text-secondary">Fechamentos</span>
 
       <div className="flex items-center gap-1 rounded-lg bg-black/20 p-1">
         {FILTERS.map((f) => (

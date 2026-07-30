@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { SDR_PHOTOS } from "@/lib/constants";
-import { EmptyPodiumSlot, Pedestal, PodiumShell, initials, PODIUM_MATERIAL, type PodiumRank } from "@/components/podium-shell";
+import { EmptyPodiumSlot, Pedestal, PodiumShell, CrownIcon, initials, PODIUM_MATERIAL, type PodiumRank } from "@/components/podium-shell";
 import { podiumTop3, type SdrStats } from "@/lib/metrics/sdrs";
 
 function SdrSlot({ rank, sdr }: { rank: PodiumRank; sdr?: SdrStats }) {
@@ -13,8 +13,8 @@ function SdrSlot({ rank, sdr }: { rank: PodiumRank; sdr?: SdrStats }) {
   return (
     <div className={`relative flex flex-col items-center gap-2.5 ${m.order}`}>
       {rank === 1 && (
-        <span className="absolute -top-8 text-3xl drop-shadow-[0_2px_10px_rgba(245,179,1,0.65)]" aria-hidden>
-          👑
+        <span className="absolute -top-7 text-gold drop-shadow-[0_2px_10px_rgba(245,179,1,0.65)]" aria-hidden>
+          <CrownIcon />
         </span>
       )}
       {photo ? (
@@ -49,7 +49,7 @@ export function SdrPodium({ sdrs }: { sdrs: SdrStats[] }) {
   const [s1, s2, s3] = podiumTop3(sdrs);
 
   return (
-    <PodiumShell title="Pódio SDRs">
+    <PodiumShell title="Pódio SDRs" subtitle="Ordenado por volume de reuniões (agendadas + realizadas)">
       <SdrSlot rank={2} sdr={s2} />
       <SdrSlot rank={1} sdr={s1} />
       <SdrSlot rank={3} sdr={s3} />

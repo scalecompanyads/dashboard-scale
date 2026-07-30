@@ -9,6 +9,16 @@ const TABS = [
   { href: "/marketing", label: "Marketing" },
 ] as const;
 
+function SignOutIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+      <path d="M16 17l5-5-5-5" />
+      <path d="M21 12H9" />
+    </svg>
+  );
+}
+
 export function TopBar({ userEmail, children }: { userEmail: string | null; children?: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
@@ -21,10 +31,10 @@ export function TopBar({ userEmail, children }: { userEmail: string | null; chil
 
   return (
     <div className="flex flex-wrap items-center justify-between gap-4 border-b border-hairline/70 px-1 pb-4">
-      <div className="flex flex-wrap items-center gap-6">
-        <Image src="/scale-logo.svg" alt="Scale Company" width={104} height={26} className="h-5 w-auto opacity-90" priority />
+      <div className="flex flex-wrap items-center gap-8">
+        <Image src="/scale-logo.svg" alt="Scale Company" width={140} height={35} className="h-7 w-auto opacity-95" priority />
 
-        <nav className="flex items-center gap-1">
+        <nav className="flex items-center gap-1.5">
           {TABS.map((tab) => {
             const active = pathname?.startsWith(tab.href);
             return (
@@ -32,30 +42,34 @@ export function TopBar({ userEmail, children }: { userEmail: string | null; chil
                 key={tab.href}
                 href={tab.href}
                 className={
-                  "relative rounded-md px-3 py-1.5 text-[13px] font-bold transition-all duration-200 " +
-                  (active ? "text-white" : "text-muted hover:text-white")
+                  "rounded-lg border px-3.5 py-1.5 text-[13px] font-bold transition-all duration-200 " +
+                  (active
+                    ? "border-accent-primary/50 bg-white/[0.06] text-white shadow-[0_0_14px_rgba(47,128,237,0.18)]"
+                    : "border-transparent text-muted hover:text-white")
                 }
               >
                 {tab.label}
-                {active && (
-                  <span
-                    className="absolute inset-x-3 -bottom-[17px] h-[2px] rounded-full bg-gradient-to-r from-accent-primary to-accent-light shadow-[0_0_10px_var(--accent-primary-glow)]"
-                    aria-hidden
-                  />
-                )}
               </Link>
             );
           })}
         </nav>
       </div>
 
-      <div className="flex flex-wrap items-center gap-4">
+      <div className="flex flex-wrap items-center gap-3">
         <div className="flex items-center gap-2.5">{children}</div>
-        {userEmail && <span className="hidden text-[12px] text-muted md:inline">{userEmail}</span>}
+        {userEmail && (
+          <div className="hidden items-center gap-2 rounded-lg border border-hairline bg-white/[0.02] py-1 pl-1 pr-3 md:flex">
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-accent-primary to-accent-light text-[10px] font-extrabold text-white">
+              {userEmail[0]?.toUpperCase()}
+            </span>
+            <span className="text-[12px] text-secondary">{userEmail}</span>
+          </div>
+        )}
         <button
           onClick={handleSignOut}
-          className="rounded-lg px-3 py-1.5 text-[12.5px] font-semibold text-secondary transition-all duration-200 hover:bg-white/[0.05] hover:text-white"
+          className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[12.5px] font-semibold text-secondary transition-all duration-200 hover:bg-white/[0.05] hover:text-white"
         >
+          <SignOutIcon />
           Sair
         </button>
       </div>

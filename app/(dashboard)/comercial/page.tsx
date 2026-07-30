@@ -71,7 +71,7 @@ export default async function ComercialPage({
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="animate-enter flex flex-wrap items-center justify-between gap-3">
+      <div className="animate-enter flex flex-wrap items-center justify-between gap-3 rounded-xl border border-hairline bg-white/[0.02] px-4 py-2.5">
         <ClosingFilterTabs filter={filter} dateFrom={dateFrom} dateTo={dateTo} />
         <MonthYearSelect year={year} month={month} />
       </div>
@@ -152,7 +152,7 @@ export default async function ComercialPage({
         </KpiCard>
       </KpiRow>
 
-      <div className="animate-enter grid grid-cols-1 gap-4 lg:h-[440px] lg:grid-cols-[6fr_7fr_7fr]" style={{ animationDelay: "440ms" }}>
+      <div className="animate-enter mt-2 grid grid-cols-1 gap-4 lg:h-[440px] lg:grid-cols-[34fr_32fr_34fr]" style={{ animationDelay: "440ms" }}>
         <FunnelChart data={funnel} />
         <SdrPodium sdrs={sdrs} />
         <ClosersPodium closers={closers} />
