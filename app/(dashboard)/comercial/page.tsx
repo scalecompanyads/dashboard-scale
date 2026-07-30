@@ -87,7 +87,7 @@ export default async function ComercialPage({
           featured
           label="TCV Fechado"
           value={<AnimatedNumber value={kpis.tcvTotal} format={{ type: "currency" }} />}
-          sub={`${kpis.tcvCount} contratos fechados`}
+          sub={`${kpis.tcvCount} contratos TCV`}
         >
           {prevKpis.tcvTotal > 0 && (
             <div className="flex justify-start">
@@ -99,7 +99,7 @@ export default async function ComercialPage({
           label="MRR Fechado"
           accent="primary"
           value={<AnimatedNumber value={kpis.mrrTotal} format={{ type: "currency" }} />}
-          sub={`${kpis.mrrCount} contratos fechados`}
+          sub={`${kpis.mrrCount} contratos MRR`}
         >
           {prevKpis.mrrTotal > 0 && (
             <div className="flex justify-start">
