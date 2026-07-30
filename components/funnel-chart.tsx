@@ -20,7 +20,7 @@ const CLIP_PATH = [
 
 export function FunnelChart({ data }: { data: FunnelData }) {
   return (
-    <div className="flex h-full flex-col rounded-card border border-hairline bg-surface-1 p-5 shadow-[0_6px_20px_rgba(0,0,0,0.35)] backdrop-blur-xl">
+    <div className="flex h-full flex-col rounded-card bg-white/[0.025] p-5 shadow-[0_8px_32px_rgba(0,0,0,0.5)] ring-1 ring-white/[0.05] backdrop-blur-2xl">
       <div className="mb-4 flex items-center justify-between">
         <h3 className="text-[14px] font-bold text-primary">Funil de Conversão</h3>
         <StatusBadge label={`${data.totalConversionPct.toFixed(1)}% conversão total`} tone={toneFromPct(data.totalConversionPct)} />

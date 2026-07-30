@@ -3,7 +3,7 @@
 // tables without duplicating the same class strings in each file.
 
 export const tableShellClass =
-  "flex h-full flex-col overflow-hidden rounded-card border border-hairline bg-surface-1 shadow-[0_8px_28px_rgba(0,0,0,0.45)] backdrop-blur-xl";
+  "flex h-full flex-col overflow-hidden rounded-card bg-surface-1 shadow-[0_8px_28px_rgba(0,0,0,0.45)] backdrop-blur-xl";
 
 export const tableHeaderWrapClass = "flex items-center justify-between border-b border-hairline px-5 py-3.5";
 

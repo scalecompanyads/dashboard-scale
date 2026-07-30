@@ -72,9 +72,9 @@ html {
 body {
   background-color: var(--color-canvas);
   background-image:
-    radial-gradient(circle at 12% 0%, rgba(47, 128, 237, 0.09), transparent 45%),
-    radial-gradient(circle at 88% 15%, rgba(96, 165, 250, 0.06), transparent 40%),
-    radial-gradient(circle at 30% 90%, rgba(47, 128, 237, 0.05), transparent 45%);
+    radial-gradient(circle at 12% 0%, rgba(47, 128, 237, 0.05), transparent 45%),
+    radial-gradient(circle at 88% 15%, rgba(96, 165, 250, 0.032), transparent 40%),
+    radial-gradient(circle at 30% 90%, rgba(47, 128, 237, 0.028), transparent 45%);
   color: var(--color-primary);
 }
 

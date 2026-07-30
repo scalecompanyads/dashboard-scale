@@ -44,7 +44,7 @@ export default async function MarketingPage({
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="flex flex-wrap items-center justify-end gap-3 rounded-card border border-hairline bg-surface-1 px-4 py-3">
+      <div className="flex flex-wrap items-center justify-end gap-3">
         <MonthYearSelect year={year} month={month} />
       </div>
 

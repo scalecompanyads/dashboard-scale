@@ -20,11 +20,11 @@ export function TopBar({ userEmail, children }: { userEmail: string | null; chil
   }
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-4 rounded-card border border-hairline bg-surface-1 px-4 py-2.5 shadow-[0_4px_20px_rgba(0,0,0,0.3)] backdrop-blur-xl">
-      <div className="flex flex-wrap items-center gap-5">
+    <div className="flex flex-wrap items-center justify-between gap-4 border-b border-hairline/70 px-1 pb-4">
+      <div className="flex flex-wrap items-center gap-6">
         <Image src="/scale-logo.svg" alt="Scale Company" width={104} height={26} className="h-5 w-auto opacity-90" priority />
 
-        <nav className="flex items-center gap-1 rounded-lg bg-black/20 p-1">
+        <nav className="flex items-center gap-1">
           {TABS.map((tab) => {
             const active = pathname?.startsWith(tab.href);
             return (
@@ -32,13 +32,17 @@ export function TopBar({ userEmail, children }: { userEmail: string | null; chil
                 key={tab.href}
                 href={tab.href}
                 className={
-                  "rounded-md px-3.5 py-1.5 text-[12.5px] font-bold transition-all duration-200 " +
-                  (active
-                    ? "bg-gradient-to-r from-accent-primary to-accent-light text-ink-strong shadow-[0_0_18px_var(--accent-primary-glow)]"
-                    : "text-secondary hover:text-white")
+                  "relative rounded-md px-3 py-1.5 text-[13px] font-bold transition-all duration-200 " +
+                  (active ? "text-white" : "text-muted hover:text-white")
                 }
               >
                 {tab.label}
+                {active && (
+                  <span
+                    className="absolute inset-x-3 -bottom-[17px] h-[2px] rounded-full bg-gradient-to-r from-accent-primary to-accent-light shadow-[0_0_10px_var(--accent-primary-glow)]"
+                    aria-hidden
+                  />
+                )}
               </Link>
             );
           })}
@@ -50,7 +54,7 @@ export function TopBar({ userEmail, children }: { userEmail: string | null; chil
         {userEmail && <span className="hidden text-[12px] text-muted md:inline">{userEmail}</span>}
         <button
           onClick={handleSignOut}
-          className="rounded-lg border border-hairline px-3.5 py-1.5 text-[12.5px] font-semibold text-secondary transition-all duration-200 hover:border-hairline-strong hover:bg-white/[0.04] hover:text-white"
+          className="rounded-lg px-3 py-1.5 text-[12.5px] font-semibold text-secondary transition-all duration-200 hover:bg-white/[0.05] hover:text-white"
         >
           Sair
         </button>

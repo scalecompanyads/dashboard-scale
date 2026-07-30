@@ -24,7 +24,7 @@ export function RevenueTrendChart({ points }: { points: RevenueTrendPoint[] }) {
   const gridValues = Array.from({ length: GRID_LINES + 1 }, (_, i) => (max / GRID_LINES) * i);
 
   return (
-    <div className="flex h-full flex-col rounded-card border border-hairline bg-surface-1 p-5 shadow-[0_6px_20px_rgba(0,0,0,0.35)] backdrop-blur-xl">
+    <div className="flex h-full flex-col rounded-card bg-surface-1 p-5 shadow-[0_6px_20px_rgba(0,0,0,0.35)] backdrop-blur-xl">
       <div className="mb-1 flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
         <h3 className="text-[14px] font-bold text-primary">Faturamento Fechado — Últimos Meses</h3>
         <div className="flex gap-5 text-right">

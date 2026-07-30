@@ -37,7 +37,7 @@ export function GoalCard({ monthKey, goalValue }: { monthKey: string; goalValue:
   }
 
   return (
-    <div className="group relative flex h-full min-w-0 flex-col overflow-hidden rounded-card border border-accent-primary/30 bg-surface-2 p-4 shadow-[0_10px_32px_rgba(0,0,0,0.45)] backdrop-blur-xl transition-all duration-200 hover:-translate-y-0.5 hover:border-accent-primary/50 hover:shadow-[0_16px_42px_rgba(0,0,0,0.55)]">
+    <div className="group relative flex h-full min-w-0 flex-col overflow-hidden rounded-card bg-surface-2 p-4 shadow-[0_10px_32px_rgba(0,0,0,0.45),0_0_0_1px_rgba(47,128,237,0.2)] backdrop-blur-xl transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_16px_42px_rgba(0,0,0,0.55),0_0_0_1px_rgba(47,128,237,0.35)]">
       <div
         className="pointer-events-none absolute -right-12 -top-16 h-44 w-44 rounded-full bg-gradient-to-br from-accent-primary via-accent-light to-transparent opacity-25 blur-3xl"
         aria-hidden

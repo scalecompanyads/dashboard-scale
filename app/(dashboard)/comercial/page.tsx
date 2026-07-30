@@ -72,7 +72,7 @@ export default async function ComercialPage({
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-card border border-hairline bg-surface-1 px-4 py-3">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <ClosingFilterTabs filter={filter} dateFrom={dateFrom} dateTo={dateTo} />
         <MonthYearSelect year={year} month={month} />
       </div>

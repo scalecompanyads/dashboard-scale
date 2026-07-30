@@ -37,10 +37,10 @@ export function KpiCard({
   return (
     <div
       className={
-        "group relative flex h-full min-w-0 flex-col overflow-hidden rounded-card border p-4 backdrop-blur-xl transition-all duration-200 hover:-translate-y-0.5 " +
+        "group relative flex h-full min-w-0 flex-col overflow-hidden rounded-card p-4 backdrop-blur-xl transition-all duration-200 hover:-translate-y-0.5 " +
         (featured
-          ? "border-accent-primary/30 bg-surface-2 shadow-[0_10px_32px_rgba(0,0,0,0.45)] hover:border-accent-primary/50 hover:shadow-[0_16px_42px_rgba(0,0,0,0.55)]"
-          : "border-hairline bg-surface-1 shadow-[0_6px_20px_rgba(0,0,0,0.35)] hover:border-hairline-strong")
+          ? "bg-surface-2 shadow-[0_10px_32px_rgba(0,0,0,0.45),0_0_0_1px_rgba(47,128,237,0.2)] hover:shadow-[0_16px_42px_rgba(0,0,0,0.55),0_0_0_1px_rgba(47,128,237,0.35)]"
+          : "bg-surface-1 shadow-[0_6px_20px_rgba(0,0,0,0.35)] hover:bg-surface-2/70")
       }
     >
       {featured && (

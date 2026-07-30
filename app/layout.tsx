@@ -25,7 +25,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <DotPattern
           cr={1}
           className={cn(
-            "fixed inset-0 -z-10 h-full w-full fill-accent-primary/22 md:fill-accent-primary/22",
+            "fixed inset-0 -z-10 h-full w-full fill-accent-primary/10 md:fill-accent-primary/10",
             "[mask-image:radial-gradient(ellipse_80%_60%_at_50%_-10%,white,transparent_75%)]"
           )}
         />
