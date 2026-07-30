@@ -55,6 +55,14 @@ export const SDR_PHOTOS: Record<string, string> = {
   henrique: "/henrique.jpg",
 };
 
+// Closer first-name (lowercase) -> photo in /public
+export const CLOSER_PHOTOS: Record<string, string> = {
+  gabriel: "/gabriel-dias.jpeg",
+  pedro: "/pedro-clarck.jpeg",
+  samuel: "/samuel.jpeg",
+  yakin: "/yakin.jpeg",
+};
+
 export const FIRST_DATA_MONTH = "2025-11"; // earliest month with a configured goal / Meta Ads backfill
 
 export function pad(n: number) {

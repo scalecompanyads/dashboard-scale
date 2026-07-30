@@ -18,7 +18,7 @@ import { ProgressIndicator } from "@/components/progress-indicator";
 import { FunnelChart } from "@/components/funnel-chart";
 import { RevenueTrendChart } from "@/components/revenue-trend-chart";
 import { ClosedDealsTable } from "@/components/closed-deals-table";
-import { ClosersTable } from "@/components/closers-table";
+import { ClosersPodium } from "@/components/closers-podium";
 import { SdrPodium } from "@/components/sdr-podium";
 
 const TREND_MONTHS = 12;
@@ -158,7 +158,7 @@ export default async function ComercialPage({
       </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <ClosersTable closers={closers} />
+        <ClosersPodium closers={closers} />
         <ClosedDealsTable closings={closings} />
       </div>
 
