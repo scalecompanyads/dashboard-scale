@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import { getAgendaByRange, getClosingsFiltered, getLeadsByEntryRange, type ClosingFilter } from "@/lib/data/leads";
+import { getAgendaByRange, getClosingsFiltered, getLeadsByEntryRange, filterByEntryCohort, type ClosingFilter } from "@/lib/data/leads";
 import { getGoal } from "@/lib/data/goals";
 import { calcKPIs } from "@/lib/metrics/kpis";
 import { calcClosers } from "@/lib/metrics/closers";
@@ -42,13 +42,19 @@ export default async function ComercialPage({
     prevYear -= 1;
   }
 
-  const [leads, agendaItems, closings, goal, prevClosings] = await Promise.all([
+  const [leadsRaw, agendaRaw, closings, goal, prevClosings] = await Promise.all([
     getLeadsByEntryRange(supabase, year, month),
     getAgendaByRange(supabase, year, month),
     getClosingsFiltered(supabase, year, month, filter, { from: dateFrom, to: dateTo }),
     getGoal(supabase, monthKey),
     getClosingsFiltered(supabase, prevYear, prevMonth, "all"),
   ]);
+
+  // Same cohort filter as closings ("Todos" / "Leads do mês" / "Outros
+  // meses") applied to leads/agenda too, so the funnel and podiums move
+  // together with the tab instead of only the closings-derived numbers.
+  const leads = filterByEntryCohort(leadsRaw, year, month, filter, { from: dateFrom, to: dateTo });
+  const agendaItems = filterByEntryCohort(agendaRaw, year, month, filter, { from: dateFrom, to: dateTo });
 
   const kpis = calcKPIs(leads, agendaItems, closings);
   const prevKpis = calcKPIs([], [], prevClosings);
