@@ -194,3 +194,61 @@ body {
   }
 }
 
+/* New-closing celebration (Clientes Fechados table) — pops in and pulses
+   a green success glow a few times, then settles back to the normal row
+   style once the highlight window in closed-deals-table.tsx clears it. */
+@keyframes new-deal-pop {
+  0% {
+    transform: scale(0.97);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.005);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+@keyframes new-deal-glow {
+  0%,
+  100% {
+    background-color: transparent;
+    box-shadow: inset 3px 0 0 transparent;
+  }
+  50% {
+    background-color: rgba(12, 163, 12, 0.14);
+    box-shadow: inset 3px 0 0 rgba(12, 163, 12, 0.85);
+  }
+}
+.row-new-deal {
+  animation:
+    new-deal-pop 400ms cubic-bezier(0.16, 1, 0.3, 1) both,
+    new-deal-glow 1.6s ease-in-out 3;
+}
+@keyframes new-deal-badge-pop {
+  0% {
+    transform: scale(0) rotate(-10deg);
+    opacity: 0;
+  }
+  65% {
+    transform: scale(1.18) rotate(4deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+.badge-new-deal {
+  animation: new-deal-badge-pop 500ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .row-new-deal,
+  .badge-new-deal {
+    animation: none;
+  }
+}
+
