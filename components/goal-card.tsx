@@ -66,7 +66,7 @@ export function GoalCard({ monthKey, goalValue, progressPct }: { monthKey: strin
 
       <div className="relative mb-1.5 flex w-full items-start justify-start gap-1.5">
         <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full" style={{ backgroundColor: "var(--color-status-good)", opacity: 0.55 }} aria-hidden />
-        <p className="line-clamp-2 text-left text-[clamp(10px,2.1cqw,12.5px)] font-bold uppercase leading-snug tracking-wide text-secondary">
+        <p className="line-clamp-2 text-left text-[clamp(10px,2.1cqw,15px)] font-bold uppercase leading-snug tracking-wide text-secondary">
           Meta do Mês
         </p>
       </div>
@@ -86,14 +86,14 @@ export function GoalCard({ monthKey, goalValue, progressPct }: { monthKey: strin
             if (e.key === "Escape") setEditing(false);
           }}
           className="relative w-full rounded-md border border-accent-primary bg-canvas px-2 py-1 text-left font-bold leading-none tabular-nums text-primary outline-none"
-          style={{ fontSize: "clamp(1.05rem, 12cqw, 3.4rem)" }}
+          style={{ fontSize: "clamp(1.05rem, 13cqw, 5rem)" }}
         />
       ) : (
         <button
           onClick={() => setEditing(true)}
           title={goalValue ? fmtBRL(goalValue) : undefined}
           className="relative overflow-hidden whitespace-nowrap rounded-md text-left font-extrabold leading-none tracking-tight tabular-nums text-primary transition-colors duration-200 hover:text-accent-light"
-          style={{ fontSize: "clamp(1.05rem, 12cqw, 3.4rem)" }}
+          style={{ fontSize: "clamp(1.05rem, 13cqw, 5rem)" }}
         >
           {/* compact by default ("R$ 150k") — metas costumam ser números
               redondos e grandes, então abrevia sempre em vez de arriscar
@@ -103,7 +103,7 @@ export function GoalCard({ monthKey, goalValue, progressPct }: { monthKey: strin
       )}
 
       {(editing || !goalValue) && (
-        <p className="relative mt-1 text-left text-[clamp(11px,2.4cqw,14px)] font-medium text-secondary">
+        <p className="relative mt-1 text-left text-[clamp(11px,2.4cqw,16px)] font-medium text-secondary">
           {editing ? "Enter para salvar · Esc para cancelar" : "nenhuma meta definida"}
         </p>
       )}

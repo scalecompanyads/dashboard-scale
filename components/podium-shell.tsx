@@ -141,7 +141,11 @@ export function Pedestal({ rank }: { rank: PodiumRank }) {
           <div className="relative flex h-full items-center justify-center">
             <span
               className="font-black leading-none"
-              style={{ color: m.numberColor, fontSize: rank === 4 ? 16 : 26, textShadow: "0 2px 6px rgba(0,0,0,0.45)" }}
+              style={{
+                color: m.numberColor,
+                fontSize: rank === 4 ? "clamp(13px,3cqw,19px)" : "clamp(18px,5cqw,30px)",
+                textShadow: "0 2px 6px rgba(0,0,0,0.45)",
+              }}
             >
               {rank}º
             </span>
@@ -162,9 +166,9 @@ export function EmptyPodiumSlot({ rank }: { rank: PodiumRank }) {
           <path d="M4 20c0-4.4 3.6-8 8-8s8 3.6 8 8" />
         </svg>
       </div>
-      <p className="text-[13px] font-bold text-primary">---</p>
-      <p className="text-xl font-black text-accent-light">—</p>
-      <p className="mb-1 text-[11px] font-semibold text-secondary">sem dados</p>
+      <p className="text-[clamp(13px,2.4cqw,17px)] font-bold text-primary">---</p>
+      <p className="text-[clamp(18px,5.5cqw,28px)] font-black text-accent-light">—</p>
+      <p className="mb-1 text-[clamp(11px,2cqw,14px)] font-semibold text-secondary">sem dados</p>
       <div className="opacity-50">
         <Pedestal rank={rank} />
       </div>
@@ -188,18 +192,24 @@ export function PodiumShell({
   children: React.ReactNode;
 }) {
   return (
-    <div className={`relative flex h-full flex-col overflow-hidden ${glassPanelClass} pb-3`} style={glassPanelStyle}>
+    <div
+      className={`relative flex h-full flex-col overflow-hidden ${glassPanelClass} pb-3`}
+      style={{ ...glassPanelStyle, containerType: "inline-size" }}
+    >
       {/* 1st place casts light straight up through the card, like the block is the light source */}
       <div className="pointer-events-none absolute bottom-0 left-1/2 h-[85%] w-36 -translate-x-1/2 bg-gradient-to-t from-accent-primary/45 via-accent-light/15 to-transparent blur-2xl" aria-hidden />
       {/* discreet radial glow behind 1st place specifically, higher up than the bottom light beam */}
       <div className="pointer-events-none absolute left-1/2 top-[38%] h-40 w-40 -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent-light/20 blur-3xl" aria-hidden />
 
       <div className="relative mb-3">
-        <h3 className="flex items-center gap-2 text-[13px] font-bold uppercase tracking-wide text-primary">
+        {/* cqw (container-query width, tied to this card's own rendered
+            width) instead of a flat px size — grows on a wide TV layout
+            without touching how it looks at normal desktop widths */}
+        <h3 className="flex items-center gap-2 text-[clamp(13px,2.2cqw,17px)] font-bold uppercase tracking-wide text-primary">
           <TrophyIcon className="text-gold" />
           {title}
         </h3>
-        {subtitle && <p className="mt-0.5 pl-[21px] text-[11px] font-medium text-muted">{subtitle}</p>}
+        {subtitle && <p className="mt-0.5 pl-[21px] text-[clamp(11px,1.8cqw,13px)] font-medium text-muted">{subtitle}</p>}
       </div>
 
       {/* pedestals sit close to the card's own bottom edge, as if rising

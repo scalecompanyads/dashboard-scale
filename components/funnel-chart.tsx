@@ -48,14 +48,19 @@ const gid = (name: string) => `funnel-${name}`;
 
 export function FunnelChart({ data }: { data: FunnelData }) {
   return (
-    <div className={`relative flex h-full flex-col overflow-hidden ${glassPanelClass}`} style={glassPanelStyle}>
+    <div
+      className={`relative flex h-full flex-col overflow-hidden ${glassPanelClass}`}
+      style={{ ...glassPanelStyle, containerType: "inline-size" }}
+    >
       <div className="relative mb-5 flex flex-wrap items-center justify-between gap-2">
-        <h3 className="flex items-center gap-2 text-[15px] font-bold text-primary">
+        {/* cqw (this card's own width) instead of a flat px size — grows on
+            a wide TV layout, doesn't move at normal desktop widths */}
+        <h3 className="flex items-center gap-2 text-[clamp(13px,2.6cqw,18px)] font-bold text-primary">
           <FunnelIcon className="text-accent-light drop-shadow-[0_0_6px_rgba(38,135,255,0.6)]" />
           Funil de Conversão
         </h3>
         <div
-          className="inline-flex items-center gap-1 rounded-full border px-3.5 py-2 text-[12px]"
+          className="inline-flex items-center gap-1 rounded-full border px-3.5 py-2 text-[clamp(11px,2cqw,14px)]"
           style={{
             borderColor: "rgba(50,139,255,0.45)",
             background: "rgba(13,40,75,0.65)",
@@ -71,7 +76,7 @@ export function FunnelChart({ data }: { data: FunnelData }) {
         <svg
           viewBox="28 35 324 435"
           className="h-auto shrink-0"
-          style={{ width: "min(280px, 48%)" }}
+          style={{ width: "min(340px, 48%)" }}
           preserveAspectRatio="xMidYMid meet"
           role="img"
           aria-label="Funil de conversão"
@@ -175,15 +180,15 @@ export function FunnelChart({ data }: { data: FunnelData }) {
                 <div className="min-w-0">
                   {stage.conversionFromPrevious !== null ? (
                     <>
-                      <p className="text-[15px] font-extrabold leading-tight" style={{ color: "#3391ff" }}>
+                      <p className="text-[clamp(13px,2.6cqw,18px)] font-extrabold leading-tight" style={{ color: "#3391ff" }}>
                         {stage.conversionFromPrevious.toFixed(1)}%
                       </p>
-                      <p className="truncate text-[12.5px] font-medium" style={{ color: "#b2bed0" }}>
+                      <p className="truncate text-[clamp(11px,2.2cqw,15px)] font-medium" style={{ color: "#b2bed0" }}>
                         {stage.label}
                       </p>
                     </>
                   ) : (
-                    <p className="truncate text-[15px] font-bold" style={{ color: "#f1f5f9" }}>
+                    <p className="truncate text-[clamp(13px,2.6cqw,18px)] font-bold" style={{ color: "#f1f5f9" }}>
                       {stage.label}
                     </p>
                   )}

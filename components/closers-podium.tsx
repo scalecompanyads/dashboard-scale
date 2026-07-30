@@ -35,15 +35,20 @@ function CloserSlot({ rank, closer }: { rank: PodiumRank; closer?: CloserStats }
           {initials(closer.name)}
         </div>
       )}
-      <p className="max-w-[100px] truncate text-[13px] font-bold text-primary">{closer.name.split(" ")[0]}</p>
+      <p className="max-w-[75cqw] truncate text-[clamp(13px,2.6cqw,17px)] font-bold text-primary">{closer.name.split(" ")[0]}</p>
       {/* hierarchy: valor fechado is what this podium is ranked by, so it's
           the loudest number here — conversão is a secondary badge, reuniões
-          is auxiliary supporting text, not competing for attention */}
-      <p className={rank === 1 ? "text-2xl font-black text-accent-light" : "text-lg font-black text-accent-light"}>
+          is auxiliary supporting text, not competing for attention. cqw
+          (relative to the podium card's own width) instead of a flat rem
+          size so it grows on a wide TV layout without moving on desktop. */}
+      <p
+        className="font-black text-accent-light"
+        style={{ fontSize: rank === 1 ? "clamp(20px,7cqw,34px)" : "clamp(16px,5cqw,24px)" }}
+      >
         {fmtBRLCompact(closer.mrr)}
       </p>
       <PctBadge num={closer.fechados} den={closer.reunioes} />
-      <p className="text-[10px] font-medium text-muted">
+      <p className="text-[clamp(10px,2cqw,13px)] font-medium text-muted">
         {closer.fechados} de {closer.reunioes} reuniões
       </p>
       <div className="mt-1">
@@ -76,9 +81,9 @@ function FourthPlaceRow({ closer }: { closer: CloserStats }) {
           {initials(closer.name)}
         </div>
       )}
-      <p className="truncate text-[12.5px] font-bold text-primary">{closer.name.split(" ")[0]}</p>
-      <span className="ml-auto shrink-0 text-[13px] font-black text-accent-light">{fmtBRLCompact(closer.mrr)}</span>
-      <span className="shrink-0 text-[11px] font-semibold text-secondary">{pct.toFixed(0)}% conversão</span>
+      <p className="truncate text-[clamp(12px,2.2cqw,15px)] font-bold text-primary">{closer.name.split(" ")[0]}</p>
+      <span className="ml-auto shrink-0 text-[clamp(13px,2.4cqw,16px)] font-black text-accent-light">{fmtBRLCompact(closer.mrr)}</span>
+      <span className="shrink-0 text-[clamp(11px,2cqw,13px)] font-semibold text-secondary">{pct.toFixed(0)}% conversão</span>
     </div>
   );
 }

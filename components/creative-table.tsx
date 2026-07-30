@@ -29,9 +29,9 @@ const COLUMNS = [
 // actually study row by row. The Criativo column stays left-aligned (name +
 // thumbnail read better that way than centered).
 const thClass =
-  "sticky top-0 z-10 whitespace-nowrap bg-surface-1 px-4 py-3 text-center text-[11.5px] font-bold uppercase tracking-wide text-muted backdrop-blur-xl";
+  "sticky top-0 z-10 whitespace-nowrap bg-surface-1 px-4 py-3 text-center text-[clamp(11.5px,0.75cqw,14px)] font-bold uppercase tracking-wide text-muted backdrop-blur-xl";
 const thLeftClass = `${thClass} text-left`;
-const tdClass = "whitespace-nowrap border-b border-hairline/70 px-4 py-3.5 text-center text-[14px]";
+const tdClass = "whitespace-nowrap border-b border-hairline/70 px-4 py-3.5 text-center text-[clamp(14px,0.9cqw,17px)]";
 const tdNum = `${tdClass} font-bold tabular-nums text-primary`;
 const tdNumMuted = `${tdClass} tabular-nums text-secondary`;
 

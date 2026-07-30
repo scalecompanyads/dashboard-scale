@@ -87,7 +87,7 @@ export function KpiCard({
           </span>
           <p
             className={`relative mb-1.5 line-clamp-2 w-full text-left font-bold uppercase leading-snug tracking-wide ${
-              featured ? "text-[clamp(11px,2.4cqw,14px)] text-primary" : "text-[clamp(10px,2.1cqw,12.5px)] text-secondary"
+              featured ? "text-[clamp(11px,2.4cqw,17px)] text-primary" : "text-[clamp(10px,2.1cqw,15px)] text-secondary"
             }`}
           >
             {label}
@@ -106,7 +106,7 @@ export function KpiCard({
           />
           <p
             className={`line-clamp-2 text-left font-bold uppercase leading-snug tracking-wide ${
-              featured ? "text-[clamp(11px,2.4cqw,14px)] text-primary" : "text-[clamp(10px,2.1cqw,12.5px)] text-secondary"
+              featured ? "text-[clamp(11px,2.4cqw,17px)] text-primary" : "text-[clamp(10px,2.1cqw,15px)] text-secondary"
             }`}
           >
             {label}
@@ -121,12 +121,12 @@ export function KpiCard({
           through via the icon/title treatment and glow, not value size. */}
       <p
         className={`relative w-full overflow-hidden whitespace-nowrap text-left font-extrabold leading-none tracking-tight tabular-nums ${VALUE_TEXT[valueColor ?? accent]}`}
-        style={{ fontSize: "clamp(1.05rem, 12cqw, 3.4rem)" }}
+        style={{ fontSize: "clamp(1.05rem, 13cqw, 5rem)" }}
       >
         {value}
       </p>
 
-      {sub && <p className="relative mt-1 w-full truncate text-left text-[clamp(11px,2.4cqw,14px)] font-medium text-secondary">{sub}</p>}
+      {sub && <p className="relative mt-1 w-full truncate text-left text-[clamp(11px,2.4cqw,16px)] font-medium text-secondary">{sub}</p>}
       {children}
     </CardSpotlight>
   );
