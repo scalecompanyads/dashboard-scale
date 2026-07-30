@@ -6,15 +6,16 @@
  * truth; components consume them via Tailwind utilities (bg-canvas,
  * text-secondary, rounded-card, etc.) instead of hardcoding hex/durations.
  *
- * Funnel ramp + status colors re-validated against this exact canvas
- * (#070A0F) with the dataviz skill's validator:
+ * Funnel ramp + status colors were validated against #070A0F (the
+ * previous canvas) with the dataviz skill's validator — a pure #000000
+ * canvas only increases contrast against every one of those foreground
+ * colors, so the same validation still holds:
  *   node scripts/validate_palette.js "#86b6ef,#3987e5,#256abf,#184f95" \
  *     --mode dark --surface "#070A0F" --ordinal   -> ALL CHECKS PASS
- * Status colors all clear 4:1+ contrast against #070A0F.
  */
 @theme {
   /* surfaces — glass: translúcidas sobre o fundo, não chapadas */
-  --color-canvas: #070a0f; /* fundo principal, leve tom azulado */
+  --color-canvas: #000000; /* fundo principal — totalmente preto */
   --color-bg-secondary: #0a0e15; /* fundo secundário */
   --color-surface-1: rgba(13, 18, 27, 0.64); /* cards */
   --color-surface-2: rgba(18, 27, 43, 0.74); /* cards em destaque */
