@@ -109,3 +109,13 @@ export function fmtBRL(v: number | null | undefined) {
     maximumFractionDigits: 0,
   }).format(v || 0);
 }
+
+// Compact form for tight spaces (chart labels): "R$ 143 mil", "R$ 1,2 mi".
+// Full precision stays available via fmtBRL for tooltips/titles.
+export function fmtBRLCompact(v: number | null | undefined) {
+  const value = v || 0;
+  const abs = Math.abs(value);
+  if (abs >= 1_000_000) return `R$ ${(value / 1_000_000).toFixed(1).replace(".", ",")} mi`;
+  if (abs >= 1_000) return `R$ ${(value / 1_000).toFixed(0)} mil`;
+  return fmtBRL(value);
+}

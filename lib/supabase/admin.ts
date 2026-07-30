@@ -1,11 +1,17 @@
-import "server-only";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/types/database.types";
 
 // Service-role client — bypasses RLS entirely. Used ONLY inside lib/sync/*
-// to write to leads / meta_ads_* / sync_runs / sync_state, which have no
-// insert/update policy for anon or authenticated roles. Never import this
-// from a component, page, or any client-reachable code path.
+// (and the standalone scripts/backfill-meta-ads.ts) to write to leads /
+// meta_ads_* / sync_runs / sync_state, which have no insert/update policy
+// for anon or authenticated roles. Never import this from a component,
+// page, or any client-reachable code path.
+//
+// Note: deliberately NOT using the `server-only` package here — its plain
+// Node/CJS fallback throws unconditionally outside Next's bundler, which
+// would break `npm run backfill:meta-ads` (a standalone tsx script). None
+// of these modules are ever imported from a Client Component (verified —
+// grep for it before reintroducing the import).
 let cachedAdmin: ReturnType<typeof createSupabaseClient<Database>> | null = null;
 
 export function createAdminClient() {

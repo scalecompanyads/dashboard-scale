@@ -1,4 +1,3 @@
-import "server-only";
 import { monthKeyOf } from "@/lib/constants";
 import { logSyncError, logSyncStart, logSyncSuccess } from "@/lib/sync/log";
 import { syncMetaAdsAccount, syncMetaAdsCreative } from "@/lib/sync/meta-ads";

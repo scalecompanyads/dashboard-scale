@@ -1,4 +1,3 @@
-import "server-only";
 import { monthRange } from "@/lib/constants";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { MetaAdsAccountRow, MetaAdsAdRow } from "@/lib/sync/types";

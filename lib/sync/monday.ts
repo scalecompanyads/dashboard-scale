@@ -1,4 +1,3 @@
-import "server-only";
 import { MONDAY_BOARD_ID, MONDAY_COL } from "@/lib/constants";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { Lead } from "@/lib/types/database.types";

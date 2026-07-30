@@ -28,13 +28,16 @@ export function GoalCard({ monthKey, goalValue }: { monthKey: string; goalValue:
   }
 
   return (
-    <div className="group relative flex h-full min-w-0 flex-col overflow-hidden rounded-2xl border border-hairline bg-surface-1 p-4 shadow-[0_8px_32px_rgba(0,0,0,0.5)] backdrop-blur-2xl transition hover:-translate-y-1 hover:shadow-[0_12px_48px_rgba(0,0,0,0.7)]">
-      <span
-        className="absolute inset-x-0 top-0 h-1 opacity-90"
-        style={{ background: "var(--color-status-good)", boxShadow: "0 2px 20px var(--color-status-good)66" }}
+    <div className="group relative flex h-full min-w-0 flex-col overflow-hidden rounded-2xl border border-hairline bg-surface-1 p-4 shadow-[0_8px_32px_rgba(0,0,0,0.5)] backdrop-blur-2xl transition duration-300 hover:-translate-y-1 hover:border-hairline-strong hover:shadow-[0_16px_48px_rgba(0,0,0,0.65)]">
+      <div
+        className="pointer-events-none absolute -left-8 -top-10 h-28 w-28 rounded-full bg-status-good opacity-[0.16] blur-2xl transition-opacity duration-300 group-hover:opacity-25"
         aria-hidden
       />
-      <p className="truncate text-[11px] font-bold uppercase tracking-wider text-muted">Meta do Mês</p>
+
+      <div className="relative flex items-center gap-2">
+        <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-status-good shadow-[0_0_8px_rgba(12,163,12,0.6)]" aria-hidden />
+        <p className="truncate text-[10.5px] font-bold uppercase tracking-wider text-muted">Meta do Mês</p>
+      </div>
 
       {editing ? (
         <input
@@ -50,18 +53,18 @@ export function GoalCard({ monthKey, goalValue }: { monthKey: string; goalValue:
             if (e.key === "Enter") (e.target as HTMLInputElement).blur();
             if (e.key === "Escape") setEditing(false);
           }}
-          className="mt-1 w-full rounded-lg border border-accent-primary bg-black/30 px-2 py-1 text-2xl font-extrabold text-primary shadow-[0_0_15px_var(--accent-primary-glow)] outline-none"
+          className="relative mt-2.5 w-full rounded-lg border border-accent-primary bg-black/30 px-2 py-1 text-[1.7rem] font-extrabold leading-none tabular-nums text-primary shadow-[0_0_15px_var(--accent-primary-glow)] outline-none"
         />
       ) : (
         <button
           onClick={() => setEditing(true)}
-          className="mt-1 -mx-1 truncate rounded-lg px-1 text-left text-2xl font-extrabold tracking-tight text-primary transition hover:bg-white/5"
+          className="relative -mx-1 mt-2.5 truncate rounded-lg px-1 text-left text-[1.7rem] font-extrabold leading-none tracking-tight tabular-nums text-primary transition hover:bg-white/5"
         >
           {goalValue ? fmtBRL(goalValue) : "—"}
         </button>
       )}
 
-      <p className="mt-1 text-xs font-medium text-accent-primary">
+      <p className="relative mt-2 text-[11px] font-medium text-accent-primary">
         {editing ? "Enter para salvar · Esc para cancelar" : "clique para editar"}
       </p>
     </div>
