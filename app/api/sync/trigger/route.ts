@@ -24,8 +24,16 @@ export async function POST() {
     return NextResponse.json({ error: "Não autenticado." }, { status: 401 });
   }
 
-  const results = await runFullSync({ triggeredBy: "manual", triggeredByUser: user.id });
-  const hasError = results.some((r) => !r.ok);
+  try {
+    const results = await runFullSync({ triggeredBy: "manual", triggeredByUser: user.id });
+    const hasError = results.some((r) => !r.ok);
 
-  return NextResponse.json({ results }, { status: hasError ? 207 : 200 });
+    return NextResponse.json({ results }, { status: hasError ? 207 : 200 });
+  } catch (err) {
+    // Belt-and-suspenders: runFullSync isolates per-source failures already,
+    // but if something outside that (e.g. a misconfigured admin client) still
+    // throws, surface a real error body instead of an opaque empty 500.
+    const message = err instanceof Error ? err.message : String(err);
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
 }

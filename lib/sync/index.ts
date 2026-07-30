@@ -55,13 +55,17 @@ export async function runFullSync(opts: {
 
   return Promise.all(
     tasks.map(async (task): Promise<SyncResult> => {
-      const runId = await logSyncStart(task.source, opts.triggeredBy, opts.triggeredByUser);
+      // runId itself can fail to obtain (e.g. admin client misconfigured) —
+      // guard the logSyncError call below so that failure doesn't also throw
+      // and take down the whole Promise.all with an unhandled rejection.
+      let runId: string | undefined;
       try {
+        runId = await logSyncStart(task.source, opts.triggeredBy, opts.triggeredByUser);
         const rows = await task.run();
         await logSyncSuccess(runId, task.source, rows);
         return { source: task.source, ok: true, rows };
       } catch (err) {
-        await logSyncError(runId, task.source, err);
+        if (runId) await logSyncError(runId, task.source, err);
         return { source: task.source, ok: false, error: formatSyncError(err) };
       }
     })
