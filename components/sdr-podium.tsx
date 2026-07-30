@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { SDR_PHOTOS } from "@/lib/constants";
+import { glassPanelClass, glassPanelStyle } from "@/lib/glass-panel";
 import { podiumTop3, type SdrStats } from "@/lib/metrics/sdrs";
 
 function initials(name: string) {
@@ -9,6 +10,19 @@ function initials(name: string) {
     .join("")
     .toUpperCase()
     .slice(0, 2);
+}
+
+function TrophyIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <path d="M8 4h8v5a4 4 0 0 1-8 0V4Z" />
+      <path d="M8 5H4.5a1 1 0 0 0-1 1.2c.4 1.9 1.6 3.5 3.5 4" />
+      <path d="M16 5h3.5a1 1 0 0 1 1 1.2c-.4 1.9-1.6 3.5-3.5 4" />
+      <path d="M10 13.5v2.5M14 13.5v2.5" />
+      <path d="M8.5 20.5h7" />
+      <path d="M9.5 16h5l.7 4.5h-6.4L9.5 16Z" />
+    </svg>
+  );
 }
 
 // Material per position — cylindrical "cap + front face" construction gives
@@ -64,19 +78,10 @@ function Pedestal({ rank }: { rank: 1 | 2 | 3 }) {
   const frontTop = m.capHeight / 2;
 
   return (
-    <div className="relative shrink-0" style={{ width: m.width, height: m.height + 10 }}>
-      {/* base contact shadow */}
-      <div
-        className="absolute -bottom-1 left-1/2 h-3 w-[88%] -translate-x-1/2 rounded-full bg-black/70 blur-md"
-        aria-hidden
-      />
+    <div className="relative shrink-0" style={{ width: m.width, height: m.height }}>
       <div className="absolute left-0 top-0" style={{ width: m.width, height: m.height, filter: m.dropShadow }}>
         {/* domed top */}
-        <div
-          className="absolute left-0 top-0 w-full rounded-[50%]"
-          style={{ height: m.capHeight, background: m.topGradient }}
-          aria-hidden
-        />
+        <div className="absolute left-0 top-0 w-full rounded-[50%]" style={{ height: m.capHeight, background: m.topGradient }} aria-hidden />
         {/* straight front face */}
         <div
           className="absolute left-0 w-full overflow-hidden rounded-b-xl"
@@ -89,10 +94,7 @@ function Pedestal({ rank }: { rank: 1 | 2 | 3 }) {
         >
           <div className="absolute inset-x-0 top-0 h-1/2" style={{ background: m.frontHighlight }} aria-hidden />
           <div className="relative flex h-full items-center justify-center">
-            <span
-              className="text-[26px] font-black leading-none"
-              style={{ color: m.numberColor, textShadow: "0 2px 6px rgba(0,0,0,0.45)" }}
-            >
+            <span className="text-[26px] font-black leading-none" style={{ color: m.numberColor, textShadow: "0 2px 6px rgba(0,0,0,0.45)" }}>
               {rank}º
             </span>
           </div>
@@ -159,24 +161,20 @@ export function SdrPodium({ sdrs }: { sdrs: SdrStats[] }) {
   const [s1, s2, s3] = podiumTop3(sdrs);
 
   return (
-    <div className="flex h-full flex-col rounded-card bg-white/[0.025] p-5 shadow-[0_8px_32px_rgba(0,0,0,0.5)] ring-1 ring-white/[0.05] backdrop-blur-2xl">
-      <h3 className="mb-4 flex items-center gap-2 text-[13px] font-bold uppercase tracking-wide text-primary">
-        <span className="text-gold" aria-hidden>
-          🏆
-        </span>
+    <div className={`relative flex h-full flex-col overflow-hidden ${glassPanelClass} pb-0`} style={glassPanelStyle}>
+      {/* 1st place casts light straight up through the card, like the block is the light source */}
+      <div className="pointer-events-none absolute bottom-0 left-1/2 h-[85%] w-36 -translate-x-1/2 bg-gradient-to-t from-accent-primary/45 via-accent-light/15 to-transparent blur-2xl" aria-hidden />
+
+      <h3 className="relative mb-4 flex items-center gap-2 text-[13px] font-bold uppercase tracking-wide text-primary">
+        <TrophyIcon className="text-gold" />
         Pódio SDRs
       </h3>
-      <div className="flex flex-1 flex-col justify-end">
-        <div className="flex items-end justify-center gap-7">
-          <PodiumSlot rank={2} sdr={s2} />
-          <PodiumSlot rank={1} sdr={s1} />
-          <PodiumSlot rank={3} sdr={s3} />
-        </div>
-        {/* luminous floor line */}
-        <div className="relative mx-auto mt-3 h-px w-full max-w-sm">
-          <div className="absolute inset-x-0 -top-1.5 h-3 bg-accent-primary/30 blur-md" aria-hidden />
-          <div className="h-px w-full bg-gradient-to-r from-transparent via-accent-light to-transparent" />
-        </div>
+
+      {/* pedestals sit flush with the card's own bottom edge, as if rising from inside it */}
+      <div className="relative flex flex-1 items-end justify-center gap-7">
+        <PodiumSlot rank={2} sdr={s2} />
+        <PodiumSlot rank={1} sdr={s1} />
+        <PodiumSlot rank={3} sdr={s3} />
       </div>
     </div>
   );

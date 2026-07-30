@@ -1,5 +1,6 @@
 import type { FunnelData } from "@/lib/metrics/funnel";
 import { StatusBadge, toneFromPct } from "@/components/status-badge";
+import { glassPanelClass, glassPanelStyle } from "@/lib/glass-panel";
 
 // One hue, monotone light -> dark — ordinal ramp validated against this
 // app's canvas with scripts/validate_palette.js --ordinal. Rendered as a
@@ -20,7 +21,7 @@ const CLIP_PATH = [
 
 export function FunnelChart({ data }: { data: FunnelData }) {
   return (
-    <div className="flex h-full flex-col rounded-card bg-white/[0.025] p-5 shadow-[0_8px_32px_rgba(0,0,0,0.5)] ring-1 ring-white/[0.05] backdrop-blur-2xl">
+    <div className={`flex h-full flex-col ${glassPanelClass}`} style={glassPanelStyle}>
       <div className="mb-4 flex items-center justify-between">
         <h3 className="text-[14px] font-bold text-primary">Funil de Conversão</h3>
         <StatusBadge label={`${data.totalConversionPct.toFixed(1)}% conversão total`} tone={toneFromPct(data.totalConversionPct)} />

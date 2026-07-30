@@ -43,21 +43,15 @@ export function GoalCard({ monthKey, goalValue }: { monthKey: string; goalValue:
         aria-hidden
       />
 
-      <div className="relative flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2">
-          <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-status-good shadow-[0_0_8px_rgba(12,163,12,0.7)]" aria-hidden />
-          <p className="truncate text-[11px] font-bold uppercase tracking-wide text-muted">Meta do Mês</p>
-        </div>
-        {!editing && (
-          <button
-            onClick={() => setEditing(true)}
-            aria-label="Editar meta do mês"
-            className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-muted opacity-0 transition-opacity duration-200 hover:bg-white/[0.06] hover:text-accent-light group-hover:opacity-100"
-          >
-            <EditIcon />
-          </button>
-        )}
-      </div>
+      {!editing && (
+        <button
+          onClick={() => setEditing(true)}
+          aria-label="Editar meta do mês"
+          className="absolute right-3 top-3 z-10 flex h-6 w-6 items-center justify-center rounded-md text-muted opacity-0 transition-opacity duration-200 hover:bg-white/[0.06] hover:text-accent-light group-hover:opacity-100"
+        >
+          <EditIcon />
+        </button>
+      )}
 
       {editing ? (
         <input
@@ -73,18 +67,20 @@ export function GoalCard({ monthKey, goalValue }: { monthKey: string; goalValue:
             if (e.key === "Enter") (e.target as HTMLInputElement).blur();
             if (e.key === "Escape") setEditing(false);
           }}
-          className="relative mt-2.5 w-full rounded-md border border-accent-primary bg-canvas px-2 py-1 text-[2rem] font-bold leading-none tabular-nums text-primary outline-none"
+          className="relative w-full rounded-md border border-accent-primary bg-canvas px-2 py-1 text-center text-[2rem] font-bold leading-none tabular-nums text-primary outline-none"
         />
       ) : (
         <button
           onClick={() => setEditing(true)}
-          className="relative -mx-1 mt-2.5 truncate rounded-md px-1 text-left text-[2rem] font-bold leading-none tracking-tight tabular-nums text-primary transition-colors duration-200 hover:text-accent-light"
+          className="relative truncate rounded-md text-center text-[2rem] font-extrabold leading-none tracking-tight tabular-nums text-primary transition-colors duration-200 hover:text-accent-light"
         >
           {goalValue ? fmtBRL(goalValue) : "—"}
         </button>
       )}
 
-      <p className="relative mt-2 text-[12px] font-medium text-secondary">
+      <p className="relative mt-2.5 truncate text-center text-[11px] font-bold uppercase tracking-wide text-muted">Meta do Mês</p>
+
+      <p className="relative mt-1 text-center text-[12px] font-medium text-secondary">
         {editing ? "Enter para salvar · Esc para cancelar" : goalValue ? "meta definida para o mês" : "nenhuma meta definida"}
       </p>
     </div>

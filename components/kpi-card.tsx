@@ -1,13 +1,5 @@
 export type KpiAccent = "primary" | "good" | "warning" | "critical" | "muted";
 
-const DOT: Record<KpiAccent, string> = {
-  primary: "bg-accent-primary shadow-[0_0_8px_var(--accent-primary-glow)]",
-  good: "bg-status-good shadow-[0_0_8px_rgba(12,163,12,0.7)]",
-  warning: "bg-status-warning shadow-[0_0_8px_rgba(250,178,25,0.7)]",
-  critical: "bg-status-critical shadow-[0_0_8px_rgba(208,59,59,0.7)]",
-  muted: "bg-muted",
-};
-
 const VALUE_TEXT: Record<KpiAccent, string> = {
   primary: "text-primary",
   good: "text-status-good",
@@ -50,16 +42,13 @@ export function KpiCard({
         />
       )}
 
-      <div className="relative flex items-center gap-2">
-        <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${DOT[accent]}`} aria-hidden />
-        <p className="truncate text-[11px] font-bold uppercase tracking-wide text-muted">{label}</p>
-      </div>
-
-      <p className={`relative mt-2.5 truncate text-[2rem] font-extrabold leading-none tracking-tight tabular-nums ${VALUE_TEXT[valueColor ?? accent]}`}>
+      <p className={`relative truncate text-center text-[2rem] font-extrabold leading-none tracking-tight tabular-nums ${VALUE_TEXT[valueColor ?? accent]}`}>
         {value}
       </p>
 
-      {sub && <p className="relative mt-2 truncate text-[12px] font-medium text-secondary">{sub}</p>}
+      <p className="relative mt-2.5 truncate text-center text-[11px] font-bold uppercase tracking-wide text-muted">{label}</p>
+
+      {sub && <p className="relative mt-1 truncate text-center text-[12px] font-medium text-secondary">{sub}</p>}
       {children}
     </div>
   );
