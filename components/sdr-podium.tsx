@@ -37,8 +37,11 @@ function SdrSlot({ rank, sdr }: { rank: PodiumRank; sdr?: SdrStats }) {
       )}
       <p className="max-w-[75cqw] truncate text-[clamp(13px,2.6cqw,17px)] font-bold text-primary">{sdr.name.split(" ")[0]}</p>
       <p className="text-[clamp(18px,5.5cqw,28px)] font-black text-accent-light">{pct.toFixed(1)}%</p>
-      <p className="mb-1 text-[clamp(11px,2.2cqw,14px)] font-semibold text-secondary">
+      <p className="text-[clamp(11px,2.2cqw,14px)] font-semibold text-secondary">
         {sdr.feitas} de {sdr.agendadas} ag.
+      </p>
+      <p className="mb-1 text-[clamp(10px,2cqw,13px)] font-medium text-muted">
+        {sdr.contratos} contrato{sdr.contratos === 1 ? "" : "s"}
       </p>
       <Pedestal rank={rank} />
     </div>

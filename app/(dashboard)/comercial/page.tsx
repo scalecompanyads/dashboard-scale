@@ -59,7 +59,7 @@ export default async function ComercialPage({
   const kpis = calcKPIs(leads, agendaItems, closings);
   const prevKpis = calcKPIs([], [], prevClosings);
   const closers = calcClosers(agendaItems, closings);
-  const sdrs = calcSDRs(agendaItems);
+  const sdrs = calcSDRs(agendaItems, closings);
   const funnel = buildFunnel(kpis);
 
   const metaPct = goal > 0 ? (kpis.tcvTotal / goal) * 100 : 0;
