@@ -11,35 +11,39 @@ function initials(name: string) {
     .slice(0, 2);
 }
 
+// Ring/glow is the same vivid blue for every position — gold is reserved
+// only for the #1 crown, and the podium block itself (not the avatar) is
+// what carries the medal color (blue for 1st, silver for 2nd, near-black
+// for 3rd).
 const RANK_STYLE = {
   1: {
     order: "order-2",
-    avatarSize: "h-20 w-20 text-2xl",
-    ring: "border-gold shadow-[0_0_28px_rgba(245,179,1,0.55)]",
-    blockHeight: "h-24",
-    blockGradient: "linear-gradient(180deg, var(--color-gold-light), var(--color-gold) 70%)",
-    blockText: "text-ink-strong",
-    pctColor: "text-gold-light",
+    avatarSize: "h-24 w-24 text-3xl",
+    ring: "border-accent-light shadow-[0_0_26px_var(--accent-primary-glow)]",
+    blockHeight: "h-28",
+    blockGradient: "linear-gradient(180deg, var(--color-accent-light), var(--color-accent-primary) 75%)",
+    blockGlow: "0_0_30px_rgba(47,128,237,0.55)",
+    blockText: "text-white",
     crown: true,
   },
   2: {
     order: "order-1",
-    avatarSize: "h-16 w-16 text-lg",
-    ring: "border-accent-light shadow-[0_0_20px_var(--accent-primary-glow)]",
+    avatarSize: "h-18 w-18 text-xl",
+    ring: "border-accent-light/80 shadow-[0_0_18px_var(--accent-primary-glow)]",
     blockHeight: "h-16",
-    blockGradient: "linear-gradient(180deg, var(--color-accent-light), var(--color-accent-primary) 70%)",
+    blockGradient: "linear-gradient(180deg, #e4eaf2, var(--color-silver) 80%)",
+    blockGlow: "0_0_16px_rgba(184,196,214,0.3)",
     blockText: "text-ink-strong",
-    pctColor: "text-accent-light",
     crown: false,
   },
   3: {
     order: "order-3",
-    avatarSize: "h-16 w-16 text-lg",
-    ring: "border-silver shadow-[0_0_16px_rgba(184,196,214,0.4)]",
+    avatarSize: "h-18 w-18 text-xl",
+    ring: "border-accent-light/60 shadow-[0_0_14px_var(--accent-primary-glow)]",
     blockHeight: "h-10",
-    blockGradient: "linear-gradient(180deg, #d8e1ee, var(--color-silver) 70%)",
-    blockText: "text-ink-strong",
-    pctColor: "text-silver",
+    blockGradient: "linear-gradient(180deg, #1a2436, #0a0f18 85%)",
+    blockGlow: "0_0_12px_rgba(0,0,0,0.4)",
+    blockText: "text-secondary",
     crown: false,
   },
 } as const;
@@ -49,16 +53,21 @@ function PodiumSlot({ rank, sdr }: { rank: 1 | 2 | 3; sdr?: SdrStats }) {
 
   if (!sdr) {
     return (
-      <div className={`flex flex-col items-center gap-2 ${style.order}`}>
-        <div className={`flex items-center justify-center rounded-full border-4 border-hairline-strong text-muted ${style.avatarSize}`}>
-          👤
-        </div>
-        <p className="text-xs font-bold text-primary">---</p>
-        <p className="text-sm font-black text-muted">0%</p>
-        <p className="text-[10px] font-semibold text-secondary">0 de 0 ag.</p>
+      <div className={`flex flex-col items-center gap-2.5 ${style.order}`}>
         <div
-          className={`flex w-16 items-start justify-center rounded-t-xl pt-1.5 text-lg font-black text-secondary opacity-40 ${style.blockHeight}`}
-          style={{ background: "var(--color-hairline)" }}
+          className={`flex items-center justify-center rounded-full border-[3px] bg-surface-2 text-accent-light ${style.ring} ${style.avatarSize}`}
+        >
+          <svg viewBox="0 0 24 24" width="42%" height="42%" fill="currentColor">
+            <circle cx="12" cy="8" r="4" />
+            <path d="M4 20c0-4.4 3.6-8 8-8s8 3.6 8 8" />
+          </svg>
+        </div>
+        <p className="text-[13px] font-bold text-primary">---</p>
+        <p className="text-xl font-black text-accent-light">0%</p>
+        <p className="text-[11px] font-semibold text-secondary">0 de 0 ag.</p>
+        <div
+          className={`flex w-[72px] items-start justify-center rounded-t-xl pt-2 text-xl font-black opacity-70 ${style.blockHeight} ${style.blockText}`}
+          style={{ background: style.blockGradient, boxShadow: `inset 0 2px 10px rgba(255,255,255,0.15), ${style.blockGlow}` }}
         >
           {rank}º
         </div>
@@ -70,27 +79,31 @@ function PodiumSlot({ rank, sdr }: { rank: 1 | 2 | 3; sdr?: SdrStats }) {
   const photo = SDR_PHOTOS[sdr.name.toLowerCase().split(" ")[0]];
 
   return (
-    <div className={`relative flex flex-col items-center gap-2 ${style.order}`}>
-      {style.crown && <span className="text-xl drop-shadow-[0_2px_8px_rgba(245,179,1,0.6)]">👑</span>}
+    <div className={`relative flex flex-col items-center gap-2.5 ${style.order}`}>
+      {style.crown && (
+        <span className="absolute -top-8 text-3xl drop-shadow-[0_2px_10px_rgba(245,179,1,0.65)]" aria-hidden>
+          👑
+        </span>
+      )}
       {photo ? (
         <div className={`overflow-hidden rounded-full border-[3px] bg-canvas ${style.ring} ${style.avatarSize}`}>
-          <Image src={photo} alt={sdr.name} width={80} height={80} className="h-full w-full object-cover" />
+          <Image src={photo} alt={sdr.name} width={96} height={96} className="h-full w-full object-cover" />
         </div>
       ) : (
         <div
-          className={`flex items-center justify-center rounded-full border-[3px] bg-gradient-to-br from-accent-primary to-accent-light font-extrabold text-ink-strong ${style.ring} ${style.avatarSize}`}
+          className={`flex items-center justify-center rounded-full border-[3px] bg-gradient-to-br from-accent-primary to-accent-light font-extrabold text-white ${style.ring} ${style.avatarSize}`}
         >
           {initials(sdr.name)}
         </div>
       )}
-      <p className="max-w-[100px] truncate text-xs font-bold text-primary">{sdr.name.split(" ")[0]}</p>
-      <p className={`text-lg font-black ${style.pctColor}`}>{pct.toFixed(1)}%</p>
-      <p className="text-[10px] font-semibold text-secondary">
+      <p className="max-w-[110px] truncate text-[13px] font-bold text-primary">{sdr.name.split(" ")[0]}</p>
+      <p className="text-xl font-black text-accent-light">{pct.toFixed(1)}%</p>
+      <p className="text-[11px] font-semibold text-secondary">
         {sdr.feitas} de {sdr.agendadas} ag.
       </p>
       <div
-        className={`flex w-16 items-start justify-center rounded-t-xl pt-1.5 text-lg font-black shadow-[inset_0_2px_10px_rgba(255,255,255,0.25),0_-4px_20px_rgba(0,0,0,0.25)] ${style.blockHeight} ${style.blockText}`}
-        style={{ background: style.blockGradient }}
+        className={`flex w-[72px] items-start justify-center rounded-t-xl pt-2 text-xl font-black ${style.blockHeight} ${style.blockText}`}
+        style={{ background: style.blockGradient, boxShadow: `inset 0 2px 10px rgba(255,255,255,0.2), ${style.blockGlow}` }}
       >
         {rank}º
       </div>
@@ -103,8 +116,13 @@ export function SdrPodium({ sdrs }: { sdrs: SdrStats[] }) {
 
   return (
     <div className="flex h-full flex-col rounded-card border border-hairline bg-surface-1 p-5 shadow-[0_6px_20px_rgba(0,0,0,0.35)] backdrop-blur-xl">
-      <h3 className="mb-2 text-center text-[14px] font-bold text-primary">Ranking de SDRs</h3>
-      <div className="flex flex-1 items-end justify-center gap-8">
+      <h3 className="mb-4 flex items-center gap-2 text-[13px] font-bold uppercase tracking-wide text-primary">
+        <span className="text-gold" aria-hidden>
+          🏆
+        </span>
+        Pódio SDRs
+      </h3>
+      <div className="flex flex-1 items-end justify-center gap-9">
         <PodiumSlot rank={2} sdr={s2} />
         <PodiumSlot rank={1} sdr={s1} />
         <PodiumSlot rank={3} sdr={s3} />
