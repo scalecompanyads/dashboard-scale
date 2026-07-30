@@ -47,6 +47,8 @@ export function calcMarketingKPIs(
 
 export interface CreativeRow {
   name: string;
+  /** Meta ad_id, when this creative matched a row in meta_ads_creative_insights — used to look up its thumbnail. */
+  adId: string | null;
   spend: number;
   leads: number;
   agendamentos: number;
@@ -61,12 +63,12 @@ export interface CreativeRow {
 }
 
 // Ported from aggregateByCreative() in the legacy dashboard. `adSpendByName`
-// comes from meta_ads_creative_insights for the selected month (ad_name -> spend).
+// comes from meta_ads_creative_insights for the selected month (ad_name -> spend + ad_id).
 export function aggregateByCreative(
   leadsMeta: Lead[],
   agendaMeta: Lead[],
   closingsMeta: Lead[],
-  adSpendByName: Map<string, number>
+  adSpendByName: Map<string, { spend: number; adId: string }>
 ): CreativeRow[] {
   const rows = new Map<string, Omit<CreativeRow, "cpl" | "custoAgendamento" | "custoComparecimento" | "cac" | "roas">>();
   const norm = (s: string | null | undefined) => (s ?? "").trim() || "Sem criativo";
@@ -74,7 +76,7 @@ export function aggregateByCreative(
   const ensure = (name: string | null | undefined) => {
     const k = keyOf(name);
     if (!rows.has(k)) {
-      rows.set(k, { name: norm(name), spend: 0, leads: 0, agendamentos: 0, comparecimentos: 0, fechamentos: 0, valorFechado: 0 });
+      rows.set(k, { name: norm(name), adId: null, spend: 0, leads: 0, agendamentos: 0, comparecimentos: 0, fechamentos: 0, valorFechado: 0 });
     }
     return rows.get(k)!;
   };
@@ -93,7 +95,11 @@ export function aggregateByCreative(
     r.valorFechado += item.mrr_value ?? 0;
   }
 
-  for (const [adName, spend] of adSpendByName) ensure(adName).spend += spend;
+  for (const [adName, info] of adSpendByName) {
+    const r = ensure(adName);
+    r.spend += info.spend;
+    r.adId = info.adId;
+  }
 
   return [...rows.values()]
     .map((r) => ({

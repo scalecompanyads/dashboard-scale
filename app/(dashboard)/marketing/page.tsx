@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { getAgendaByRange, getClosingsFiltered, getLeadsByEntryRange } from "@/lib/data/leads";
-import { getMetaAdsAccountInsight, getMetaAdsCreativeSpend } from "@/lib/data/meta-ads";
+import { getMetaAdsAccountInsight, getMetaAdsCreativeSpend, getCreativeThumbnails } from "@/lib/data/meta-ads";
 import { calcMarketingKPIs, aggregateByCreative } from "@/lib/metrics/marketing";
 import { monthKeyOf, ORIGEM_META_ADS, MONTHS } from "@/lib/constants";
 import { MonthYearSelect } from "@/components/month-year-select";
@@ -60,6 +60,9 @@ export default async function MarketingPage({
 
   const k = calcMarketingKPIs(adAccount, leadsMeta, agendaMeta, closingsMeta);
   const creatives = aggregateByCreative(leadsMeta, agendaMeta, closingsMeta, adCreativeSpend);
+  // Fetched after the creatives are known — needs their ad_ids first, so it
+  // can't join the initial Promise.all above.
+  const thumbnails = await getCreativeThumbnails(creatives.map((c) => c.adId).filter((id): id is string => !!id));
 
   const label = `${MONTHS[month - 1]} ${year}`;
   const roasColor = k.roas >= 3 ? "good" : k.roas >= 1 ? "warning" : "critical";
@@ -136,7 +139,7 @@ export default async function MarketingPage({
       </KpiRow>
 
       <div className="animate-enter min-h-[420px] flex-1" style={{ animationDelay: "560ms" }}>
-        <CreativeTable creatives={creatives} />
+        <CreativeTable creatives={creatives} thumbnails={thumbnails} />
       </div>
     </div>
   );
