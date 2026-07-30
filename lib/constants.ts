@@ -110,12 +110,13 @@ export function fmtBRL(v: number | null | undefined) {
   }).format(v || 0);
 }
 
-// Compact form for tight spaces (chart labels): "R$ 143 mil", "R$ 1,2 mi".
+// Compact form for tight spaces (chart labels, KPI cards that would
+// otherwise need to shrink below a readable size): "R$ 150k", "R$ 1,4M".
 // Full precision stays available via fmtBRL for tooltips/titles.
 export function fmtBRLCompact(v: number | null | undefined) {
   const value = v || 0;
   const abs = Math.abs(value);
-  if (abs >= 1_000_000) return `R$ ${(value / 1_000_000).toFixed(1).replace(".", ",")} mi`;
-  if (abs >= 1_000) return `R$ ${(value / 1_000).toFixed(0)} mil`;
+  if (abs >= 1_000_000) return `R$ ${(value / 1_000_000).toFixed(1).replace(".", ",").replace(",0", "")}M`;
+  if (abs >= 1_000) return `R$ ${(value / 1_000).toFixed(0)}k`;
   return fmtBRL(value);
 }

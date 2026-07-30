@@ -82,9 +82,10 @@ function Pedestal({ rank }: { rank: 1 | 2 | 3 }) {
       <div className="absolute left-0 top-0" style={{ width: m.width, height: m.height, filter: m.dropShadow }}>
         {/* domed top */}
         <div className="absolute left-0 top-0 w-full rounded-[50%]" style={{ height: m.capHeight, background: m.topGradient }} aria-hidden />
-        {/* straight front face */}
+        {/* straight front face — square bottom corners, since the pedestal
+            is meant to look like it continues down into the card's floor */}
         <div
-          className="absolute left-0 w-full overflow-hidden rounded-b-xl"
+          className="absolute left-0 w-full overflow-hidden"
           style={{
             top: frontTop,
             height: m.height - frontTop,

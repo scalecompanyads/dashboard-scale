@@ -25,9 +25,18 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         {/* Ambient neon blobs — sit behind the glass cards so their
             backdrop-blur has real color to pick up instead of blurring flat black. */}
         <div className="pointer-events-none fixed inset-0 -z-20 overflow-hidden">
-          <div className="animate-drift-a absolute -left-24 -top-32 h-[420px] w-[420px] rounded-full bg-accent-primary/25 blur-[120px]" />
-          <div className="animate-drift-b absolute -right-32 top-1/4 h-[380px] w-[380px] rounded-full bg-accent-light/20 blur-[130px]" />
-          <div className="animate-drift-c absolute bottom-[-15%] left-1/3 h-[440px] w-[440px] rounded-full bg-accent-primary/15 blur-[140px]" />
+          <div
+            className="absolute -left-24 -top-32 h-[420px] w-[420px] rounded-full bg-accent-primary/25 blur-[120px]"
+            style={{ animation: "drift-a 18s ease-in-out infinite", willChange: "transform" }}
+          />
+          <div
+            className="absolute -right-32 top-1/4 h-[380px] w-[380px] rounded-full bg-accent-light/20 blur-[130px]"
+            style={{ animation: "drift-b 22s ease-in-out infinite", willChange: "transform" }}
+          />
+          <div
+            className="absolute bottom-[-15%] left-1/3 h-[440px] w-[440px] rounded-full bg-accent-primary/15 blur-[140px]"
+            style={{ animation: "drift-c 26s ease-in-out infinite", willChange: "transform" }}
+          />
         </div>
         <DotPattern
           cr={1}

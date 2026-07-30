@@ -92,20 +92,21 @@ body {
 
 /* Ambient neon blobs (app/layout.tsx) — slow, organic drift so the
    background never feels static. Each blob uses a differently-shaped path
-   and duration so they don't move in sync. */
+   and duration so they don't move in sync. Amplitude is large (120-200px)
+   because heavy blur (120-140px) hides small translations almost entirely. */
 @keyframes drift-a {
   0%,
   100% {
     transform: translate(0, 0) scale(1);
   }
   25% {
-    transform: translate(60px, 40px) scale(1.1);
+    transform: translate(160px, 90px) scale(1.15);
   }
   50% {
-    transform: translate(-30px, 80px) scale(0.94);
+    transform: translate(-70px, 180px) scale(0.88);
   }
   75% {
-    transform: translate(-60px, -20px) scale(1.05);
+    transform: translate(-150px, -60px) scale(1.08);
   }
 }
 @keyframes drift-b {
@@ -114,10 +115,10 @@ body {
     transform: translate(0, 0) scale(1);
   }
   33% {
-    transform: translate(-70px, 50px) scale(1.12);
+    transform: translate(-180px, 120px) scale(1.2);
   }
   66% {
-    transform: translate(45px, -45px) scale(0.9);
+    transform: translate(120px, -110px) scale(0.85);
   }
 }
 @keyframes drift-c {
@@ -126,19 +127,10 @@ body {
     transform: translate(0, 0) scale(1);
   }
   30% {
-    transform: translate(50px, -55px) scale(1.08);
+    transform: translate(130px, -140px) scale(1.12);
   }
   60% {
-    transform: translate(-65px, 25px) scale(0.92);
+    transform: translate(-160px, 70px) scale(0.86);
   }
 }
 
-.animate-drift-a {
-  animation: drift-a 26s ease-in-out infinite;
-}
-.animate-drift-b {
-  animation: drift-b 32s ease-in-out infinite;
-}
-.animate-drift-c {
-  animation: drift-c 38s ease-in-out infinite;
-}
