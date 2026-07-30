@@ -69,9 +69,23 @@ export const PODIUM_MATERIAL = {
     dropShadow: "drop-shadow(0 12px 16px rgba(0,0,0,0.5))",
     numberColor: "#c7cdd6",
   },
+  4: {
+    order: "order-4",
+    avatarSize: "h-14 w-14 text-base",
+    ring: "border-hairline-strong shadow-none",
+    width: 76,
+    height: 40,
+    capHeight: 14,
+    topGradient: "linear-gradient(135deg, #3a3f46 0%, #282c31 55%, #16181b 100%)",
+    frontGradient: "linear-gradient(180deg, #1e2125 0%, #17191c 55%, #0a0b0c 100%)",
+    frontHighlight: "linear-gradient(180deg, rgba(255,255,255,0.08), transparent 45%)",
+    edgeGlow: "inset 0 1px 0 rgba(255,255,255,0.1), inset 0 0 10px rgba(0,0,0,0.3)",
+    dropShadow: "drop-shadow(0 8px 12px rgba(0,0,0,0.45))",
+    numberColor: "#8a92a0",
+  },
 } as const;
 
-export type PodiumRank = 1 | 2 | 3;
+export type PodiumRank = 1 | 2 | 3 | 4;
 
 export function Pedestal({ rank }: { rank: PodiumRank }) {
   const m = PODIUM_MATERIAL[rank];
@@ -95,7 +109,10 @@ export function Pedestal({ rank }: { rank: PodiumRank }) {
         >
           <div className="absolute inset-x-0 top-0 h-1/2" style={{ background: m.frontHighlight }} aria-hidden />
           <div className="relative flex h-full items-center justify-center">
-            <span className="text-[26px] font-black leading-none" style={{ color: m.numberColor, textShadow: "0 2px 6px rgba(0,0,0,0.45)" }}>
+            <span
+              className="font-black leading-none"
+              style={{ color: m.numberColor, fontSize: rank === 4 ? 16 : 26, textShadow: "0 2px 6px rgba(0,0,0,0.45)" }}
+            >
               {rank}º
             </span>
           </div>
@@ -125,7 +142,7 @@ export function EmptyPodiumSlot({ rank }: { rank: PodiumRank }) {
   );
 }
 
-export function PodiumShell({ title, children }: { title: string; children: React.ReactNode }) {
+export function PodiumShell({ title, gap = "gap-7", children }: { title: string; gap?: string; children: React.ReactNode }) {
   return (
     <div className={`relative flex h-full flex-col overflow-hidden ${glassPanelClass} pb-0`} style={glassPanelStyle}>
       {/* 1st place casts light straight up through the card, like the block is the light source */}
@@ -137,7 +154,7 @@ export function PodiumShell({ title, children }: { title: string; children: Reac
       </h3>
 
       {/* pedestals sit flush with the card's own bottom edge, as if rising from inside it */}
-      <div className="relative flex flex-1 items-end justify-center gap-7">{children}</div>
+      <div className={`relative flex flex-1 items-end justify-center ${gap}`}>{children}</div>
     </div>
   );
 }

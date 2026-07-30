@@ -19,7 +19,14 @@ function SdrSlot({ rank, sdr }: { rank: PodiumRank; sdr?: SdrStats }) {
       )}
       {photo ? (
         <div className={`overflow-hidden rounded-full border-[3px] bg-canvas ${m.ring} ${m.avatarSize}`}>
-          <Image src={photo} alt={sdr.name} width={96} height={96} className="h-full w-full object-cover" />
+          <Image
+            src={photo.src}
+            alt={sdr.name}
+            width={96}
+            height={96}
+            className="h-full w-full object-cover"
+            style={{ objectPosition: photo.position }}
+          />
         </div>
       ) : (
         <div

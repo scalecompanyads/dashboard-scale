@@ -48,19 +48,25 @@ export const MONTHS = [
   "Dezembro",
 ] as const;
 
+export interface PersonPhoto {
+  src: string;
+  /** CSS object-position — lets a headshot be nudged so the face isn't cropped in the circular avatar. */
+  position?: string;
+}
+
 // SDR first-name (lowercase) -> photo in /public
-export const SDR_PHOTOS: Record<string, string> = {
-  josé: "/jose.jpg",
-  jose: "/jose.jpg",
-  henrique: "/henrique.jpg",
+export const SDR_PHOTOS: Record<string, PersonPhoto> = {
+  josé: { src: "/jose-novo.jpeg", position: "center 25%" },
+  jose: { src: "/jose-novo.jpeg", position: "center 25%" },
+  henrique: { src: "/henrique-novo.jpg", position: "center 25%" },
 };
 
 // Closer first-name (lowercase) -> photo in /public
-export const CLOSER_PHOTOS: Record<string, string> = {
-  gabriel: "/gabriel-dias.jpeg",
-  pedro: "/pedro-clarck.jpeg",
-  samuel: "/samuel.jpeg",
-  yakin: "/yakin.jpeg",
+export const CLOSER_PHOTOS: Record<string, PersonPhoto> = {
+  gabriel: { src: "/gabriel-dias.jpeg" },
+  pedro: { src: "/pedro-clarck.jpeg", position: "center 25%" },
+  samuel: { src: "/samuel.jpeg", position: "center 25%" },
+  yakin: { src: "/yakin.jpeg" },
 };
 
 export const FIRST_DATA_MONTH = "2025-11"; // earliest month with a configured goal / Meta Ads backfill

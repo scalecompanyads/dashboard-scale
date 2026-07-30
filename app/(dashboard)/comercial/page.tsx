@@ -154,11 +154,11 @@ export default async function ComercialPage({
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <FunnelChart data={funnel} />
-        <SdrPodium sdrs={sdrs} />
+        <ClosersPodium closers={closers} />
       </div>
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <ClosersPodium closers={closers} />
+      <div className="grid grid-cols-1 gap-4 lg:h-[440px] lg:grid-cols-2">
+        <SdrPodium sdrs={sdrs} />
         <ClosedDealsTable closings={closings} />
       </div>
 
