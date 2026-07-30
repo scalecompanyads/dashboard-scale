@@ -78,15 +78,23 @@ export function KpiCard({
         aria-hidden
       />
 
-      {/* icon + title share one row (not icon-above-title) to keep the
-          card compact — every metric card carries an icon now, so this is
-          the accent cue; the plain dot only covers the rare icon-less case */}
-      <div className="relative mb-1.5 flex w-full items-start justify-start gap-1.5">
-        {icon ? (
-          <span className={`mt-px flex h-5 w-5 shrink-0 items-center justify-center rounded-md ${ICON_BADGE[accent]}`}>
-            <span className="[&>svg]:h-3 [&>svg]:w-3">{icon}</span>
+      {icon ? (
+        // icon sits above the title (its own row) with real breathing room
+        // below it — cramming it beside the title left them touching
+        <>
+          <span className={`relative mb-2 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${ICON_BADGE[accent]}`}>
+            <span className="[&>svg]:h-4 [&>svg]:w-4">{icon}</span>
           </span>
-        ) : (
+          <p
+            className={`relative mb-1.5 line-clamp-2 w-full text-left font-bold uppercase leading-snug tracking-wide ${
+              featured ? "text-[clamp(11px,2.4cqw,14px)] text-primary" : "text-[clamp(10px,2.1cqw,12.5px)] text-secondary"
+            }`}
+          >
+            {label}
+          </p>
+        </>
+      ) : (
+        <div className="relative mb-1.5 flex w-full items-start justify-start gap-1.5">
           <span
             className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full"
             style={
@@ -96,15 +104,15 @@ export function KpiCard({
             }
             aria-hidden
           />
-        )}
-        <p
-          className={`line-clamp-2 text-left font-bold uppercase leading-snug tracking-wide ${
-            featured ? "text-[clamp(11px,2.4cqw,14px)] text-primary" : "text-[clamp(10px,2.1cqw,12.5px)] text-secondary"
-          }`}
-        >
-          {label}
-        </p>
-      </div>
+          <p
+            className={`line-clamp-2 text-left font-bold uppercase leading-snug tracking-wide ${
+              featured ? "text-[clamp(11px,2.4cqw,14px)] text-primary" : "text-[clamp(10px,2.1cqw,12.5px)] text-secondary"
+            }`}
+          >
+            {label}
+          </p>
+        </div>
+      )}
 
       {/* fluid, container-relative size: shrinks to fit narrow grid columns
           (never truncates/ellipsis) and grows well past the old fixed cap
