@@ -6,7 +6,7 @@ import type { ClosingFilter } from "@/lib/data/leads";
 const FILTERS: { value: ClosingFilter; label: string }[] = [
   { value: "all", label: "Todos" },
   { value: "mesmo_mes", label: "Leads do mês" },
-  { value: "outros_meses", label: "Leads de outros meses" },
+  { value: "outros_meses", label: "Outros meses" },
 ];
 
 export function ClosingFilterTabs({
@@ -32,38 +32,41 @@ export function ClosingFilterTabs({
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-2">
-      <span className="text-xs font-semibold text-secondary">Fechamentos:</span>
-      {FILTERS.map((f) => (
-        <button
-          key={f.value}
-          onClick={() => setParam({ filter: f.value === "all" ? undefined : f.value })}
-          className={
-            "rounded-full border px-3.5 py-1.5 text-xs font-semibold transition " +
-            (filter === f.value
-              ? "border-accent-primary bg-accent-primary/20 text-white shadow-[0_0_16px_var(--accent-primary-glow)]"
-              : "border-hairline bg-black/30 text-secondary hover:border-hairline-strong hover:text-white")
-          }
-        >
-          {f.label}
-        </button>
-      ))}
+    <div className="flex flex-wrap items-center gap-3">
+      <span className="text-[11px] font-semibold uppercase tracking-wide text-muted">Fechamentos</span>
+
+      <div className="flex items-center gap-1 rounded-lg bg-black/20 p-1">
+        {FILTERS.map((f) => (
+          <button
+            key={f.value}
+            onClick={() => setParam({ filter: f.value === "all" ? undefined : f.value })}
+            className={
+              "rounded-md px-3 py-1.5 text-[12.5px] font-bold transition-all duration-200 " +
+              (filter === f.value
+                ? "bg-gradient-to-r from-accent-primary to-accent-light text-ink-strong shadow-[0_0_14px_var(--accent-primary-glow)]"
+                : "text-secondary hover:text-white")
+            }
+          >
+            {f.label}
+          </button>
+        ))}
+      </div>
 
       {filter === "outros_meses" && (
-        <div className="flex items-center gap-2 text-xs text-muted">
+        <div className="flex items-center gap-2 text-[12px] text-muted">
           <span>entrada de</span>
           <input
             type="date"
             value={dateFrom ?? ""}
             onChange={(e) => setParam({ dateFrom: e.target.value || undefined })}
-            className="rounded-lg border border-hairline bg-black/30 px-2 py-1.5 text-xs text-primary outline-none [color-scheme:dark] focus:border-accent-primary"
+            className="rounded-md border border-hairline bg-black/20 px-2 py-1.5 text-[12px] text-primary outline-none [color-scheme:dark] transition-colors duration-200 focus:border-accent-primary"
           />
           <span>até</span>
           <input
             type="date"
             value={dateTo ?? ""}
             onChange={(e) => setParam({ dateTo: e.target.value || undefined })}
-            className="rounded-lg border border-hairline bg-black/30 px-2 py-1.5 text-xs text-primary outline-none [color-scheme:dark] focus:border-accent-primary"
+            className="rounded-md border border-hairline bg-black/20 px-2 py-1.5 text-[12px] text-primary outline-none [color-scheme:dark] transition-colors duration-200 focus:border-accent-primary"
           />
         </div>
       )}

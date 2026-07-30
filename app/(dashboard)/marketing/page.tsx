@@ -43,13 +43,13 @@ export default async function MarketingPage({
   const roasColor = k.roas >= 3 ? "good" : k.roas >= 1 ? "warning" : "critical";
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-wrap items-center justify-end gap-3 rounded-2xl border border-hairline bg-surface-1 px-4 py-3">
+    <div className="flex flex-col gap-5">
+      <div className="flex flex-wrap items-center justify-end gap-3 rounded-card border border-hairline bg-surface-1 px-4 py-3">
         <MonthYearSelect year={year} month={month} />
       </div>
 
       <KpiRow cols={5}>
-        <KpiCard label="Faturamento" accent="good" value={fmtBRL(k.valorFechado)} sub="fechado (MRR+TCV) origem Meta Ads" />
+        <KpiCard featured label="Faturamento" accent="good" value={fmtBRL(k.valorFechado)} sub="fechado (MRR+TCV) origem Meta Ads" />
         <KpiCard label={`Investimento — ${label}`} value={fmtBRL(k.spend)} sub="gasto em Meta Ads" />
         <KpiCard label="Leads" value={Math.round(k.leadsMeta)} sub="reportados pelo Meta Ads" />
         <KpiCard label="Leads no Monday" value={k.leadsMonday} sub="origem Meta Ads" />
@@ -57,7 +57,7 @@ export default async function MarketingPage({
       </KpiRow>
 
       <KpiRow cols={4}>
-        <KpiCard label="ROAS" accent={roasColor} value={k.roas ? `${k.roas.toFixed(2)}x` : "—"} sub="fechado (MRR+TCV) / investimento" />
+        <KpiCard featured label="ROAS" accent={roasColor} value={k.roas ? `${k.roas.toFixed(2)}x` : "—"} sub="fechado (MRR+TCV) / investimento" />
         <KpiCard
           label="Custo / Agendamento"
           value={k.custoAgendamento ? fmtBRL(k.custoAgendamento) : "—"}

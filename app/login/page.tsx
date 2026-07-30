@@ -32,7 +32,7 @@ export default function LoginPage() {
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-canvas px-4">
-      <div className="w-full max-w-sm rounded-2xl border border-hairline bg-surface-1 p-8 shadow-2xl backdrop-blur-xl">
+      <div className="w-full max-w-sm rounded-card border border-hairline bg-surface-1 p-8 shadow-[0_20px_60px_rgba(0,0,0,0.5)] backdrop-blur-xl">
         <div className="mb-8 flex flex-col items-center gap-3">
           <Image src="/scale-logo.svg" alt="Scale Company" width={130} height={32} className="h-8 w-auto opacity-95" priority />
           <h1 className="text-lg font-semibold text-primary">Dashboard Comercial</h1>
@@ -79,7 +79,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={pending}
-            className="mt-2 rounded-lg bg-accent-solid px-4 py-2.5 text-sm font-semibold text-white shadow-[0_0_20px_var(--accent-primary-glow)] transition hover:bg-accent-solid-hover disabled:opacity-60"
+            className="mt-2 rounded-lg bg-gradient-to-r from-accent-primary to-accent-light px-4 py-2.5 text-sm font-bold text-ink-strong shadow-[0_0_20px_var(--accent-primary-glow)] transition hover:shadow-[0_0_28px_var(--accent-primary-glow)] disabled:opacity-60"
           >
             {pending ? "Entrando…" : "Entrar"}
           </button>

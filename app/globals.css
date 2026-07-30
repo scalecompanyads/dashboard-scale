@@ -1,46 +1,67 @@
 @import "tailwindcss";
 
 /*
- * Always-dark design system (this dashboard has no light mode — matches the
- * legacy app's intent and the "preto profundo + azul vivo" brief).
+ * Dark premium design system — Scale Company blue identity.
+ * Palette + radius + transition tokens live here as the single source of
+ * truth; components consume them via Tailwind utilities (bg-canvas,
+ * text-secondary, rounded-card, etc.) instead of hardcoding hex/durations.
  *
- * Funnel ramp, status colors and the vivid-blue accent were checked against
- * this exact canvas (#03050a) with the dataviz skill's validator
- * (scripts/validate_palette.js --ordinal / --mode dark --surface "#03050a"):
- * all four ordinal funnel steps pass monotone-lightness + adjacent-ΔL +
- * light-end-contrast, and all four status colors clear 3:1+ against canvas.
+ * Funnel ramp + status colors re-validated against this exact canvas
+ * (#070A0F) with the dataviz skill's validator:
+ *   node scripts/validate_palette.js "#86b6ef,#3987e5,#256abf,#184f95" \
+ *     --mode dark --surface "#070A0F" --ordinal   -> ALL CHECKS PASS
+ * Status colors all clear 4:1+ contrast against #070A0F.
  */
 @theme {
-  --color-canvas: #03050a;
-  --color-surface-1: rgba(255, 255, 255, 0.035);
-  --color-surface-2: rgba(255, 255, 255, 0.065);
-  --color-hairline: rgba(255, 255, 255, 0.1);
-  --color-hairline-strong: rgba(255, 255, 255, 0.16);
+  /* surfaces — glass: translúcidas sobre o fundo, não chapadas */
+  --color-canvas: #070a0f; /* fundo principal, leve tom azulado */
+  --color-bg-secondary: #0a0e15; /* fundo secundário */
+  --color-surface-1: rgba(13, 18, 27, 0.64); /* cards */
+  --color-surface-2: rgba(18, 27, 43, 0.74); /* cards em destaque */
+  --color-hairline: #202938; /* bordas */
+  --color-hairline-strong: #3a4a63; /* bordas em hover/foco */
 
-  --color-primary: #ffffff;
-  --color-secondary: #c3c2b7;
-  --color-muted: #898781;
+  /* type */
+  --color-primary: #f8fafc;
+  --color-secondary: #94a3b8;
+  --color-muted: #64748b;
+  --color-ink-strong: #050810; /* texto escuro sobre preenchimentos vivos (badges sólidos) */
 
-  /* vivid blue accent family */
-  --color-accent-primary: #3987e5;
-  --color-accent-solid: #2563eb;
-  --color-accent-solid-hover: #1d4ed8;
-  --accent-primary-soft: rgba(57, 135, 229, 0.15);
-  --accent-primary-glow: rgba(57, 135, 229, 0.35);
+  /* azul — identidade principal */
+  --color-accent-primary: #2f80ed;
+  --color-accent-light: #60a5fa;
+  --color-accent-solid: #2f80ed;
+  --color-accent-solid-hover: #4c92f0;
+  --accent-primary-soft: rgba(47, 128, 237, 0.16);
+  --accent-primary-glow: rgba(47, 128, 237, 0.45);
 
-  /* status — fixed meaning, never reused as chart identity */
+  /* status — cores realmente vivas, sempre com significado (metas, resultado, alerta) */
   --color-status-good: #0ca30c;
   --color-status-warning: #fab219;
   --color-status-serious: #ec835a;
   --color-status-critical: #d03b3b;
+  --color-status-critical-light: #f0655f;
 
-  /* funnel ordinal ramp — one hue, monotone light -> dark */
+  /* pódio SDRs — cores próprias, distintas do status semântico */
+  --color-gold: #f5b301;
+  --color-gold-light: #ffd764;
+  --color-silver: #b8c4d6;
+
+  /* funil — ordinal, uma única família de azul, claro -> escuro */
   --color-funnel-1: #86b6ef;
   --color-funnel-2: #3987e5;
   --color-funnel-3: #256abf;
   --color-funnel-4: #184f95;
 
   --font-sans: var(--font-inter);
+
+  /* raio padrão dos cards (16–20px) */
+  --radius-card: 18px;
+  --radius-control: 10px;
+
+  /* toda utility "transition" passa a usar 200ms por padrão */
+  --default-transition-duration: 200ms;
+  --default-transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 html {
@@ -50,8 +71,9 @@ html {
 body {
   background-color: var(--color-canvas);
   background-image:
-    radial-gradient(circle at 10% 40%, rgba(57, 135, 229, 0.07), transparent 40%),
-    radial-gradient(circle at 90% 60%, rgba(37, 99, 235, 0.05), transparent 40%);
+    radial-gradient(circle at 12% 0%, rgba(47, 128, 237, 0.09), transparent 45%),
+    radial-gradient(circle at 88% 15%, rgba(96, 165, 250, 0.06), transparent 40%),
+    radial-gradient(circle at 30% 90%, rgba(47, 128, 237, 0.05), transparent 45%);
   color: var(--color-primary);
 }
 
@@ -65,14 +87,4 @@ body {
 }
 ::-webkit-scrollbar-track {
   background: transparent;
-}
-
-@keyframes float {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-8px);
-  }
 }

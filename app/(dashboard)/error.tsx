@@ -9,7 +9,7 @@ export default function DashboardError({
 }) {
   return (
     <div className="flex flex-1 items-center justify-center p-8">
-      <div className="max-w-lg rounded-2xl border border-status-critical/30 bg-status-critical/10 p-6 text-sm text-status-critical">
+      <div className="max-w-lg rounded-card border border-status-critical/30 bg-status-critical/10 p-6 text-sm text-status-critical">
         <p className="text-base font-bold">Não foi possível carregar os dados do dashboard.</p>
         <p className="mt-2 text-status-critical/90">
           A causa mais comum é o schema do Supabase ainda não ter sido aplicado, ou faltar alguma variável de

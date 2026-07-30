@@ -16,13 +16,15 @@ export function StaleDataBanner({
   if (!hasError && !staleByAge) return null;
 
   return (
-    <div className="flex items-start gap-3 rounded-2xl border border-status-warning/30 bg-status-warning/10 px-4 py-3 text-sm text-status-warning">
-      <span aria-hidden>⚠</span>
+    <div className="flex items-start gap-3 rounded-card border border-status-warning/30 bg-status-warning/[0.1] px-4 py-3 backdrop-blur-xl">
+      <span className="text-status-warning" aria-hidden>
+        ⚠
+      </span>
       <div>
-        <p className="font-semibold">
+        <p className="text-[13px] font-semibold text-status-warning">
           {hasError ? "Última sincronização falhou — mostrando os dados mais recentes disponíveis." : "Dados desatualizados."}
         </p>
-        <p className="mt-0.5 text-xs text-status-warning/80">
+        <p className="mt-0.5 text-[12px] text-status-warning/75">
           Última sincronização bem-sucedida: {timeAgo(lastSuccessAt)}.
           {errorMessage ? ` Erro: ${errorMessage}` : ""}
         </p>

@@ -20,7 +20,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const health = overallSyncHealth(syncStates);
 
   return (
-    <div className="mx-auto flex min-h-screen w-full max-w-[1600px] flex-col gap-4 p-4">
+    <div className="mx-auto flex min-h-screen w-full max-w-[1600px] flex-col gap-5 p-4 md:p-5">
       <TopBar userEmail={user?.email ?? null}>
         <LastSyncedBadge lastSuccessAt={health.lastSuccessAt} hasError={health.hasError} />
         <SyncButton />

@@ -12,6 +12,7 @@ import { ClosingFilterTabs } from "@/components/closing-filter-tabs";
 import { KpiRow } from "@/components/kpi-row";
 import { KpiCard } from "@/components/kpi-card";
 import { GoalCard } from "@/components/goal-card";
+import { ProgressIndicator } from "@/components/progress-indicator";
 import { FunnelChart } from "@/components/funnel-chart";
 import { RevenueTrendChart } from "@/components/revenue-trend-chart";
 import { ClosedDealsTable } from "@/components/closed-deals-table";
@@ -61,6 +62,7 @@ export default async function ComercialPage({
   const label = `${MONTHS[month - 1]} ${year}`;
   const metaPct = goal > 0 ? (kpis.tcvTotal / goal) * 100 : 0;
   const metaColor = !goal ? "muted" : metaPct >= 100 ? "good" : metaPct >= 70 ? "warning" : "primary";
+  const metaProgressTone = metaColor === "good" || metaColor === "warning" ? metaColor : "accent";
 
   const gap = goal - kpis.tcvTotal;
   const gapAtingida = goal > 0 && gap <= 0;
@@ -69,14 +71,19 @@ export default async function ComercialPage({
   const gapSubTxt = !goal ? "sem meta definida" : gapAtingida ? "✓ meta superada" : "faltam para bater a meta";
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-hairline bg-surface-1 px-4 py-3">
+    <div className="flex flex-col gap-5">
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-card border border-hairline bg-surface-1 px-4 py-3">
         <ClosingFilterTabs filter={filter} dateFrom={dateFrom} dateTo={dateTo} />
         <MonthYearSelect year={year} month={month} />
       </div>
 
       <KpiRow cols={7}>
-        <KpiCard label={`TCV Fechado — ${label}`} value={fmtBRL(kpis.tcvTotal)} sub={`${kpis.tcvCount} contratos fechados`} />
+        <KpiCard
+          featured
+          label={`TCV Fechado — ${label}`}
+          value={fmtBRL(kpis.tcvTotal)}
+          sub={`${kpis.tcvCount} contratos fechados`}
+        />
         <KpiCard
           label={`MRR Fechado — ${label}`}
           accent="primary"
@@ -84,13 +91,26 @@ export default async function ComercialPage({
           sub={`${kpis.mrrCount} contratos fechados`}
         />
         <GoalCard monthKey={monthKey} goalValue={goal} />
-        <KpiCard label="Gap para Meta do Mês" accent={gapColor} value={gapValueTxt} sub={gapSubTxt} />
+        <KpiCard featured label="Gap para Meta do Mês" accent={gapColor} value={gapValueTxt} sub={gapSubTxt}>
+          {gapColor === "critical" && (
+            <span className="relative mt-2 inline-flex w-fit items-center gap-1 rounded-full bg-status-critical/12 px-2 py-0.5 text-[10.5px] font-bold text-status-critical">
+              ⚠ atenção
+            </span>
+          )}
+        </KpiCard>
         <KpiCard
+          featured
           label="% da Meta Realizada"
           accent={metaColor}
           value={goal ? `${metaPct.toFixed(1)}%` : "—"}
           sub={metaPct >= 100 ? "✓ Meta batida!" : goal ? "em andamento" : "sem meta definida"}
-        />
+        >
+          {goal > 0 && (
+            <div className="relative mt-3">
+              <ProgressIndicator pct={metaPct} tone={metaProgressTone} />
+            </div>
+          )}
+        </KpiCard>
         <KpiCard label="Ticket Médio TCV" value={fmtBRL(kpis.ticketMedioTCV)} sub="por contrato TCV" />
         <KpiCard label="Ticket Médio MRR" value={fmtBRL(kpis.ticketMedioMRR)} sub="por contrato MRR" />
       </KpiRow>

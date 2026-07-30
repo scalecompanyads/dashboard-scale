@@ -24,9 +24,9 @@ export function RevenueTrendChart({ points }: { points: RevenueTrendPoint[] }) {
   const gridValues = Array.from({ length: GRID_LINES + 1 }, (_, i) => (max / GRID_LINES) * i);
 
   return (
-    <div className="flex h-full flex-col rounded-2xl border border-hairline bg-surface-1 p-5 shadow-[0_8px_32px_rgba(0,0,0,0.5)] backdrop-blur-2xl">
+    <div className="flex h-full flex-col rounded-card border border-hairline bg-surface-1 p-5 shadow-[0_6px_20px_rgba(0,0,0,0.35)] backdrop-blur-xl">
       <div className="mb-1 flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
-        <h3 className="text-xs font-bold uppercase tracking-wider text-secondary">Faturamento Fechado — Últimos Meses</h3>
+        <h3 className="text-[14px] font-bold text-primary">Faturamento Fechado — Últimos Meses</h3>
         <div className="flex gap-5 text-right">
           <div>
             <p className="text-[10px] font-semibold uppercase tracking-wide text-muted">Total período</p>
@@ -44,6 +44,12 @@ export function RevenueTrendChart({ points }: { points: RevenueTrendPoint[] }) {
       ) : (
         <svg viewBox={`0 0 ${WIDTH} ${HEIGHT}`} className="w-full flex-1" preserveAspectRatio="xMidYMid meet" role="img">
           <title>Faturamento fechado por mês</title>
+          <defs>
+            <linearGradient id="trendBarGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="var(--color-accent-light)" />
+              <stop offset="100%" stopColor="var(--color-accent-primary)" />
+            </linearGradient>
+          </defs>
 
           {gridValues.map((gv, i) => {
             const y = plotBottom - (gv / max) * plotHeight;
@@ -73,7 +79,7 @@ export function RevenueTrendChart({ points }: { points: RevenueTrendPoint[] }) {
                   width={Math.max(barWidth, 2)}
                   height={Math.max(barHeight, 2)}
                   rx={5}
-                  fill={isLast ? "var(--color-accent-primary)" : "var(--color-funnel-3)"}
+                  fill={isLast ? "url(#trendBarGradient)" : "var(--color-funnel-3)"}
                   className="transition-opacity hover:opacity-80"
                 >
                   <title>

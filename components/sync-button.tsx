@@ -21,9 +21,11 @@ export function SyncButton() {
     <button
       onClick={handleClick}
       disabled={pending}
-      className="flex items-center gap-2 rounded-xl border border-accent-primary/30 bg-accent-primary/15 px-4 py-2 text-xs font-bold text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] transition hover:bg-accent-primary/25 hover:shadow-[0_0_20px_var(--accent-primary-glow)] disabled:opacity-60"
+      className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-accent-primary to-accent-light px-3.5 py-1.5 text-[12.5px] font-bold text-ink-strong shadow-[0_0_16px_var(--accent-primary-glow)] transition-all duration-200 hover:shadow-[0_0_22px_var(--accent-primary-glow)] disabled:cursor-not-allowed disabled:opacity-60"
     >
-      <span className={pending ? "inline-block animate-spin" : ""}>↻</span>
+      <span className={pending ? "inline-block animate-spin" : ""} aria-hidden>
+        ↻
+      </span>
       {pending ? "Sincronizando…" : "Atualizar"}
     </button>
   );
