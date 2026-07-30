@@ -11,22 +11,34 @@ export interface MarketingKPIs {
   comparecimentos: number;
   custoComparecimento: number;
   fechamentos: number;
+  cacFechamentos: number;
   cac: number;
   valorFechado: number;
   roas: number;
 }
 
 // Ported from calcMarketingKPIs() in the legacy dashboard.
+//
+// cacFechamentos is a SEPARATE, narrower count from `closingsMeta`/
+// `fechamentos`: only closings whose lead also entered in this same month
+// (the "mesmo_mes" cohort — see getClosingsFiltered). A closing from a lead
+// that entered last month already had its acquisition cost attributed to
+// last month's spend; mixing it into this month's CAC understates the real
+// cost per acquisition for the cohort THIS month's spend actually produced.
+// Faturamento/ROAS/fechamentos elsewhere keep using the full closingsMeta —
+// only CAC needs the same-month-only view.
 export function calcMarketingKPIs(
   ads: Pick<MetaAdsAccountInsight, "spend" | "leads_count">,
   leadsMeta: Lead[],
   agendaMeta: Lead[],
-  closingsMeta: Lead[]
+  closingsMeta: Lead[],
+  cacClosingsMeta: Lead[]
 ): MarketingKPIs {
   const leadsMonday = leadsMeta.length;
   const agendamentos = agendaMeta.length;
   const comparecimentos = agendaMeta.filter((i) => !!i.etapa && ETAPA_REALIZADA.has(i.etapa)).length;
   const fechamentos = closingsMeta.length;
+  const cacFechamentos = cacClosingsMeta.length;
   const valorFechado = closingsMeta.reduce((sum, i) => sum + (i.mrr_value ?? 0), 0);
 
   return {
@@ -39,7 +51,8 @@ export function calcMarketingKPIs(
     comparecimentos,
     custoComparecimento: comparecimentos ? ads.spend / comparecimentos : 0,
     fechamentos,
-    cac: fechamentos ? ads.spend / fechamentos : 0,
+    cacFechamentos,
+    cac: cacFechamentos ? ads.spend / cacFechamentos : 0,
     valorFechado,
     roas: ads.spend > 0 ? valorFechado / ads.spend : 0,
   };

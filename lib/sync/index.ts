@@ -1,5 +1,5 @@
 import { monthKeyOf } from "@/lib/constants";
-import { logSyncError, logSyncStart, logSyncSuccess } from "@/lib/sync/log";
+import { formatSyncError, logSyncError, logSyncStart, logSyncSuccess } from "@/lib/sync/log";
 import { syncMetaAdsAccount, syncMetaAdsCreative } from "@/lib/sync/meta-ads";
 import { syncMondayBoard } from "@/lib/sync/monday";
 import type { SyncSource, TriggeredBy } from "@/lib/types/database.types";
@@ -34,11 +34,17 @@ export interface SyncResult {
 // Orchestrates the 3 sync sources independently: a failure in one (say, the
 // Meta Ads token expired) is logged and surfaced in sync_state, but never
 // blocks the others and never touches previously-synced rows in that table.
+//
+// Run concurrently (not one after another) — the Monday board fetch alone
+// (7000+ items, paged 500 at a time) was already taking 43-63s on its own
+// depending on Monday's API latency, and running it sequentially before the
+// Meta Ads calls pushed some manual triggers right past the route's serverless
+// timeout, killing the sync mid-upsert. Running all 3 in parallel means the
+// total wall-clock time is roughly the SLOWEST source, not the sum of all 3.
 export async function runFullSync(opts: {
   triggeredBy: TriggeredBy;
   triggeredByUser?: string;
 }): Promise<SyncResult[]> {
-  const results: SyncResult[] = [];
   const monthKeys = trailingMonthKeys(META_SYNC_TRAILING_MONTHS);
 
   const tasks: { source: SyncSource; run: () => Promise<number> }[] = [
@@ -47,17 +53,17 @@ export async function runFullSync(opts: {
     { source: "meta_ads_creative", run: () => syncMetaAdsCreative(monthKeys) },
   ];
 
-  for (const task of tasks) {
-    const runId = await logSyncStart(task.source, opts.triggeredBy, opts.triggeredByUser);
-    try {
-      const rows = await task.run();
-      await logSyncSuccess(runId, task.source, rows);
-      results.push({ source: task.source, ok: true, rows });
-    } catch (err) {
-      await logSyncError(runId, task.source, err);
-      results.push({ source: task.source, ok: false, error: err instanceof Error ? err.message : String(err) });
-    }
-  }
-
-  return results;
+  return Promise.all(
+    tasks.map(async (task): Promise<SyncResult> => {
+      const runId = await logSyncStart(task.source, opts.triggeredBy, opts.triggeredByUser);
+      try {
+        const rows = await task.run();
+        await logSyncSuccess(runId, task.source, rows);
+        return { source: task.source, ok: true, rows };
+      } catch (err) {
+        await logSyncError(runId, task.source, err);
+        return { source: task.source, ok: false, error: formatSyncError(err) };
+      }
+    })
+  );
 }

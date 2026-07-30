@@ -63,20 +63,32 @@ export async function getCreativeThumbnails(adIds: string[]): Promise<Map<string
         body: new URLSearchParams({ access_token: token, batch: JSON.stringify(batch) }),
       });
       const results = await res.json();
-      if (!Array.isArray(results)) continue;
+      if (!Array.isArray(results)) {
+        // Graph API returns a single {error: {...}} object (not an array)
+        // when the whole batch call itself is rejected — e.g. bad/expired
+        // token, missing permission. Silently falling back to initials
+        // everywhere made this invisible; log it so it shows up in Vercel's
+        // function logs instead of looking like "thumbnails just don't work".
+        console.error("getCreativeThumbnails: unexpected batch response", results);
+        continue;
+      }
 
       results.forEach((r: { code: number; body: string }, idx: number) => {
-        if (r.code !== 200) return;
+        if (r.code !== 200) {
+          console.error(`getCreativeThumbnails: ad ${chunk[idx]} returned ${r.code}`, r.body);
+          return;
+        }
         try {
           const url = JSON.parse(r.body)?.creative?.thumbnail_url;
           if (url) map.set(chunk[idx], url);
-        } catch {
-          // malformed entry — falls back to the initials placeholder in the table
+        } catch (err) {
+          console.error(`getCreativeThumbnails: couldn't parse body for ad ${chunk[idx]}`, err);
         }
       });
     }
-  } catch {
+  } catch (err) {
     // network hiccup — thumbnails are a nice-to-have, never worth failing the page for
+    console.error("getCreativeThumbnails: fetch failed", err);
   }
 
   return map;

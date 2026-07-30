@@ -1,6 +1,26 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { SyncSource, TriggeredBy } from "@/lib/types/database.types";
 
+// Supabase/Postgrest errors are plain objects ({ message, code, details,
+// hint }), not Error instances — String(err) on one of those just yields
+// the useless literal "[object Object]" (this was happening for real: a
+// failed sync run had exactly that as its logged error_message, hiding
+// whatever actually went wrong). JSON.stringify captures the real fields
+// instead.
+export function formatSyncError(err: unknown): string {
+  if (err instanceof Error) return err.message;
+  if (typeof err === "string") return err;
+  try {
+    const json = JSON.stringify(err);
+    // Error-like objects can stringify to "{}" if their fields aren't
+    // enumerable (some fetch/AbortError shapes) — fall back rather than
+    // log something even less useful than the object itself.
+    return json && json !== "{}" ? json : String(err);
+  } catch {
+    return String(err);
+  }
+}
+
 export async function logSyncStart(source: SyncSource, triggeredBy: TriggeredBy, triggeredByUser?: string) {
   const supabase = createAdminClient();
   const { data, error } = await supabase
@@ -38,7 +58,7 @@ export async function logSyncSuccess(runId: string, source: SyncSource, rowsUpse
 export async function logSyncError(runId: string, source: SyncSource, err: unknown) {
   const supabase = createAdminClient();
   const finishedAt = new Date().toISOString();
-  const message = err instanceof Error ? err.message : String(err);
+  const message = formatSyncError(err);
 
   // A failed sync never touches leads/meta_ads_* — whatever rows were
   // upserted before the failure stay; the run is just logged as an error so

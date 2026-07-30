@@ -1,7 +1,8 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { runFullSync } from "@/lib/sync";
 
-export const maxDuration = 60;
+// See app/api/sync/trigger/route.ts for why this was raised from 60.
+export const maxDuration = 300;
 
 // Hit once a day by Vercel Cron (see vercel.json). Protected by a shared
 // secret rather than a user session — cron requests never carry a Supabase

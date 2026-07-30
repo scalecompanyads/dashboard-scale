@@ -43,10 +43,14 @@ export default async function MarketingPage({
     prevYear -= 1;
   }
 
-  const [leads, agendaItems, closings, adAccount, adCreativeSpend, prevClosings] = await Promise.all([
+  const [leads, agendaItems, closings, cacClosings, adAccount, adCreativeSpend, prevClosings] = await Promise.all([
     getLeadsByEntryRange(supabase, year, month),
     getAgendaByRange(supabase, year, month),
     getClosingsFiltered(supabase, year, month, "all"),
+    // CAC only counts closings whose lead ALSO entered this month — mixing
+    // in cross-month conversions understates the cost of the cohort this
+    // month's spend actually produced. See calcMarketingKPIs' comment.
+    getClosingsFiltered(supabase, year, month, "mesmo_mes"),
     getMetaAdsAccountInsight(supabase, monthKey),
     getMetaAdsCreativeSpend(supabase, monthKey),
     getClosingsFiltered(supabase, prevYear, prevMonth, "all"),
@@ -55,10 +59,11 @@ export default async function MarketingPage({
   const leadsMeta = leads.filter(isMetaAds);
   const agendaMeta = agendaItems.filter(isMetaAds);
   const closingsMeta = closings.filter(isMetaAds);
+  const cacClosingsMeta = cacClosings.filter(isMetaAds);
   const prevClosingsMeta = prevClosings.filter(isMetaAds);
   const prevValorFechado = prevClosingsMeta.reduce((sum, i) => sum + (i.mrr_value ?? 0), 0);
 
-  const k = calcMarketingKPIs(adAccount, leadsMeta, agendaMeta, closingsMeta);
+  const k = calcMarketingKPIs(adAccount, leadsMeta, agendaMeta, closingsMeta, cacClosingsMeta);
   const creatives = aggregateByCreative(leadsMeta, agendaMeta, closingsMeta, adCreativeSpend);
   // Fetched after the creatives are known — needs their ad_ids first, so it
   // can't join the initial Promise.all above.
@@ -134,7 +139,7 @@ export default async function MarketingPage({
           icon={<IconHandshake />}
           label="CAC"
           value={<AnimatedNumber value={k.cac || null} format={{ type: "currency" }} />}
-          sub={`${k.fechamentos} fechamentos`}
+          sub={`${k.cacFechamentos} fechamentos (mesmo mês)`}
         />
       </KpiRow>
 
