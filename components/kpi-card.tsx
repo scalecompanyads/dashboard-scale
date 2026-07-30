@@ -39,7 +39,7 @@ const ACCENT_COLOR: Record<KpiAccent, string> = {
 // instead of a flat gray panel — a plain low-opacity fill reads as dull
 // when nothing colorful happens to sit behind it.
 function cardBackground(accent: KpiAccent, featured: boolean) {
-  const strength = featured ? 24 : 12;
+  const strength = featured ? 27 : 8;
   return `linear-gradient(160deg, color-mix(in srgb, ${ACCENT_COLOR[accent]} ${strength}%, transparent) 0%, rgba(13,18,27,0.82) 45%, rgba(13,18,27,0.9) 100%)`;
 }
 
@@ -84,19 +84,38 @@ export function KpiCard({
         </div>
       )}
 
+      <div className="relative mb-2 flex w-full items-center justify-center gap-1.5">
+        <span
+          className="h-1.5 w-1.5 shrink-0 rounded-full"
+          style={
+            featured
+              ? { backgroundColor: ACCENT_COLOR[accent], boxShadow: `0 0 6px ${ACCENT_COLOR[accent]}` }
+              : { backgroundColor: ACCENT_COLOR[accent], opacity: 0.55 }
+          }
+          aria-hidden
+        />
+        <p
+          className={`truncate font-bold uppercase tracking-wide ${
+            featured ? "text-[clamp(11px,2.4cqw,14px)] text-primary" : "text-[clamp(10px,2.1cqw,12.5px)] text-secondary"
+          }`}
+        >
+          {label}
+        </p>
+      </div>
+
       {/* fluid, container-relative size: shrinks to fit narrow grid columns
           (never truncates/ellipsis) and grows well past the old fixed cap
-          on wide layouts/TV screens instead of staying small */}
+          on wide layouts/TV screens instead of staying small. Featured
+          cards get a taller cap so the 3-4 numbers that matter most read
+          as louder than the rest of the row. */}
       <p
         className={`relative w-full overflow-hidden whitespace-nowrap text-center font-extrabold leading-none tracking-tight tabular-nums ${VALUE_TEXT[valueColor ?? accent]}`}
-        style={{ fontSize: "clamp(1.05rem, 13cqw, 4rem)" }}
+        style={{ fontSize: featured ? "clamp(1.05rem, 13cqw, 4rem)" : "clamp(1rem, 11cqw, 3.1rem)" }}
       >
         {value}
       </p>
 
-      <p className="relative mt-2.5 w-full truncate text-center text-[clamp(10px,2.2cqw,13px)] font-bold uppercase tracking-wide text-muted">{label}</p>
-
-      {sub && <p className="relative mt-1 w-full truncate text-center text-[clamp(11px,2.4cqw,14px)] font-medium text-secondary">{sub}</p>}
+      {sub && <p className="relative mt-1.5 w-full truncate text-center text-[clamp(11px,2.4cqw,14px)] font-medium text-secondary">{sub}</p>}
       {children}
     </CardSpotlight>
   );

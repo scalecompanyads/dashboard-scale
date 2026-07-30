@@ -40,15 +40,15 @@ export function GoalCard({ monthKey, goalValue }: { monthKey: string; goalValue:
 
   return (
     <CardSpotlight
-      className="group flex h-full min-w-0 flex-col items-center overflow-hidden rounded-card p-4 shadow-[0_10px_32px_rgba(0,0,0,0.45),0_0_0_1px_rgba(12,163,12,0.22)] backdrop-blur-xl transition-all duration-200 hover:-translate-y-0.5 hover:brightness-125 hover:shadow-[0_16px_42px_rgba(0,0,0,0.55),0_0_0_1px_rgba(12,163,12,0.4)]"
+      className="group flex h-full min-w-0 flex-col items-center overflow-hidden rounded-card p-4 shadow-[0_6px_20px_rgba(0,0,0,0.35)] backdrop-blur-xl transition-all duration-200 hover:-translate-y-0.5 hover:brightness-125"
       style={{
         containerType: "inline-size",
         backgroundImage:
-          "linear-gradient(160deg, color-mix(in srgb, var(--color-status-good) 20%, transparent) 0%, rgba(13,18,27,0.82) 45%, rgba(13,18,27,0.9) 100%)",
+          "linear-gradient(160deg, color-mix(in srgb, var(--color-status-good) 8%, transparent) 0%, rgba(13,18,27,0.82) 45%, rgba(13,18,27,0.9) 100%)",
       }}
     >
       <div
-        className="pointer-events-none absolute -right-12 -top-16 h-44 w-44 rounded-full bg-gradient-to-br from-accent-primary via-accent-light to-transparent opacity-30 blur-3xl"
+        className="pointer-events-none absolute -right-12 -top-16 h-40 w-40 rounded-full bg-gradient-to-br from-accent-primary via-accent-light to-transparent opacity-[0.16] blur-3xl"
         aria-hidden
       />
 
@@ -61,6 +61,15 @@ export function GoalCard({ monthKey, goalValue }: { monthKey: string; goalValue:
           <EditIcon />
         </button>
       )}
+
+      <div className="relative mb-2 flex w-full items-center justify-center gap-1.5">
+        <span
+          className="h-1.5 w-1.5 shrink-0 rounded-full"
+          style={{ backgroundColor: "var(--color-status-good)", opacity: 0.55 }}
+          aria-hidden
+        />
+        <p className="truncate text-[clamp(10px,2.1cqw,12.5px)] font-bold uppercase tracking-wide text-secondary">Meta do Mês</p>
+      </div>
 
       {editing ? (
         <input
@@ -77,14 +86,14 @@ export function GoalCard({ monthKey, goalValue }: { monthKey: string; goalValue:
             if (e.key === "Escape") setEditing(false);
           }}
           className="relative w-full rounded-md border border-accent-primary bg-canvas px-2 py-1 text-center font-bold leading-none tabular-nums text-primary outline-none"
-          style={{ fontSize: "clamp(1.05rem, 13cqw, 4rem)" }}
+          style={{ fontSize: "clamp(1rem, 11cqw, 3.1rem)" }}
         />
       ) : (
         <button
           onClick={() => setEditing(true)}
           title={goalValue ? fmtBRL(goalValue) : undefined}
           className="relative overflow-hidden whitespace-nowrap rounded-md text-center font-extrabold leading-none tracking-tight tabular-nums text-primary transition-colors duration-200 hover:text-accent-light"
-          style={{ fontSize: "clamp(1.05rem, 13cqw, 4rem)" }}
+          style={{ fontSize: "clamp(1rem, 11cqw, 3.1rem)" }}
         >
           {/* compact by default ("R$ 150k") — metas costumam ser números
               redondos e grandes, então abrevia sempre em vez de arriscar
@@ -93,11 +102,11 @@ export function GoalCard({ monthKey, goalValue }: { monthKey: string; goalValue:
         </button>
       )}
 
-      <p className="relative mt-2.5 truncate text-center text-[clamp(10px,2.2cqw,13px)] font-bold uppercase tracking-wide text-muted">Meta do Mês</p>
-
-      <p className="relative mt-1 text-center text-[clamp(11px,2.4cqw,14px)] font-medium text-secondary">
-        {editing ? "Enter para salvar · Esc para cancelar" : goalValue ? "meta definida para o mês" : "nenhuma meta definida"}
-      </p>
+      {(editing || !goalValue) && (
+        <p className="relative mt-1.5 text-center text-[clamp(11px,2.4cqw,14px)] font-medium text-secondary">
+          {editing ? "Enter para salvar · Esc para cancelar" : "nenhuma meta definida"}
+        </p>
+      )}
     </CardSpotlight>
   );
 }

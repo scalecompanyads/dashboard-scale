@@ -1,12 +1,11 @@
 import { createClient } from "@/lib/supabase/server";
 import { getAgendaByRange, getClosingsFiltered, getLeadsByEntryRange, type ClosingFilter } from "@/lib/data/leads";
 import { getGoal } from "@/lib/data/goals";
-import { getRevenueTrend } from "@/lib/data/trend";
 import { calcKPIs } from "@/lib/metrics/kpis";
 import { calcClosers } from "@/lib/metrics/closers";
 import { calcSDRs } from "@/lib/metrics/sdrs";
 import { buildFunnel } from "@/lib/metrics/funnel";
-import { FIRST_DATA_MONTH, monthKeyOf, monthKeysBetween, MONTHS } from "@/lib/constants";
+import { monthKeyOf, MONTHS } from "@/lib/constants";
 import { MonthYearSelect } from "@/components/month-year-select";
 import { ClosingFilterTabs } from "@/components/closing-filter-tabs";
 import { KpiRow } from "@/components/kpi-row";
@@ -16,12 +15,9 @@ import { AnimatedNumber } from "@/components/animated-number";
 import { TrendBadge } from "@/components/trend-badge";
 import { ProgressIndicator } from "@/components/progress-indicator";
 import { FunnelChart } from "@/components/funnel-chart";
-import { RevenueTrendChart } from "@/components/revenue-trend-chart";
 import { ClosedDealsTable } from "@/components/closed-deals-table";
 import { ClosersPodium } from "@/components/closers-podium";
 import { SdrPodium } from "@/components/sdr-podium";
-
-const TREND_MONTHS = 12;
 
 export default async function ComercialPage({
   searchParams,
@@ -60,26 +56,19 @@ export default async function ComercialPage({
   const sdrs = calcSDRs(agendaItems);
   const funnel = buildFunnel(kpis);
 
-  let trendFromYear = year;
-  let trendFromMonth = month - (TREND_MONTHS - 1);
-  while (trendFromMonth < 1) {
-    trendFromMonth += 12;
-    trendFromYear -= 1;
-  }
-  const trendFromKey = monthKeyOf(trendFromYear, trendFromMonth);
-  const trendMonthKeys = monthKeysBetween(trendFromKey > FIRST_DATA_MONTH ? trendFromKey : FIRST_DATA_MONTH, monthKey);
-  const trend = await getRevenueTrend(supabase, trendMonthKeys);
-
   const label = `${MONTHS[month - 1]} ${year}`;
   const metaPct = goal > 0 ? (kpis.tcvTotal / goal) * 100 : 0;
-  const metaColor = !goal ? "muted" : metaPct >= 100 ? "good" : metaPct >= 70 ? "warning" : "primary";
-  const metaProgressTone = metaColor === "good" || metaColor === "warning" ? metaColor : "accent";
+  // Só o verde (meta batida) e o vermelho (bem atrás) carregam sentido de
+  // status aqui — o intervalo do meio fica no azul neutro da marca em vez
+  // de um amarelo de "alerta" que não condiz com estar quase lá.
+  const metaColor = !goal ? "muted" : metaPct >= 100 ? "good" : "primary";
+  const metaProgressTone = metaColor === "good" ? "good" : "accent";
 
   const gap = goal - kpis.tcvTotal;
   const gapAtingida = goal > 0 && gap <= 0;
-  const gapColor = !goal ? "muted" : gapAtingida ? "good" : kpis.tcvTotal / goal >= 0.7 ? "warning" : "critical";
+  const gapColor = !goal ? "muted" : gapAtingida ? "good" : kpis.tcvTotal / goal >= 0.7 ? "primary" : "critical";
   const gapDisplayValue = goal ? Math.abs(gap) : null;
-  const gapSubTxt = !goal ? "sem meta definida" : gapAtingida ? "✓ meta superada" : "faltam para bater a meta";
+  const gapSubTxt = !goal ? "sem meta definida" : gapAtingida ? "✓ meta superada" : undefined;
 
   return (
     <div className="flex flex-col gap-5">
@@ -132,7 +121,7 @@ export default async function ComercialPage({
           label="% da Meta Realizada"
           accent={metaColor}
           value={<AnimatedNumber value={goal ? metaPct : null} format={{ type: "percent" }} />}
-          sub={metaPct >= 100 ? "✓ Meta batida!" : goal ? "em andamento" : "sem meta definida"}
+          sub={metaPct >= 100 ? "✓ Meta batida!" : !goal ? "sem meta definida" : undefined}
         >
           {goal > 0 && (
             <div className="relative mt-3">
@@ -140,30 +129,18 @@ export default async function ComercialPage({
             </div>
           )}
         </KpiCard>
-        <KpiCard
-          label="Ticket Médio TCV"
-          value={<AnimatedNumber value={kpis.ticketMedioTCV} format={{ type: "currency" }} />}
-          sub="por contrato TCV"
-        />
-        <KpiCard
-          label="Ticket Médio MRR"
-          value={<AnimatedNumber value={kpis.ticketMedioMRR} format={{ type: "currency" }} />}
-          sub="por contrato MRR"
-        />
+        <KpiCard label="Ticket Médio TCV" value={<AnimatedNumber value={kpis.ticketMedioTCV} format={{ type: "currency" }} />} />
+        <KpiCard label="Ticket Médio MRR" value={<AnimatedNumber value={kpis.ticketMedioMRR} format={{ type: "currency" }} />} />
       </KpiRow>
 
-      <div className="animate-enter grid grid-cols-1 gap-4 lg:grid-cols-2" style={{ animationDelay: "440ms" }}>
+      <div className="animate-enter grid grid-cols-1 gap-4 lg:h-[440px] lg:grid-cols-[6fr_7fr_7fr]" style={{ animationDelay: "440ms" }}>
         <FunnelChart data={funnel} />
+        <SdrPodium sdrs={sdrs} />
         <ClosersPodium closers={closers} />
       </div>
 
-      <div className="animate-enter grid grid-cols-1 gap-4 lg:h-[440px] lg:grid-cols-2" style={{ animationDelay: "520ms" }}>
-        <SdrPodium sdrs={sdrs} />
+      <div className="animate-enter min-h-[320px] flex-1" style={{ animationDelay: "520ms" }}>
         <ClosedDealsTable closings={closings} />
-      </div>
-
-      <div className="animate-enter h-72" style={{ animationDelay: "600ms" }}>
-        <RevenueTrendChart points={trend} />
       </div>
     </div>
   );
