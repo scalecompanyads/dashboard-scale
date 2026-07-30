@@ -28,9 +28,10 @@
   --color-muted: #64748b;
   --color-ink-strong: #050810; /* texto escuro sobre preenchimentos vivos (badges sólidos) */
 
-  /* azul — identidade principal */
+  /* azul — identidade principal. accent-light usa o mesmo azul vivo da marca
+     (era um azul claro/pastel demais — trocado para o tom mais saturado). */
   --color-accent-primary: #2f80ed;
-  --color-accent-light: #60a5fa;
+  --color-accent-light: #2563eb;
   --color-accent-solid: #2f80ed;
   --color-accent-solid-hover: #4c92f0;
   --accent-primary-soft: rgba(47, 128, 237, 0.16);

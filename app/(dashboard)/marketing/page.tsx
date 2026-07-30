@@ -9,6 +9,16 @@ import { KpiCard } from "@/components/kpi-card";
 import { AnimatedNumber } from "@/components/animated-number";
 import { TrendBadge } from "@/components/trend-badge";
 import { CreativeTable } from "@/components/creative-table";
+import {
+  IconCalendarCheck,
+  IconCheckCircle,
+  IconCurrency,
+  IconGauge,
+  IconHandshake,
+  IconReceipt,
+  IconTarget,
+  IconUsers,
+} from "@/components/kpi-icons";
 import type { Lead } from "@/lib/types/database.types";
 
 const isMetaAds = (item: Lead) => item.origem === ORIGEM_META_ADS;
@@ -63,6 +73,7 @@ export default async function MarketingPage({
       <KpiRow cols={5}>
         <KpiCard
           featured
+          icon={<IconCurrency />}
           label="Faturamento"
           accent="good"
           value={<AnimatedNumber value={k.valorFechado} format={{ type: "currency" }} />}
@@ -74,31 +85,54 @@ export default async function MarketingPage({
             </div>
           )}
         </KpiCard>
-        <KpiCard label={`Investimento — ${label}`} value={<AnimatedNumber value={k.spend} format={{ type: "currency" }} />} sub="gasto em Meta Ads" />
-        <KpiCard label="Leads" value={<AnimatedNumber value={k.leadsMeta} format={{ type: "integer" }} />} sub="reportados pelo Meta Ads" />
-        <KpiCard label="Leads no Monday" value={<AnimatedNumber value={k.leadsMonday} format={{ type: "integer" }} />} sub="origem Meta Ads" />
-        <KpiCard label="CPL" value={<AnimatedNumber value={k.cpl || null} format={{ type: "currency" }} />} sub="investimento / leads no Monday" />
+        <KpiCard
+          icon={<IconReceipt />}
+          label={`Investimento — ${label}`}
+          value={<AnimatedNumber value={k.spend} format={{ type: "currency" }} />}
+          sub="gasto em Meta Ads"
+        />
+        <KpiCard icon={<IconUsers />} label="Leads" value={<AnimatedNumber value={k.leadsMeta} format={{ type: "integer" }} />} sub="reportados pelo Meta Ads" />
+        <KpiCard
+          icon={<IconUsers />}
+          label="Leads no Monday"
+          value={<AnimatedNumber value={k.leadsMonday} format={{ type: "integer" }} />}
+          sub="origem Meta Ads"
+        />
+        <KpiCard
+          icon={<IconTarget />}
+          label="CPL"
+          value={<AnimatedNumber value={k.cpl || null} format={{ type: "currency" }} />}
+          sub="investimento / leads no Monday"
+        />
       </KpiRow>
 
       <KpiRow cols={4}>
         <KpiCard
           featured
+          icon={<IconGauge />}
           label="ROAS"
           accent={roasColor}
           value={<AnimatedNumber value={k.roas || null} format={{ type: "multiplier" }} />}
           sub="fechado (MRR+TCV) / investimento"
         />
         <KpiCard
+          icon={<IconCalendarCheck />}
           label="Custo / Agendamento"
           value={<AnimatedNumber value={k.custoAgendamento || null} format={{ type: "currency" }} />}
           sub={`${k.agendamentos} reuniões agendadas`}
         />
         <KpiCard
+          icon={<IconCheckCircle />}
           label="Custo / Comparecimento"
           value={<AnimatedNumber value={k.custoComparecimento || null} format={{ type: "currency" }} />}
           sub={`${k.comparecimentos} reuniões realizadas`}
         />
-        <KpiCard label="CAC" value={<AnimatedNumber value={k.cac || null} format={{ type: "currency" }} />} sub={`${k.fechamentos} fechamentos`} />
+        <KpiCard
+          icon={<IconHandshake />}
+          label="CAC"
+          value={<AnimatedNumber value={k.cac || null} format={{ type: "currency" }} />}
+          sub={`${k.fechamentos} fechamentos`}
+        />
       </KpiRow>
 
       <div className="min-h-[420px] flex-1">

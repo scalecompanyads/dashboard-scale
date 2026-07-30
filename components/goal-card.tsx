@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { fmtBRL } from "@/lib/constants";
 import { AnimatedNumber } from "@/components/animated-number";
+import { CardSpotlight } from "@/components/card-spotlight";
 
 function EditIcon() {
   return (
@@ -38,12 +39,16 @@ export function GoalCard({ monthKey, goalValue }: { monthKey: string; goalValue:
   }
 
   return (
-    <div
-      className="group relative flex h-full min-w-0 flex-col overflow-hidden rounded-card bg-surface-2 p-4 shadow-[0_10px_32px_rgba(0,0,0,0.45),0_0_0_1px_rgba(47,128,237,0.2)] backdrop-blur-xl transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_16px_42px_rgba(0,0,0,0.55),0_0_0_1px_rgba(47,128,237,0.35)]"
-      style={{ containerType: "inline-size" }}
+    <CardSpotlight
+      className="group flex h-full min-w-0 flex-col items-center overflow-hidden rounded-card p-4 shadow-[0_10px_32px_rgba(0,0,0,0.45),0_0_0_1px_rgba(12,163,12,0.22)] backdrop-blur-xl transition-all duration-200 hover:-translate-y-0.5 hover:brightness-125 hover:shadow-[0_16px_42px_rgba(0,0,0,0.55),0_0_0_1px_rgba(12,163,12,0.4)]"
+      style={{
+        containerType: "inline-size",
+        backgroundImage:
+          "linear-gradient(160deg, color-mix(in srgb, var(--color-status-good) 20%, transparent) 0%, rgba(13,18,27,0.82) 45%, rgba(13,18,27,0.9) 100%)",
+      }}
     >
       <div
-        className="pointer-events-none absolute -right-12 -top-16 h-44 w-44 rounded-full bg-gradient-to-br from-accent-primary via-accent-light to-transparent opacity-25 blur-3xl"
+        className="pointer-events-none absolute -right-12 -top-16 h-44 w-44 rounded-full bg-gradient-to-br from-accent-primary via-accent-light to-transparent opacity-30 blur-3xl"
         aria-hidden
       />
 
@@ -93,6 +98,6 @@ export function GoalCard({ monthKey, goalValue }: { monthKey: string; goalValue:
       <p className="relative mt-1 text-center text-[clamp(11px,2.4cqw,14px)] font-medium text-secondary">
         {editing ? "Enter para salvar · Esc para cancelar" : goalValue ? "meta definida para o mês" : "nenhuma meta definida"}
       </p>
-    </div>
+    </CardSpotlight>
   );
 }

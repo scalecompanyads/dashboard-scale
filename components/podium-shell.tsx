@@ -34,10 +34,14 @@ export const PODIUM_MATERIAL = {
     width: 116,
     height: 132,
     capHeight: 28,
-    topGradient: "linear-gradient(135deg, #dcefff 0%, #8fc4fb 48%, #4a90e8 100%)",
-    frontGradient: "linear-gradient(180deg, #4c94ea 0%, #2568c4 52%, #103a73 100%)",
+    // Same vivid brand blue as the funnel — mixed with white/black rather
+    // than reaching for a separate pale sky-blue.
+    topGradient:
+      "linear-gradient(135deg, color-mix(in srgb, var(--color-accent-light) 55%, white) 0%, var(--color-accent-light) 48%, var(--color-accent-primary) 100%)",
+    frontGradient:
+      "linear-gradient(180deg, var(--color-accent-light) 0%, var(--color-accent-primary) 52%, color-mix(in srgb, var(--color-accent-primary) 55%, black) 100%)",
     frontHighlight: "linear-gradient(180deg, rgba(255,255,255,0.4), transparent 45%)",
-    edgeGlow: "inset 0 1px 0 rgba(255,255,255,0.5), inset 0 0 30px rgba(96,165,250,0.25)",
+    edgeGlow: "inset 0 1px 0 rgba(255,255,255,0.5), inset 0 0 30px var(--accent-primary-soft)",
     dropShadow: "drop-shadow(0 8px 20px rgba(47,128,237,0.55)) drop-shadow(0 22px 26px rgba(0,0,0,0.55))",
     numberColor: "#ffffff",
   },
