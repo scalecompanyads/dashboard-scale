@@ -1,10 +1,10 @@
 import Image from "next/image";
 import { CLOSER_PHOTOS, fmtBRLCompact } from "@/lib/constants";
-import { EmptyPodiumSlot, Pedestal, PodiumShell, CrownIcon, initials, PODIUM_MATERIAL } from "@/components/podium-shell";
+import { EmptyPodiumSlot, Pedestal, PodiumShell, initials, PODIUM_MATERIAL, type PodiumRank } from "@/components/podium-shell";
 import { PctBadge } from "@/components/status-badge";
 import type { CloserStats } from "@/lib/metrics/closers";
 
-function CloserSlot({ rank, closer }: { rank: 1 | 2 | 3; closer?: CloserStats }) {
+function CloserSlot({ rank, closer }: { rank: PodiumRank; closer?: CloserStats }) {
   if (!closer) return <EmptyPodiumSlot rank={rank} />;
 
   const m = PODIUM_MATERIAL[rank];
@@ -13,8 +13,8 @@ function CloserSlot({ rank, closer }: { rank: 1 | 2 | 3; closer?: CloserStats })
   return (
     <div className={`relative flex flex-col items-center gap-1.5 ${m.order}`}>
       {rank === 1 && (
-        <span className="absolute -top-7 text-gold drop-shadow-[0_2px_10px_rgba(245,179,1,0.65)]" aria-hidden>
-          <CrownIcon />
+        <span className="absolute -top-8 text-3xl drop-shadow-[0_2px_10px_rgba(245,179,1,0.65)]" aria-hidden>
+          👑
         </span>
       )}
       {photo ? (
@@ -88,15 +88,24 @@ export function ClosersPodium({ closers }: { closers: CloserStats[] }) {
   const [c1, c2, c3, c4] = closers;
 
   return (
-    <PodiumShell
-      title="Pódio Closers"
-      subtitle="Ordenado por valor fechado"
-      gap="gap-4"
-      footer={c4 && <FourthPlaceRow closer={c4} />}
-    >
-      <CloserSlot rank={2} closer={c2} />
-      <CloserSlot rank={1} closer={c1} />
-      <CloserSlot rank={3} closer={c3} />
-    </PodiumShell>
+    <div className="h-full">
+      {/* narrower layouts: top 3 get a pedestal, 4th is a compact row */}
+      <div className="h-full 2xl:hidden">
+        <PodiumShell title="Pódio Closers" gap="gap-4" footer={c4 && <FourthPlaceRow closer={c4} />}>
+          <CloserSlot rank={2} closer={c2} />
+          <CloserSlot rank={1} closer={c1} />
+          <CloserSlot rank={3} closer={c3} />
+        </PodiumShell>
+      </div>
+      {/* 2xl and up: enough width for a real 4th pedestal instead */}
+      <div className="hidden h-full 2xl:block">
+        <PodiumShell title="Pódio Closers" gap="gap-3">
+          <CloserSlot rank={2} closer={c2} />
+          <CloserSlot rank={1} closer={c1} />
+          <CloserSlot rank={3} closer={c3} />
+          <CloserSlot rank={4} closer={c4} />
+        </PodiumShell>
+      </div>
+    </div>
   );
 }

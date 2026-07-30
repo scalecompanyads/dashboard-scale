@@ -86,14 +86,14 @@ export function GoalCard({ monthKey, goalValue, progressPct }: { monthKey: strin
             if (e.key === "Escape") setEditing(false);
           }}
           className="relative w-full rounded-md border border-accent-primary bg-canvas px-2 py-1 text-left font-bold leading-none tabular-nums text-primary outline-none"
-          style={{ fontSize: "clamp(1rem, 11cqw, 3.1rem)" }}
+          style={{ fontSize: "clamp(1.05rem, 12cqw, 3.4rem)" }}
         />
       ) : (
         <button
           onClick={() => setEditing(true)}
           title={goalValue ? fmtBRL(goalValue) : undefined}
           className="relative overflow-hidden whitespace-nowrap rounded-md text-left font-extrabold leading-none tracking-tight tabular-nums text-primary transition-colors duration-200 hover:text-accent-light"
-          style={{ fontSize: "clamp(1rem, 11cqw, 3.1rem)" }}
+          style={{ fontSize: "clamp(1.05rem, 12cqw, 3.4rem)" }}
         >
           {/* compact by default ("R$ 150k") — metas costumam ser números
               redondos e grandes, então abrevia sempre em vez de arriscar

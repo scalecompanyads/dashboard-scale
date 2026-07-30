@@ -47,6 +47,9 @@ export function FunnelChart({ data }: { data: FunnelData }) {
           instead of justify-between stretching the leftover height into
           growing gaps between them. */}
       <div className="relative flex min-h-0 w-full flex-1 flex-col justify-center gap-2.5">
+        {/* one continuous divider between the bars and the label column,
+            instead of a border per row — reads as a single subtle rule */}
+        <div className="pointer-events-none absolute inset-y-2 left-[calc(48%+0.75rem)] w-px bg-white/[0.07]" aria-hidden />
         {data.stages.map((stage, i) => (
           <div key={stage.key} className="group flex items-center gap-3">
             {/* pseudo-3D bar: light-blue top edge + inset bottom shadow read
@@ -54,7 +57,7 @@ export function FunnelChart({ data }: { data: FunnelData }) {
                 box-shadow) so the elevation shadow follows the clipped
                 trapezoid silhouette instead of the invisible bounding box */}
             <div
-              className="relative flex h-14 w-24 shrink-0 items-center justify-center overflow-hidden transition-transform duration-200 group-hover:scale-[1.04]"
+              className="relative flex h-14 w-[48%] shrink-0 items-center justify-center overflow-hidden transition-transform duration-200 group-hover:scale-[1.04]"
               style={{
                 clipPath: CLIP_PATH[i],
                 background: STAGE_GRADIENT[i],
@@ -75,18 +78,18 @@ export function FunnelChart({ data }: { data: FunnelData }) {
                 style={{ background: "linear-gradient(180deg, rgba(255,255,255,0.28), transparent)" }}
                 aria-hidden
               />
-              <span className="relative text-lg font-black text-white [text-shadow:0_2px_10px_rgba(0,0,0,0.5)]">
+              <span className="relative text-2xl font-black text-white [text-shadow:0_2px_10px_rgba(0,0,0,0.5)]">
                 {stage.value.toLocaleString("pt-BR")}
               </span>
             </div>
 
-            <div className="flex min-w-0 flex-1 items-center gap-2">
+            <div className="flex min-w-0 flex-1 items-center gap-2 pl-3">
               {stage.conversionFromPrevious !== null && (
                 <span className="shrink-0 rounded-full bg-accent-primary px-2 py-0.5 text-[10.5px] font-extrabold text-white shadow-[0_2px_8px_rgba(0,0,0,0.5),0_0_10px_rgba(47,128,237,0.5)]">
                   {stage.conversionFromPrevious.toFixed(1)}%
                 </span>
               )}
-              <p className="text-[12px] font-semibold leading-snug text-secondary">{stage.label}</p>
+              <p className="text-[13.5px] font-bold leading-snug text-primary">{stage.label}</p>
             </div>
           </div>
         ))}

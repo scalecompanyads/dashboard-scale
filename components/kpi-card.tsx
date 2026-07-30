@@ -108,12 +108,12 @@ export function KpiCard({
 
       {/* fluid, container-relative size: shrinks to fit narrow grid columns
           (never truncates/ellipsis) and grows well past the old fixed cap
-          on wide layouts/TV screens instead of staying small. Featured
-          cards get a taller cap so the 3-4 numbers that matter most read
-          as louder than the rest of the row. */}
+          on wide layouts/TV screens instead of staying small. Same clamp
+          for every card — featured/non-featured hierarchy already comes
+          through via the icon/title treatment and glow, not value size. */}
       <p
         className={`relative w-full overflow-hidden whitespace-nowrap text-left font-extrabold leading-none tracking-tight tabular-nums ${VALUE_TEXT[valueColor ?? accent]}`}
-        style={{ fontSize: featured ? "clamp(1.05rem, 13cqw, 4rem)" : "clamp(1rem, 11cqw, 3.1rem)" }}
+        style={{ fontSize: "clamp(1.05rem, 12cqw, 3.4rem)" }}
       >
         {value}
       </p>
