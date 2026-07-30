@@ -42,11 +42,11 @@ export function GoalCard({ monthKey, goalValue, progressPct }: { monthKey: strin
 
   return (
     <CardSpotlight
-      className="group flex h-full min-w-0 flex-col items-start overflow-hidden rounded-card border border-[rgba(96,165,250,0.12)] p-3.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.03),0_14px_35px_rgba(0,0,0,0.3)] backdrop-blur-xl transition-all duration-200 hover:-translate-y-0.5 hover:brightness-125"
+      className="group flex h-full min-w-0 flex-col items-start overflow-hidden rounded-card border border-[rgba(69,116,227,0.12)] p-3.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.03),0_14px_35px_rgba(0,0,0,0.3)] backdrop-blur-xl transition-all duration-200 hover:-translate-y-0.5 hover:brightness-125"
       style={{
         containerType: "inline-size",
         backgroundImage:
-          "linear-gradient(160deg, color-mix(in srgb, var(--color-status-good) 8%, transparent) 0%, rgba(13,18,27,0.82) 45%, rgba(13,18,27,0.9) 100%)",
+          "linear-gradient(160deg, color-mix(in srgb, var(--color-status-good) 8%, transparent) 0%, rgba(35,40,51,0.82) 45%, rgba(35,40,51,0.9) 100%)",
       }}
     >
       <div

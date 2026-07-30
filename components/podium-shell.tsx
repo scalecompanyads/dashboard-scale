@@ -56,7 +56,7 @@ export const PODIUM_MATERIAL = {
     // luminous line" only 1st place gets, on top of the shared edgeGlow
     edgeGlow:
       "inset 0 1px 0 rgba(255,255,255,0.5), inset 0 0 30px var(--accent-primary-soft), 0 -1px 0 rgba(255,255,255,0.9), 0 -6px 16px rgba(150,200,255,0.7)",
-    dropShadow: "drop-shadow(0 8px 20px rgba(47,128,237,0.55)) drop-shadow(0 22px 26px rgba(0,0,0,0.55))",
+    dropShadow: "drop-shadow(0 8px 20px rgba(17,77,219,0.55)) drop-shadow(0 22px 26px rgba(0,0,0,0.55))",
     numberColor: "#ffffff",
     metallicTexture: undefined as string | undefined,
   },
@@ -205,7 +205,7 @@ export function PodiumShell({
         {/* cqw (container-query width, tied to this card's own rendered
             width) instead of a flat px size — grows on a wide TV layout
             without touching how it looks at normal desktop widths */}
-        <h3 className="flex items-center gap-2 text-[clamp(13px,2.2cqw,17px)] font-bold uppercase tracking-wide text-primary">
+        <h3 className="font-display flex items-center gap-2 text-[clamp(15px,2.4cqw,19px)] font-medium text-primary">
           <TrophyIcon className="text-gold" />
           {title}
         </h3>

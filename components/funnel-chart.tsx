@@ -55,7 +55,7 @@ export function FunnelChart({ data }: { data: FunnelData }) {
       <div className="relative mb-5 flex flex-wrap items-center justify-between gap-2">
         {/* cqw (this card's own width) instead of a flat px size — grows on
             a wide TV layout, doesn't move at normal desktop widths */}
-        <h3 className="flex items-center gap-2 text-[clamp(13px,2.6cqw,18px)] font-bold text-primary">
+        <h3 className="font-display flex items-center gap-2 text-[clamp(15px,2.8cqw,19px)] font-medium text-primary">
           <FunnelIcon className="text-accent-light drop-shadow-[0_0_6px_rgba(38,135,255,0.6)]" />
           Funil de Conversão
         </h3>

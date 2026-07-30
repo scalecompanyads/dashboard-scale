@@ -40,7 +40,7 @@ const ACCENT_COLOR: Record<KpiAccent, string> = {
 // when nothing colorful happens to sit behind it.
 function cardBackground(accent: KpiAccent, featured: boolean) {
   const strength = featured ? 27 : 8;
-  return `linear-gradient(160deg, color-mix(in srgb, ${ACCENT_COLOR[accent]} ${strength}%, transparent) 0%, rgba(13,18,27,0.82) 45%, rgba(13,18,27,0.9) 100%)`;
+  return `linear-gradient(160deg, color-mix(in srgb, ${ACCENT_COLOR[accent]} ${strength}%, transparent) 0%, rgba(35,40,51,0.82) 45%, rgba(35,40,51,0.9) 100%)`;
 }
 
 export function KpiCard({
@@ -66,9 +66,9 @@ export function KpiCard({
   return (
     <CardSpotlight
       className={
-        "group flex h-full min-w-0 flex-col items-start overflow-hidden rounded-card border border-[rgba(96,165,250,0.12)] p-3.5 backdrop-blur-xl transition-all duration-200 hover:-translate-y-0.5 hover:brightness-125 " +
+        "group flex h-full min-w-0 flex-col items-start overflow-hidden rounded-card border border-[rgba(69,116,227,0.12)] p-3.5 backdrop-blur-xl transition-all duration-200 hover:-translate-y-0.5 hover:brightness-125 " +
         (featured
-          ? "shadow-[inset_0_1px_0_rgba(255,255,255,0.03),0_10px_32px_rgba(0,0,0,0.45),0_0_0_1px_rgba(47,128,237,0.22)] hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.03),0_16px_42px_rgba(0,0,0,0.55),0_0_0_1px_rgba(47,128,237,0.4)]"
+          ? "shadow-[inset_0_1px_0_rgba(255,255,255,0.03),0_10px_32px_rgba(0,0,0,0.45),0_0_0_1px_rgba(17,77,219,0.22)] hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.03),0_16px_42px_rgba(0,0,0,0.55),0_0_0_1px_rgba(17,77,219,0.4)]"
           : "shadow-[inset_0_1px_0_rgba(255,255,255,0.03),0_14px_35px_rgba(0,0,0,0.3)]")
       }
       style={{ containerType: "inline-size", backgroundImage: cardBackground(accent, featured) }}

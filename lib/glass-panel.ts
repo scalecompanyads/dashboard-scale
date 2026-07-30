@@ -6,8 +6,8 @@ import type { CSSProperties } from "react";
 // behind it, while staying translucent enough for the ambient glow to still
 // show through on top of it.
 export const glassPanelClass =
-  "rounded-card border border-[rgba(96,165,250,0.12)] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.03),0_14px_35px_rgba(0,0,0,0.35)] backdrop-blur-2xl";
+  "rounded-card border border-[rgba(69,116,227,0.12)] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.03),0_14px_35px_rgba(0,0,0,0.35)] backdrop-blur-2xl";
 
 export const glassPanelStyle: CSSProperties = {
-  backgroundImage: "linear-gradient(160deg, rgba(47,128,237,0.14) 0%, rgba(13,18,27,0.78) 42%, rgba(13,18,27,0.85) 100%)",
+  backgroundImage: "linear-gradient(160deg, rgba(17,77,219,0.14) 0%, rgba(35,40,51,0.78) 42%, rgba(35,40,51,0.85) 100%)",
 };

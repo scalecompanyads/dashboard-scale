@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
+import { ScaleLogo } from "@/components/scale-logo";
 
 const TABS = [
   { href: "/comercial", label: "Comercial" },
@@ -32,7 +32,7 @@ export function TopBar({ userEmail, children }: { userEmail: string | null; chil
   return (
     <div className="flex flex-wrap items-center justify-between gap-4 border-b border-hairline/70 px-1 pb-4">
       <div className="flex flex-wrap items-center gap-8">
-        <Image src="/scale-logo.svg" alt="Scale Company" width={140} height={35} className="h-7 w-auto opacity-95" priority />
+        <ScaleLogo />
 
         <nav className="flex items-center gap-1.5">
           {TABS.map((tab) => {
@@ -44,7 +44,7 @@ export function TopBar({ userEmail, children }: { userEmail: string | null; chil
                 className={
                   "rounded-lg border px-3.5 py-1.5 text-[13px] font-bold transition-all duration-200 " +
                   (active
-                    ? "border-accent-primary/50 bg-white/[0.06] text-white shadow-[0_0_14px_rgba(47,128,237,0.18)]"
+                    ? "border-accent-primary/50 bg-white/[0.06] text-white shadow-[0_0_14px_rgba(17,77,219,0.18)]"
                     : "border-transparent text-muted hover:text-white")
                 }
               >

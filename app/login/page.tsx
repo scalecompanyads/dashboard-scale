@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { ScaleLogo } from "@/components/scale-logo";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -34,7 +34,7 @@ export default function LoginPage() {
     <main className="flex min-h-screen items-center justify-center bg-canvas px-4">
       <div className="w-full max-w-sm rounded-card border border-hairline bg-surface-1 p-8 shadow-[0_20px_60px_rgba(0,0,0,0.5)] backdrop-blur-xl">
         <div className="mb-8 flex flex-col items-center gap-3">
-          <Image src="/scale-logo.svg" alt="Scale Company" width={130} height={32} className="h-8 w-auto opacity-95" priority />
+          <ScaleLogo size="lg" />
           <h1 className="text-lg font-semibold text-primary">Dashboard Comercial</h1>
         </div>
 

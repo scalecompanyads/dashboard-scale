@@ -1,41 +1,44 @@
 @import "tailwindcss";
 
 /*
- * Dark premium design system — Scale Company blue identity.
+ * Dark premium design system — Scale brand identity (identidade visual
+ * "Precisão Estratégica"): Azul Noite / Royal Blue / Grafite / Aço.
  * Palette + radius + transition tokens live here as the single source of
  * truth; components consume them via Tailwind utilities (bg-canvas,
  * text-secondary, rounded-card, etc.) instead of hardcoding hex/durations.
  *
- * Funnel ramp + status colors were validated against #070A0F (the
- * previous canvas) with the dataviz skill's validator — a pure #000000
- * canvas only increases contrast against every one of those foreground
- * colors, so the same validation still holds:
+ * Funnel ramp + status colors are independent semantic/ordinal colors
+ * (not part of the brand board) — re-validated against the new Azul Noite
+ * canvas with the dataviz skill's validator, still ALL CHECKS PASS:
  *   node scripts/validate_palette.js "#86b6ef,#3987e5,#256abf,#184f95" \
- *     --mode dark --surface "#070A0F" --ordinal   -> ALL CHECKS PASS
+ *     --mode dark --surface "#0B1226" --ordinal   -> ALL CHECKS PASS
+ *
+ * --color-secondary / --color-muted are Aço (#5C687B) lightened until
+ * contrast against the canvas roughly matches the previous tokens (7.2:1
+ * and ~4:1 respectively) — Aço itself is 3.3:1, too low for real text.
  */
 @theme {
   /* surfaces — glass: translúcidas sobre o fundo, não chapadas */
-  --color-canvas: #000000; /* fundo principal — totalmente preto */
-  --color-bg-secondary: #0a0e15; /* fundo secundário */
-  --color-surface-1: rgba(13, 18, 27, 0.64); /* cards */
-  --color-surface-2: rgba(18, 27, 43, 0.74); /* cards em destaque */
-  --color-hairline: #202938; /* bordas */
-  --color-hairline-strong: #3a4a63; /* bordas em hover/foco */
+  --color-canvas: #0b1226; /* Azul Noite — fundo principal da marca */
+  --color-bg-secondary: #141b2e; /* fundo secundário, um degrau acima do canvas */
+  --color-surface-1: rgba(35, 40, 51, 0.64); /* cards — base Grafite */
+  --color-surface-2: rgba(52, 57, 67, 0.74); /* cards em destaque — Grafite mais claro */
+  --color-hairline: #232a38; /* bordas */
+  --color-hairline-strong: #47536b; /* bordas em hover/foco — tom Aço */
 
   /* type */
   --color-primary: #f8fafc;
-  --color-secondary: #94a3b8;
-  --color-muted: #64748b;
+  --color-secondary: #9aa2af; /* Aço clareado ~7.2:1 sobre o canvas */
+  --color-muted: #737e8e; /* Aço clareado ~4.5:1 sobre o canvas */
   --color-ink-strong: #050810; /* texto escuro sobre preenchimentos vivos (badges sólidos) */
 
-  /* azul — identidade principal. accent-light usa o mesmo azul vivo da marca
-     (era um azul claro/pastel demais — trocado para o tom mais saturado). */
-  --color-accent-primary: #2f80ed;
-  --color-accent-light: #2563eb;
-  --color-accent-solid: #2f80ed;
-  --color-accent-solid-hover: #4c92f0;
-  --accent-primary-soft: rgba(47, 128, 237, 0.16);
-  --accent-primary-glow: rgba(47, 128, 237, 0.45);
+  /* azul — identidade principal (Royal Blue da marca). */
+  --color-accent-primary: #114ddb;
+  --color-accent-light: #4574e3;
+  --color-accent-solid: #114ddb;
+  --color-accent-solid-hover: #3568e0;
+  --accent-primary-soft: rgba(17, 77, 219, 0.16);
+  --accent-primary-glow: rgba(17, 77, 219, 0.45);
 
   /* status — cores realmente vivas, sempre com significado (metas, resultado, alerta) */
   --color-status-good: #0ca30c;
@@ -56,6 +59,7 @@
   --color-funnel-4: #184f95;
 
   --font-sans: var(--font-inter);
+  --font-display: var(--font-canela); /* wordmark/headline serif — brand's "Títulos/Destaques" */
 
   /* raio padrão dos cards (16–20px) */
   --radius-card: 18px;
@@ -73,9 +77,9 @@ html {
 body {
   background-color: var(--color-canvas);
   background-image:
-    radial-gradient(circle at 12% 0%, rgba(47, 128, 237, 0.05), transparent 45%),
-    radial-gradient(circle at 88% 15%, rgba(96, 165, 250, 0.032), transparent 40%),
-    radial-gradient(circle at 30% 90%, rgba(47, 128, 237, 0.028), transparent 45%);
+    radial-gradient(circle at 12% 0%, rgba(17, 77, 219, 0.05), transparent 45%),
+    radial-gradient(circle at 88% 15%, rgba(69, 116, 227, 0.032), transparent 40%),
+    radial-gradient(circle at 30% 90%, rgba(17, 77, 219, 0.028), transparent 45%);
   color: var(--color-primary);
 }
 

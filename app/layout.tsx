@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import localFont from "next/font/local";
 import { DotPattern } from "@/components/ui/dot-pattern";
 import { cn } from "@/lib/utils";
 import "./globals.css";
@@ -10,6 +11,18 @@ const inter = Inter({
   weight: ["400", "500", "600", "700", "800"],
 });
 
+// Brand display serif — used only for the "Scale" wordmark (see
+// components/scale-logo.tsx). Self-hosted trial cut; swap for the
+// licensed font files under the same path when available.
+const canela = localFont({
+  variable: "--font-canela",
+  display: "swap",
+  src: [
+    { path: "../public/canela-text-trial/CanelaText-Regular-Trial.otf", weight: "400", style: "normal" },
+    { path: "../public/canela-text-trial/CanelaText-Medium-Trial.otf", weight: "500", style: "normal" },
+  ],
+});
+
 export const metadata: Metadata = {
   title: "Dashboard Comercial — Scale",
   description: "Dashboard comercial e de marketing da Scale Company.",
@@ -17,7 +30,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="pt-BR" className={`${inter.variable} antialiased`}>
+    <html lang="pt-BR" className={`${inter.variable} ${canela.variable} antialiased`}>
       {/* suppressHydrationWarning: some browser extensions (ColorZilla, Grammarly, etc.)
           inject attributes like cz-shortcut-listen into <body> before React hydrates,
           which otherwise falsely reports as a hydration mismatch. */}
