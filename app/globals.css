@@ -135,3 +135,62 @@ body {
   }
 }
 
+/* Page-entrance animation — plays once when a page's content mounts
+   (route change), not on in-place data updates (filter/month swaps just
+   update text in the same DOM nodes, so it doesn't replay and get
+   annoying). Sections fade + rise in sequence; KPI cards inside a
+   `.stagger` row cascade individually via nth-child delay, offset by
+   `--stagger-base` so a second row on the same page starts later. */
+@keyframes enter-up {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-enter {
+  animation: enter-up 650ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.stagger > * {
+  opacity: 0;
+  animation: enter-up 550ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.stagger > *:nth-child(1) {
+  animation-delay: calc(var(--stagger-base, 0ms) + 0ms);
+}
+.stagger > *:nth-child(2) {
+  animation-delay: calc(var(--stagger-base, 0ms) + 50ms);
+}
+.stagger > *:nth-child(3) {
+  animation-delay: calc(var(--stagger-base, 0ms) + 100ms);
+}
+.stagger > *:nth-child(4) {
+  animation-delay: calc(var(--stagger-base, 0ms) + 150ms);
+}
+.stagger > *:nth-child(5) {
+  animation-delay: calc(var(--stagger-base, 0ms) + 200ms);
+}
+.stagger > *:nth-child(6) {
+  animation-delay: calc(var(--stagger-base, 0ms) + 250ms);
+}
+.stagger > *:nth-child(7) {
+  animation-delay: calc(var(--stagger-base, 0ms) + 300ms);
+}
+.stagger > *:nth-child(8) {
+  animation-delay: calc(var(--stagger-base, 0ms) + 350ms);
+}
+.stagger > *:nth-child(9) {
+  animation-delay: calc(var(--stagger-base, 0ms) + 400ms);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-enter,
+  .stagger > * {
+    animation: none;
+    opacity: 1;
+  }
+}
+

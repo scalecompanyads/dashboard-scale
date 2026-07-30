@@ -83,12 +83,12 @@ export default async function ComercialPage({
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="animate-enter flex flex-wrap items-center justify-between gap-3">
         <ClosingFilterTabs filter={filter} dateFrom={dateFrom} dateTo={dateTo} />
         <MonthYearSelect year={year} month={month} />
       </div>
 
-      <KpiRow cols={7}>
+      <KpiRow cols={7} staggerBase={60}>
         <KpiCard
           featured
           label={`TCV Fechado — ${label}`}
@@ -152,17 +152,17 @@ export default async function ComercialPage({
         />
       </KpiRow>
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+      <div className="animate-enter grid grid-cols-1 gap-4 lg:grid-cols-2" style={{ animationDelay: "440ms" }}>
         <FunnelChart data={funnel} />
         <ClosersPodium closers={closers} />
       </div>
 
-      <div className="grid grid-cols-1 gap-4 lg:h-[440px] lg:grid-cols-2">
+      <div className="animate-enter grid grid-cols-1 gap-4 lg:h-[440px] lg:grid-cols-2" style={{ animationDelay: "520ms" }}>
         <SdrPodium sdrs={sdrs} />
         <ClosedDealsTable closings={closings} />
       </div>
 
-      <div className="h-72">
+      <div className="animate-enter h-72" style={{ animationDelay: "600ms" }}>
         <RevenueTrendChart points={trend} />
       </div>
     </div>

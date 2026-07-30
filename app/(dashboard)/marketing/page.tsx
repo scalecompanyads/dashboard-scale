@@ -66,11 +66,11 @@ export default async function MarketingPage({
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="flex flex-wrap items-center justify-end gap-3">
+      <div className="animate-enter flex flex-wrap items-center justify-end gap-3">
         <MonthYearSelect year={year} month={month} />
       </div>
 
-      <KpiRow cols={5}>
+      <KpiRow cols={5} staggerBase={60}>
         <KpiCard
           featured
           icon={<IconCurrency />}
@@ -106,7 +106,7 @@ export default async function MarketingPage({
         />
       </KpiRow>
 
-      <KpiRow cols={4}>
+      <KpiRow cols={4} staggerBase={310}>
         <KpiCard
           featured
           icon={<IconGauge />}
@@ -135,7 +135,7 @@ export default async function MarketingPage({
         />
       </KpiRow>
 
-      <div className="min-h-[420px] flex-1">
+      <div className="animate-enter min-h-[420px] flex-1" style={{ animationDelay: "560ms" }}>
         <CreativeTable creatives={creatives} />
       </div>
     </div>

@@ -18,17 +18,6 @@ const GLOW_BLOB: Record<KpiAccent, string> = {
   muted: "from-white/40 via-white/10",
 };
 
-// Glowing top stripe — brought back from an earlier pass per explicit
-// feedback that it looked good; a thin bright band with a soft outward
-// glow, one per accent.
-const TOP_BAR: Record<KpiAccent, { gradient: string; glow: string }> = {
-  primary: { gradient: "linear-gradient(90deg, var(--color-accent-primary), var(--color-accent-light))", glow: "var(--accent-primary-glow)" },
-  good: { gradient: "linear-gradient(90deg, var(--color-status-good), #34d399)", glow: "rgba(12,163,12,0.5)" },
-  warning: { gradient: "linear-gradient(90deg, var(--color-status-warning), #ffd764)", glow: "rgba(250,178,25,0.5)" },
-  critical: { gradient: "linear-gradient(90deg, var(--color-status-critical), var(--color-status-critical-light))", glow: "rgba(208,59,59,0.5)" },
-  muted: { gradient: "linear-gradient(90deg, var(--color-hairline-strong), var(--color-secondary))", glow: "transparent" },
-};
-
 const ICON_BADGE: Record<KpiAccent, string> = {
   primary: "bg-gradient-to-br from-accent-primary/25 to-accent-light/10 text-accent-light shadow-[0_0_16px_var(--accent-primary-glow)]",
   good: "bg-gradient-to-br from-status-good/30 to-status-good/5 text-status-good shadow-[0_0_16px_rgba(12,163,12,0.4)]",
@@ -84,12 +73,6 @@ export function KpiCard({
       }
       style={{ containerType: "inline-size", backgroundImage: cardBackground(accent, featured) }}
     >
-      <span
-        className="pointer-events-none absolute inset-x-0 top-0 h-[3px] rounded-t-card"
-        style={{ background: TOP_BAR[accent].gradient, boxShadow: `0 0 14px ${TOP_BAR[accent].glow}` }}
-        aria-hidden
-      />
-
       <div
         className={`pointer-events-none absolute -right-12 -top-16 h-40 w-40 rounded-full bg-gradient-to-br to-transparent blur-3xl ${GLOW_BLOB[accent]} ${featured ? "opacity-30" : "opacity-[0.16]"}`}
         aria-hidden
