@@ -48,7 +48,7 @@ function CloserSlot({ rank, closer }: { rank: PodiumRank; closer?: CloserStats }
         {fmtBRLCompact(closer.mrr)}
       </p>
       <PctBadge num={closer.fechados} den={closer.reunioes} />
-      <p className="text-[clamp(10px,2cqw,13px)] font-medium text-muted">
+      <p className="text-[clamp(12px,2.4cqw,15px)] font-medium text-primary">
         {closer.fechados} de {closer.reunioes} reuniões
       </p>
       <div className="mt-1">
