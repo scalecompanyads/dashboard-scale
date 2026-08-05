@@ -23,6 +23,7 @@ export interface Database {
           sdr: string | null;
           origem: string | null;
           criativo: string | null;
+          direcao: string | null;
           raw: Record<string, unknown> | null;
           created_at: string;
           updated_at: string;

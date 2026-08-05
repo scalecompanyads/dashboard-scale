@@ -1,5 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { dateMonth, ETAPA_EXCLUIDA_AGENDA, monthKeyOf, monthRange } from "@/lib/constants";
+import { DIRECAO_FILTER, dateMonth, ETAPA_EXCLUIDA_AGENDA, monthKeyOf, monthRange } from "@/lib/constants";
 import type { Database, Lead } from "@/lib/types/database.types";
 
 type DB = SupabaseClient<Database>;
@@ -10,28 +10,37 @@ export type ClosingFilter = "all" | "mesmo_mes" | "outros_meses";
 // over the same `leads` table — mirrors fetchLeads/fetchAgendadas/
 // fetchClosingsFiltered in the legacy dashboard.
 
+// "Direção" (color_mkta1n92 in Monday) marks junk/test/duplicate leads with
+// the value "Filter" — excluded everywhere below via a null-safe filter
+// (`.neq` alone would also drop not-yet-synced rows, since SQL `!=` never
+// matches NULL).
+function excludeDirecaoFilter<Q extends { or: (filters: string) => Q }>(query: Q): Q {
+  return query.or(`direcao.is.null,direcao.neq.${DIRECAO_FILTER}`);
+}
+
 export async function getLeadsByEntryRange(supabase: DB, year: number, month: number): Promise<Lead[]> {
   const [from, to] = monthRange(year, month);
-  const { data, error } = await supabase.from("leads").select("*").gte("dt_entrada", from).lte("dt_entrada", to);
+  const { data, error } = await excludeDirecaoFilter(
+    supabase.from("leads").select("*").gte("dt_entrada", from).lte("dt_entrada", to)
+  );
   if (error) throw error;
   return data ?? [];
 }
 
 export async function getAgendaByRange(supabase: DB, year: number, month: number): Promise<Lead[]> {
   const [from, to] = monthRange(year, month);
-  const { data, error } = await supabase.from("leads").select("*").gte("dt_agenda", from).lte("dt_agenda", to);
+  const { data, error } = await excludeDirecaoFilter(
+    supabase.from("leads").select("*").gte("dt_agenda", from).lte("dt_agenda", to)
+  );
   if (error) throw error;
   return (data ?? []).filter((i) => !ETAPA_EXCLUIDA_AGENDA.has(i.etapa ?? ""));
 }
 
 async function getClosingsRawByRange(supabase: DB, year: number, month: number): Promise<Lead[]> {
   const [from, to] = monthRange(year, month);
-  const { data, error } = await supabase
-    .from("leads")
-    .select("*")
-    .gte("dt_fecha", from)
-    .lte("dt_fecha", to)
-    .eq("etapa", "Fechado");
+  const { data, error } = await excludeDirecaoFilter(
+    supabase.from("leads").select("*").gte("dt_fecha", from).lte("dt_fecha", to).eq("etapa", "Fechado")
+  );
   if (error) throw error;
   return data ?? [];
 }

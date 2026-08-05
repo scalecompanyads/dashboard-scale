@@ -86,6 +86,7 @@ function mapItemToRow(item: MondayItem): Lead {
     sdr: colText(item, MONDAY_COL.sdr),
     origem: colText(item, MONDAY_COL.origem),
     criativo: colText(item, MONDAY_COL.criativo),
+    direcao: colText(item, MONDAY_COL.direcao),
     raw: item as unknown as Record<string, unknown>,
     created_at: now,
     updated_at: now,

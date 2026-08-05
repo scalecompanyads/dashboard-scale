@@ -14,9 +14,14 @@ export const MONDAY_COL = {
   modelo: "color_mm5gmp1",
   origem: "color_mksy15sp",
   criativo: "text_mkv5psxz",
+  direcao: "color_mkta1n92",
 } as const;
 
 export const ORIGEM_META_ADS = "Meta Ads";
+
+// "Direção" marks junk/test/duplicate leads — excluded everywhere in the
+// dashboard (leads, agenda, closings), not just from fechamentos.
+export const DIRECAO_FILTER = "Filter";
 
 // Meetings that actually happened (vs. still open / cancelled before the call)
 export const ETAPA_REALIZADA = new Set([
