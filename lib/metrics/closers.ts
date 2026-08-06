@@ -8,7 +8,7 @@ export interface CloserStats {
   mrr: number;
 }
 
-const EXCLUDED_CLOSER_NAMES = new Set(["Nenhum", "CS"]);
+const EXCLUDED_CLOSER_NAMES = new Set(["Nenhum", "CS", "Yakin"]);
 
 // Ported from calcClosers() in the legacy dashboard.
 export function calcClosers(agendaItems: Lead[], closings: Lead[]): CloserStats[] {
