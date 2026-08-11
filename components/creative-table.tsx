@@ -15,8 +15,10 @@ const COLUMNS = [
   "Leads",
   "CPL",
   "Agend.",
+  "Taxa Agend.",
   "Custo/Agend.",
   "Compar.",
+  "Taxa Compar.",
   "Custo/Compar.",
   "Fechados",
   "CAC",
@@ -87,8 +89,10 @@ export function CreativeTable({ creatives, thumbnails }: { creatives: CreativeRo
                   <td className={tdNum}>{c.leads}</td>
                   <td className={tdNumMuted}>{c.cpl ? fmtBRL(c.cpl) : "—"}</td>
                   <td className={tdNum}>{c.agendamentos}</td>
+                  <td className={tdNumMuted}>{c.leads ? `${c.taxaAgendamento.toFixed(1)}%` : "—"}</td>
                   <td className={tdNumMuted}>{c.custoAgendamento ? fmtBRL(c.custoAgendamento) : "—"}</td>
                   <td className={tdNum}>{c.comparecimentos}</td>
+                  <td className={tdNumMuted}>{c.agendamentos ? `${c.taxaComparecimento.toFixed(1)}%` : "—"}</td>
                   <td className={tdNumMuted}>{c.custoComparecimento ? fmtBRL(c.custoComparecimento) : "—"}</td>
                   <td className={tdNum}>{c.fechamentos}</td>
                   <td className={tdNumMuted}>{c.cac ? fmtBRL(c.cac) : "—"}</td>

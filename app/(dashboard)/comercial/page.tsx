@@ -164,7 +164,7 @@ export default async function ComercialPage({
         <ClosersPodium closers={closers} />
       </div>
 
-      <div className="animate-enter min-h-[320px] flex-1" style={{ animationDelay: "520ms" }}>
+      <div className="animate-enter mt-4 min-h-[320px] flex-1" style={{ animationDelay: "520ms" }}>
         <ClosedDealsTable closings={closings} />
       </div>
     </div>

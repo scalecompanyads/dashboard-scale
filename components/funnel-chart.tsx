@@ -186,6 +186,11 @@ export function FunnelChart({ data }: { data: FunnelData }) {
                       <p className="truncate text-[clamp(11px,2.2cqw,15px)] font-medium" style={{ color: "#b2bed0" }}>
                         {stage.label}
                       </p>
+                      {stage.nextMilestone && (
+                        <p className="truncate text-[clamp(9px,1.6cqw,11px)] font-medium leading-none" style={{ color: "rgba(178,190,208,0.62)" }}>
+                          faltam {stage.nextMilestone.needed} p/ {stage.nextMilestone.targetPct}%
+                        </p>
+                      )}
                     </>
                   ) : (
                     <p className="truncate text-[clamp(13px,2.6cqw,18px)] font-bold" style={{ color: "#f1f5f9" }}>

@@ -70,7 +70,9 @@ export interface CreativeRow {
   valorFechado: number;
   cpl: number;
   custoAgendamento: number;
+  taxaAgendamento: number;
   custoComparecimento: number;
+  taxaComparecimento: number;
   cac: number;
   roas: number;
 }
@@ -83,7 +85,10 @@ export function aggregateByCreative(
   closingsMeta: Lead[],
   adSpendByName: Map<string, { spend: number; adId: string }>
 ): CreativeRow[] {
-  const rows = new Map<string, Omit<CreativeRow, "cpl" | "custoAgendamento" | "custoComparecimento" | "cac" | "roas">>();
+  const rows = new Map<
+    string,
+    Omit<CreativeRow, "cpl" | "custoAgendamento" | "taxaAgendamento" | "custoComparecimento" | "taxaComparecimento" | "cac" | "roas">
+  >();
   const norm = (s: string | null | undefined) => (s ?? "").trim() || "Sem criativo";
   const keyOf = (s: string | null | undefined) => norm(s).toLowerCase();
   const ensure = (name: string | null | undefined) => {
@@ -119,7 +124,9 @@ export function aggregateByCreative(
       ...r,
       cpl: r.leads ? r.spend / r.leads : 0,
       custoAgendamento: r.agendamentos ? r.spend / r.agendamentos : 0,
+      taxaAgendamento: r.leads ? (r.agendamentos / r.leads) * 100 : 0,
       custoComparecimento: r.comparecimentos ? r.spend / r.comparecimentos : 0,
+      taxaComparecimento: r.agendamentos ? (r.comparecimentos / r.agendamentos) * 100 : 0,
       cac: r.fechamentos ? r.spend / r.fechamentos : 0,
       roas: r.spend > 0 ? r.valorFechado / r.spend : 0,
     }))
