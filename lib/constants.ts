@@ -59,15 +59,14 @@ export interface PersonPhoto {
   position?: string;
 }
 
-// SDR first-name (lowercase) -> photo in /public
-export const SDR_PHOTOS: Record<string, PersonPhoto> = {
+// Person first-name (lowercase) -> photo in /public. One shared map for
+// every podium (SDR, closer, ...) — a person's headshot doesn't depend on
+// which role they're being ranked under, and someone can show up in both
+// (e.g. moving from closer to SDR) without losing their photo.
+export const PERSON_PHOTOS: Record<string, PersonPhoto> = {
   josé: { src: "/jose-novo.jpeg", position: "center 25%" },
   jose: { src: "/jose-novo.jpeg", position: "center 25%" },
   henrique: { src: "/henrique-novo.jpg", position: "center 25%" },
-};
-
-// Closer first-name (lowercase) -> photo in /public
-export const CLOSER_PHOTOS: Record<string, PersonPhoto> = {
   gabriel: { src: "/gabriel-dias.jpeg" },
   pedro: { src: "/pedro-clarck.jpeg", position: "center 25%" },
   samuel: { src: "/samuel.jpeg", position: "center 25%" },

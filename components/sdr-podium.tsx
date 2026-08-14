@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { SDR_PHOTOS } from "@/lib/constants";
+import { PERSON_PHOTOS } from "@/lib/constants";
 import { EmptyPodiumSlot, Pedestal, PodiumShell, initials, PODIUM_MATERIAL, type PodiumRank } from "@/components/podium-shell";
 import { podiumTop3, type SdrStats } from "@/lib/metrics/sdrs";
 
@@ -8,7 +8,7 @@ function SdrSlot({ rank, sdr }: { rank: PodiumRank; sdr?: SdrStats }) {
 
   const m = PODIUM_MATERIAL[rank];
   const pct = sdr.agendadas ? (sdr.feitas / sdr.agendadas) * 100 : 0;
-  const photo = SDR_PHOTOS[sdr.name.toLowerCase().split(" ")[0]];
+  const photo = PERSON_PHOTOS[sdr.name.toLowerCase().split(" ")[0]];
 
   return (
     <div className={`relative flex flex-col items-center gap-2.5 ${m.order}`}>

@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { CLOSER_PHOTOS, fmtBRLCompact } from "@/lib/constants";
+import { PERSON_PHOTOS, fmtBRLCompact } from "@/lib/constants";
 import { EmptyPodiumSlot, Pedestal, PodiumShell, initials, PODIUM_MATERIAL, type PodiumRank } from "@/components/podium-shell";
 import { PctBadge } from "@/components/status-badge";
 import type { CloserStats } from "@/lib/metrics/closers";
@@ -8,7 +8,7 @@ function CloserSlot({ rank, closer }: { rank: PodiumRank; closer?: CloserStats }
   if (!closer) return <EmptyPodiumSlot rank={rank} />;
 
   const m = PODIUM_MATERIAL[rank];
-  const photo = CLOSER_PHOTOS[closer.name.toLowerCase().split(" ")[0]];
+  const photo = PERSON_PHOTOS[closer.name.toLowerCase().split(" ")[0]];
 
   return (
     <div className={`relative flex flex-col items-center gap-1.5 ${m.order}`}>
@@ -59,7 +59,7 @@ function CloserSlot({ rank, closer }: { rank: PodiumRank; closer?: CloserStats }
 }
 
 function FourthPlaceRow({ closer }: { closer: CloserStats }) {
-  const photo = CLOSER_PHOTOS[closer.name.toLowerCase().split(" ")[0]];
+  const photo = PERSON_PHOTOS[closer.name.toLowerCase().split(" ")[0]];
   const pct = closer.reunioes ? (closer.fechados / closer.reunioes) * 100 : 0;
 
   return (
