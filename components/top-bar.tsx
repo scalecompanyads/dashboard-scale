@@ -42,9 +42,9 @@ export function TopBar({ userEmail, children }: { userEmail: string | null; chil
                 key={tab.href}
                 href={tab.href}
                 className={
-                  "rounded-lg border px-3.5 py-1.5 text-[13px] font-bold transition-all duration-200 " +
+                  "rounded-none border px-3.5 py-1.5 text-[13px] font-bold transition-all duration-200 " +
                   (active
-                    ? "border-accent-primary/50 bg-white/[0.06] text-white shadow-[0_0_14px_rgba(17,77,219,0.18)]"
+                    ? "border-accent-primary/50 bg-white/[0.06] text-white shadow-[0_0_14px_rgba(58,67,227,0.18)]"
                     : "border-transparent text-muted hover:text-white")
                 }
               >
@@ -58,7 +58,7 @@ export function TopBar({ userEmail, children }: { userEmail: string | null; chil
       <div className="flex flex-wrap items-center gap-3">
         <div className="flex items-center gap-2.5">{children}</div>
         {userEmail && (
-          <div className="hidden items-center gap-2 rounded-lg border border-hairline bg-white/[0.02] py-1 pl-1 pr-3 md:flex">
+          <div className="hidden items-center gap-2 rounded-none border border-hairline bg-white/[0.02] py-1 pl-1 pr-3 md:flex">
             <span className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-accent-primary to-accent-light text-[10px] font-extrabold text-white">
               {userEmail[0]?.toUpperCase()}
             </span>
@@ -67,7 +67,7 @@ export function TopBar({ userEmail, children }: { userEmail: string | null; chil
         )}
         <button
           onClick={handleSignOut}
-          className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[12.5px] font-semibold text-secondary transition-all duration-200 hover:bg-white/[0.05] hover:text-white"
+          className="flex items-center gap-1.5 rounded-none px-3 py-1.5 text-[12.5px] font-semibold text-secondary transition-all duration-200 hover:bg-white/[0.05] hover:text-white"
         >
           <SignOutIcon />
           Sair

@@ -6,7 +6,7 @@ import { MONTHS } from "@/lib/constants";
 const FIRST_YEAR = 2025;
 
 const selectClass =
-  "cursor-pointer appearance-none rounded-md border border-hairline bg-black/20 py-1.5 pl-3 pr-7 text-[12.5px] font-semibold text-primary outline-none transition-colors duration-200 hover:border-hairline-strong focus:border-accent-primary";
+  "cursor-pointer appearance-none rounded-none border border-hairline bg-black/20 py-1.5 pl-3 pr-7 text-[12.5px] font-semibold text-primary outline-none transition-colors duration-200 hover:border-hairline-strong focus:border-accent-primary";
 
 const chevronBg =
   "url(\"data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e\")";

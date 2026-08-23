@@ -32,7 +32,8 @@ export default function LoginPage() {
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-canvas px-4">
-      <div className="w-full max-w-sm rounded-card border border-hairline bg-surface-1 p-8 shadow-[0_20px_60px_rgba(0,0,0,0.5)] backdrop-blur-xl">
+      <div className="relative w-full max-w-sm overflow-hidden rounded-card border border-[rgba(88,141,255,0.5)] bg-surface-solid p-8 shadow-[0_20px_60px_rgba(0,0,0,0.5)]">
+        <div className="absolute inset-x-0 top-0 h-[3px] bg-accent-primary" aria-hidden />
         <div className="mb-8 flex flex-col items-center gap-3">
           <ScaleLogo size="lg" />
           <h1 className="text-lg font-semibold text-primary">Dashboard Comercial</h1>
@@ -50,7 +51,7 @@ export default function LoginPage() {
               autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="rounded-lg border border-hairline bg-black/30 px-3 py-2.5 text-sm text-primary outline-none transition focus:border-accent-primary focus:shadow-[0_0_0_3px_var(--accent-primary-soft)]"
+              className="rounded-none border border-hairline bg-black/30 px-3 py-2.5 text-sm text-primary outline-none transition focus:border-accent-primary focus:shadow-[0_0_0_3px_var(--accent-primary-soft)]"
               autoFocus
             />
           </div>
@@ -66,12 +67,12 @@ export default function LoginPage() {
               autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="rounded-lg border border-hairline bg-black/30 px-3 py-2.5 text-sm text-primary outline-none transition focus:border-accent-primary focus:shadow-[0_0_0_3px_var(--accent-primary-soft)]"
+              className="rounded-none border border-hairline bg-black/30 px-3 py-2.5 text-sm text-primary outline-none transition focus:border-accent-primary focus:shadow-[0_0_0_3px_var(--accent-primary-soft)]"
             />
           </div>
 
           {error && (
-            <p className="rounded-lg border border-status-critical/30 bg-status-critical/10 px-3 py-2 text-sm text-status-critical">
+            <p className="rounded-none border border-status-critical/30 bg-status-critical/10 px-3 py-2 text-sm text-status-critical">
               {error}
             </p>
           )}
@@ -79,7 +80,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={pending}
-            className="mt-2 rounded-lg bg-gradient-to-r from-accent-primary to-accent-light px-4 py-2.5 text-sm font-bold text-ink-strong shadow-[0_0_20px_var(--accent-primary-glow)] transition hover:shadow-[0_0_28px_var(--accent-primary-glow)] disabled:opacity-60"
+            className="mt-2 rounded-none bg-gradient-to-r from-accent-primary to-accent-light px-4 py-2.5 text-sm font-bold text-ink-strong shadow-[0_0_20px_var(--accent-primary-glow)] transition hover:shadow-[0_0_28px_var(--accent-primary-glow)] disabled:opacity-60"
           >
             {pending ? "Entrando…" : "Entrar"}
           </button>

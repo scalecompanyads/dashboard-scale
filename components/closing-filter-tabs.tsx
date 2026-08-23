@@ -33,15 +33,15 @@ export function ClosingFilterTabs({
 
   return (
     <div className="flex flex-wrap items-center gap-3">
-      <span className="text-[12px] font-bold uppercase tracking-wide text-secondary">Fechamentos</span>
+      <span className="font-display text-[12px] font-bold uppercase tracking-wider text-accent-primary">Fechamentos</span>
 
-      <div className="flex items-center gap-1 rounded-lg bg-black/20 p-1">
+      <div className="flex items-center gap-1 rounded-none bg-black/20 p-1">
         {FILTERS.map((f) => (
           <button
             key={f.value}
             onClick={() => setParam({ filter: f.value === "all" ? undefined : f.value })}
             className={
-              "rounded-md px-3 py-1.5 text-[12.5px] font-bold transition-all duration-200 " +
+              "rounded-none px-3 py-1.5 text-[12.5px] font-bold transition-all duration-200 " +
               (filter === f.value
                 ? "bg-gradient-to-r from-accent-primary to-accent-light text-ink-strong shadow-[0_0_14px_var(--accent-primary-glow)]"
                 : "text-secondary hover:text-white")
@@ -59,14 +59,14 @@ export function ClosingFilterTabs({
             type="date"
             value={dateFrom ?? ""}
             onChange={(e) => setParam({ dateFrom: e.target.value || undefined })}
-            className="rounded-md border border-hairline bg-black/20 px-2 py-1.5 text-[12px] text-primary outline-none [color-scheme:dark] transition-colors duration-200 focus:border-accent-primary"
+            className="rounded-none border border-hairline bg-black/20 px-2 py-1.5 text-[12px] text-primary outline-none [color-scheme:dark] transition-colors duration-200 focus:border-accent-primary"
           />
           <span>até</span>
           <input
             type="date"
             value={dateTo ?? ""}
             onChange={(e) => setParam({ dateTo: e.target.value || undefined })}
-            className="rounded-md border border-hairline bg-black/20 px-2 py-1.5 text-[12px] text-primary outline-none [color-scheme:dark] transition-colors duration-200 focus:border-accent-primary"
+            className="rounded-none border border-hairline bg-black/20 px-2 py-1.5 text-[12px] text-primary outline-none [color-scheme:dark] transition-colors duration-200 focus:border-accent-primary"
           />
         </div>
       )}

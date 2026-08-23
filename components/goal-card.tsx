@@ -42,23 +42,20 @@ export function GoalCard({ monthKey, goalValue, progressPct }: { monthKey: strin
 
   return (
     <CardSpotlight
-      className="group flex h-full min-w-0 flex-col items-start overflow-hidden rounded-card border border-[rgba(69,116,227,0.12)] p-3.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.03),0_14px_35px_rgba(0,0,0,0.3)] backdrop-blur-xl transition-all duration-200 hover:-translate-y-0.5 hover:brightness-125"
+      className="group flex h-full min-w-0 flex-col items-start overflow-hidden rounded-card border border-[rgba(88,141,255,0.5)] p-3.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_14px_35px_rgba(0,0,0,0.3)] transition-all duration-200 hover:-translate-y-0.5 hover:brightness-125"
       style={{
         containerType: "inline-size",
-        backgroundImage:
-          "linear-gradient(160deg, color-mix(in srgb, var(--color-status-good) 8%, transparent) 0%, rgba(35,40,51,0.82) 45%, rgba(35,40,51,0.9) 100%)",
+        backgroundImage: "linear-gradient(160deg, color-mix(in srgb, var(--color-status-good) 12%, transparent) 0%, #000000 45%, #000000 100%)",
       }}
     >
-      <div
-        className="pointer-events-none absolute -right-12 -top-16 h-40 w-40 rounded-full bg-gradient-to-br from-accent-primary via-accent-light to-transparent opacity-[0.16] blur-3xl"
-        aria-hidden
-      />
+      {/* editorial "kicker" stripe — matches every KPI card's top accent band */}
+      <div className="absolute inset-x-0 top-0 h-[3px] bg-status-good" aria-hidden />
 
       {!editing && (
         <button
           onClick={() => setEditing(true)}
           aria-label="Editar meta do mês"
-          className="absolute right-3 top-3 z-10 flex h-6 w-6 items-center justify-center rounded-md text-muted opacity-0 transition-opacity duration-200 hover:bg-white/[0.06] hover:text-accent-light group-hover:opacity-100"
+          className="absolute right-3 top-3 z-10 flex h-6 w-6 items-center justify-center rounded-none text-muted opacity-0 transition-opacity duration-200 hover:bg-white/[0.06] hover:text-accent-light group-hover:opacity-100"
         >
           <EditIcon />
         </button>
@@ -66,7 +63,7 @@ export function GoalCard({ monthKey, goalValue, progressPct }: { monthKey: strin
 
       <div className="relative mb-1.5 flex w-full items-start justify-start gap-1.5">
         <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full" style={{ backgroundColor: "var(--color-status-good)", opacity: 0.55 }} aria-hidden />
-        <p className="line-clamp-2 text-left text-[clamp(10px,2.1cqw,15px)] font-bold uppercase leading-snug tracking-wide text-secondary">
+        <p className="font-display line-clamp-2 text-left text-[clamp(10px,2.1cqw,15px)] font-bold uppercase leading-snug tracking-wider text-accent-primary">
           Meta do Mês
         </p>
       </div>
@@ -85,14 +82,14 @@ export function GoalCard({ monthKey, goalValue, progressPct }: { monthKey: strin
             if (e.key === "Enter") (e.target as HTMLInputElement).blur();
             if (e.key === "Escape") setEditing(false);
           }}
-          className="relative w-full rounded-md border border-accent-primary bg-canvas px-2 py-1 text-left font-bold leading-none tabular-nums text-primary outline-none"
+          className="relative w-full rounded-none border border-accent-primary bg-canvas px-2 py-1 text-left font-bold leading-none tabular-nums text-primary outline-none"
           style={{ fontSize: "clamp(1.05rem, 13cqw, 5rem)" }}
         />
       ) : (
         <button
           onClick={() => setEditing(true)}
           title={goalValue ? fmtBRL(goalValue) : undefined}
-          className="relative overflow-hidden whitespace-nowrap rounded-md text-left font-extrabold leading-none tracking-tight tabular-nums text-primary transition-colors duration-200 hover:text-accent-light"
+          className="relative overflow-hidden whitespace-nowrap rounded-none text-left font-extrabold leading-none tracking-tight tabular-nums text-primary transition-colors duration-200 hover:text-accent-light"
           style={{ fontSize: "clamp(1.05rem, 13cqw, 5rem)" }}
         >
           {/* compact by default ("R$ 150k") — metas costumam ser números

@@ -1,11 +1,13 @@
 @import "tailwindcss";
 
 /*
- * Dark premium design system — Scale brand identity (identidade visual
- * "Precisão Estratégica"): Azul Noite / Royal Blue / Grafite / Aço.
- * Palette + radius + transition tokens live here as the single source of
- * truth; components consume them via Tailwind utilities (bg-canvas,
- * text-secondary, rounded-card, etc.) instead of hardcoding hex/durations.
+ * Editorial premium design system — pulled from Scale's institutional site:
+ * a flat, zero-radius, restrained-glow aesthetic instead of the earlier
+ * glassy/glowing dashboard look. Azul Noite / Grafite / Aço surfaces stay,
+ * the accent blue family and the radius scale are what changed. Palette +
+ * radius + transition tokens live here as the single source of truth;
+ * components consume them via Tailwind utilities (bg-canvas, text-secondary,
+ * rounded-card, etc.) instead of hardcoding hex/durations.
  *
  * Funnel ramp + status colors are independent semantic/ordinal colors
  * (not part of the brand board) — re-validated against the new Azul Noite
@@ -19,10 +21,11 @@
  */
 @theme {
   /* surfaces — glass: translúcidas sobre o fundo, não chapadas */
-  --color-canvas: #0b1226; /* Azul Noite — fundo principal da marca */
-  --color-bg-secondary: #141b2e; /* fundo secundário, um degrau acima do canvas */
-  --color-surface-1: rgba(35, 40, 51, 0.64); /* cards — base Grafite */
-  --color-surface-2: rgba(52, 57, 67, 0.74); /* cards em destaque — Grafite mais claro */
+  --color-canvas: #000000; /* preto puro do site institucional */
+  --color-bg-secondary: #101317; /* segundo tom de preto do site institucional */
+  --color-surface-1: rgba(0, 0, 0, 0.75); /* cards translúcidos — só onde o blur ainda é funcional (sticky headers) */
+  --color-surface-2: rgba(0, 0, 0, 0.85); /* cards em destaque */
+  --color-surface-solid: #000000; /* cards escuros — preto puro, sem cinza; a borda azul é o que dá contorno */
   --color-hairline: #232a38; /* bordas */
   --color-hairline-strong: #47536b; /* bordas em hover/foco — tom Aço */
 
@@ -30,15 +33,20 @@
   --color-primary: #f8fafc;
   --color-secondary: #9aa2af; /* Aço clareado ~7.2:1 sobre o canvas */
   --color-muted: #737e8e; /* Aço clareado ~4.5:1 sobre o canvas */
-  --color-ink-strong: #050810; /* texto escuro sobre preenchimentos vivos (badges sólidos) */
+  --color-ink-strong: #050810; /* texto escuro sobre cards claros (branco/vivos) */
+  --color-ink-secondary: #52525b; /* texto secundário sobre cards claros — neutral-600 */
 
-  /* azul — identidade principal (Royal Blue da marca). */
-  --color-accent-primary: #114ddb;
-  --color-accent-light: #4574e3;
-  --color-accent-solid: #114ddb;
-  --color-accent-solid-hover: #3568e0;
-  --accent-primary-soft: rgba(17, 77, 219, 0.16);
-  --accent-primary-glow: rgba(17, 77, 219, 0.45);
+  /* azul — identidade principal (do site institucional). */
+  --color-accent-primary: #3a43e3;
+  --color-accent-light: #588dff;
+  --color-accent-pale: #8cb6ff; /* azul mais claro — labels sobre fundo escuro */
+  --color-accent-solid: #3a43e3;
+  --color-accent-solid-hover: #2f37c9;
+  --accent-primary-soft: rgba(58, 67, 227, 0.16);
+  --accent-primary-glow: rgba(58, 67, 227, 0.45);
+
+  /* creme do site institucional — só como detalhe raro; canvas continua escuro */
+  --color-cream: #ece7df;
 
   /* status — cores realmente vivas, sempre com significado (metas, resultado, alerta) */
   --color-status-good: #0ca30c;
@@ -61,9 +69,9 @@
   --font-sans: var(--font-inter);
   --font-display: var(--font-canela); /* wordmark/headline serif — brand's "Títulos/Destaques" */
 
-  /* raio padrão dos cards (16–20px) */
-  --radius-card: 18px;
-  --radius-control: 10px;
+  /* zero — identidade "editorial reta" do site institucional, sem cantos arredondados */
+  --radius-card: 0px;
+  --radius-control: 0px;
 
   /* toda utility "transition" passa a usar 200ms por padrão */
   --default-transition-duration: 200ms;
@@ -77,9 +85,9 @@ html {
 body {
   background-color: var(--color-canvas);
   background-image:
-    radial-gradient(circle at 12% 0%, rgba(17, 77, 219, 0.05), transparent 45%),
-    radial-gradient(circle at 88% 15%, rgba(69, 116, 227, 0.032), transparent 40%),
-    radial-gradient(circle at 30% 90%, rgba(17, 77, 219, 0.028), transparent 45%);
+    radial-gradient(circle at 12% 0%, rgba(58, 67, 227, 0.05), transparent 45%),
+    radial-gradient(circle at 88% 15%, rgba(88, 141, 255, 0.032), transparent 40%),
+    radial-gradient(circle at 30% 90%, rgba(58, 67, 227, 0.028), transparent 45%);
   color: var(--color-primary);
 }
 
@@ -93,50 +101,6 @@ body {
 }
 ::-webkit-scrollbar-track {
   background: transparent;
-}
-
-/* Ambient neon blobs (app/layout.tsx) — slow, organic drift so the
-   background never feels static. Each blob uses a differently-shaped path
-   and duration so they don't move in sync. Amplitude is large (120-200px)
-   because heavy blur (120-140px) hides small translations almost entirely. */
-@keyframes drift-a {
-  0%,
-  100% {
-    transform: translate(0, 0) scale(1);
-  }
-  25% {
-    transform: translate(160px, 90px) scale(1.15);
-  }
-  50% {
-    transform: translate(-70px, 180px) scale(0.88);
-  }
-  75% {
-    transform: translate(-150px, -60px) scale(1.08);
-  }
-}
-@keyframes drift-b {
-  0%,
-  100% {
-    transform: translate(0, 0) scale(1);
-  }
-  33% {
-    transform: translate(-180px, 120px) scale(1.2);
-  }
-  66% {
-    transform: translate(120px, -110px) scale(0.85);
-  }
-}
-@keyframes drift-c {
-  0%,
-  100% {
-    transform: translate(0, 0) scale(1);
-  }
-  30% {
-    transform: translate(130px, -140px) scale(1.12);
-  }
-  60% {
-    transform: translate(-160px, 70px) scale(0.86);
-  }
 }
 
 /* Page-entrance animation — plays once when a page's content mounts

@@ -12,13 +12,13 @@ export function ProgressIndicator({ pct, tone = "accent" }: { pct: number; tone?
   const clamped = Math.max(0, Math.min(100, pct));
   return (
     <div
-      className="h-1.5 w-full overflow-hidden rounded-full bg-white/[0.06]"
+      className="h-1.5 w-full overflow-hidden rounded-none bg-white/[0.06]"
       role="progressbar"
       aria-valuenow={Math.round(clamped)}
       aria-valuemin={0}
       aria-valuemax={100}
     >
-      <div className={`h-full rounded-full transition-[width] duration-300 ${FILL_CLASSES[tone]}`} style={{ width: `${clamped}%` }} />
+      <div className={`h-full rounded-none transition-[width] duration-300 ${FILL_CLASSES[tone]}`} style={{ width: `${clamped}%` }} />
     </div>
   );
 }

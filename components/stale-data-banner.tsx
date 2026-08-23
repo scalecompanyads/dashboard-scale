@@ -16,7 +16,7 @@ export function StaleDataBanner({
   if (!hasError && !staleByAge) return null;
 
   return (
-    <div className="flex items-start gap-3 rounded-card border border-status-warning/30 bg-status-warning/[0.1] px-4 py-3 backdrop-blur-xl">
+    <div className="flex items-start gap-3 rounded-card border border-status-warning/40 bg-status-warning/[0.16] px-4 py-3">
       <span className="text-status-warning" aria-hidden>
         ⚠
       </span>

@@ -4,7 +4,7 @@ import { EmptyPodiumSlot, Pedestal, PodiumShell, initials, PODIUM_MATERIAL, type
 import { podiumTop3, type SdrStats } from "@/lib/metrics/sdrs";
 
 function SdrSlot({ rank, sdr }: { rank: PodiumRank; sdr?: SdrStats }) {
-  if (!sdr) return <EmptyPodiumSlot rank={rank} />;
+  if (!sdr) return <EmptyPodiumSlot rank={rank} surface="blue" />;
 
   const m = PODIUM_MATERIAL[rank];
   const pct = sdr.agendadas ? (sdr.feitas / sdr.agendadas) * 100 : 0;
@@ -36,7 +36,7 @@ function SdrSlot({ rank, sdr }: { rank: PodiumRank; sdr?: SdrStats }) {
         </div>
       )}
       <p className="max-w-[75cqw] truncate text-[clamp(13px,2.6cqw,17px)] font-bold text-primary">{sdr.name.split(" ")[0]}</p>
-      <p className="text-[clamp(18px,5.5cqw,28px)] font-black text-accent-light">{pct.toFixed(1)}%</p>
+      <p className="text-[clamp(18px,5.5cqw,28px)] font-black text-white">{pct.toFixed(1)}%</p>
       <p className="text-[clamp(13px,2.6cqw,17px)] font-semibold text-primary">
         {sdr.feitas} de {sdr.agendadas} ag.
       </p>
@@ -52,7 +52,7 @@ export function SdrPodium({ sdrs }: { sdrs: SdrStats[] }) {
   const [s1, s2, s3] = podiumTop3(sdrs);
 
   return (
-    <PodiumShell title="Pódio SDRs">
+    <PodiumShell title="Pódio SDRs" surface="blue">
       <SdrSlot rank={2} sdr={s2} />
       <SdrSlot rank={1} sdr={s1} />
       <SdrSlot rank={3} sdr={s3} />

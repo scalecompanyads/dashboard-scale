@@ -41,11 +41,11 @@ function CreativeThumb({ url, name }: { url?: string; name: string }) {
   if (url) {
     return (
       // eslint-disable-next-line @next/next/no-img-element -- external Meta CDN URL, domain varies per creative
-      <img src={url} alt="" className="h-14 w-14 shrink-0 rounded-lg border border-hairline object-cover" loading="lazy" />
+      <img src={url} alt="" className="h-14 w-14 shrink-0 rounded-none border border-hairline object-cover" loading="lazy" />
     );
   }
   return (
-    <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg border border-hairline bg-white/[0.06] text-[14px] font-bold text-secondary">
+    <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-none border border-hairline bg-white/[0.06] text-[14px] font-bold text-secondary">
       {name.slice(0, 2).toUpperCase()}
     </span>
   );

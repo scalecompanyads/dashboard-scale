@@ -5,7 +5,7 @@ import { PctBadge } from "@/components/status-badge";
 import type { CloserStats } from "@/lib/metrics/closers";
 
 function CloserSlot({ rank, closer }: { rank: PodiumRank; closer?: CloserStats }) {
-  if (!closer) return <EmptyPodiumSlot rank={rank} />;
+  if (!closer) return <EmptyPodiumSlot rank={rank} surface="white" />;
 
   const m = PODIUM_MATERIAL[rank];
   const photo = PERSON_PHOTOS[closer.name.toLowerCase().split(" ")[0]];
@@ -35,20 +35,20 @@ function CloserSlot({ rank, closer }: { rank: PodiumRank; closer?: CloserStats }
           {initials(closer.name)}
         </div>
       )}
-      <p className="max-w-[75cqw] truncate text-[clamp(13px,2.6cqw,17px)] font-bold text-primary">{closer.name.split(" ")[0]}</p>
+      <p className="max-w-[75cqw] truncate text-[clamp(13px,2.6cqw,17px)] font-bold text-ink-strong">{closer.name.split(" ")[0]}</p>
       {/* hierarchy: valor fechado is what this podium is ranked by, so it's
           the loudest number here — conversão is a secondary badge, reuniões
           is auxiliary supporting text, not competing for attention. cqw
           (relative to the podium card's own width) instead of a flat rem
           size so it grows on a wide TV layout without moving on desktop. */}
       <p
-        className="font-black text-accent-light"
+        className="font-black text-accent-primary"
         style={{ fontSize: rank === 1 ? "clamp(20px,7cqw,34px)" : "clamp(16px,5cqw,24px)" }}
       >
         {fmtBRLCompact(closer.mrr)}
       </p>
       <PctBadge num={closer.fechados} den={closer.reunioes} />
-      <p className="text-[clamp(12px,2.4cqw,15px)] font-medium text-primary">
+      <p className="text-[clamp(12px,2.4cqw,15px)] font-medium text-ink-secondary">
         {closer.fechados} de {closer.reunioes} reuniões
       </p>
       <div className="mt-1">
@@ -63,8 +63,8 @@ function FourthPlaceRow({ closer }: { closer: CloserStats }) {
   const pct = closer.reunioes ? (closer.fechados / closer.reunioes) * 100 : 0;
 
   return (
-    <div className="relative mt-3 flex items-center gap-2.5 rounded-xl border border-hairline bg-white/[0.02] px-3 py-2">
-      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white/[0.06] text-[11px] font-bold text-secondary">4º</span>
+    <div className="relative mt-3 flex items-center gap-2.5 rounded-none border border-black/10 bg-black/[0.02] px-3 py-2">
+      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-none bg-black/[0.05] text-[11px] font-bold text-ink-secondary">4º</span>
       {photo ? (
         <div className="h-7 w-7 shrink-0 overflow-hidden rounded-full bg-canvas">
           <Image
@@ -81,9 +81,9 @@ function FourthPlaceRow({ closer }: { closer: CloserStats }) {
           {initials(closer.name)}
         </div>
       )}
-      <p className="truncate text-[clamp(12px,2.2cqw,15px)] font-bold text-primary">{closer.name.split(" ")[0]}</p>
-      <span className="ml-auto shrink-0 text-[clamp(13px,2.4cqw,16px)] font-black text-accent-light">{fmtBRLCompact(closer.mrr)}</span>
-      <span className="shrink-0 text-[clamp(11px,2cqw,13px)] font-semibold text-secondary">{pct.toFixed(0)}% conversão</span>
+      <p className="truncate text-[clamp(12px,2.2cqw,15px)] font-bold text-ink-strong">{closer.name.split(" ")[0]}</p>
+      <span className="ml-auto shrink-0 text-[clamp(13px,2.4cqw,16px)] font-black text-accent-primary">{fmtBRLCompact(closer.mrr)}</span>
+      <span className="shrink-0 text-[clamp(11px,2cqw,13px)] font-semibold text-ink-secondary">{pct.toFixed(0)}% conversão</span>
     </div>
   );
 }
@@ -96,7 +96,7 @@ export function ClosersPodium({ closers }: { closers: CloserStats[] }) {
     <div className="h-full">
       {/* narrower layouts: top 3 get a pedestal, 4th is a compact row */}
       <div className="h-full 2xl:hidden">
-        <PodiumShell title="Pódio Closers" gap="gap-4" footer={c4 && <FourthPlaceRow closer={c4} />}>
+        <PodiumShell title="Pódio Closers" gap="gap-4" surface="white" footer={c4 && <FourthPlaceRow closer={c4} />}>
           <CloserSlot rank={2} closer={c2} />
           <CloserSlot rank={1} closer={c1} />
           <CloserSlot rank={3} closer={c3} />
@@ -104,7 +104,7 @@ export function ClosersPodium({ closers }: { closers: CloserStats[] }) {
       </div>
       {/* 2xl and up: enough width for a real 4th pedestal instead */}
       <div className="hidden h-full 2xl:block">
-        <PodiumShell title="Pódio Closers" gap="gap-3">
+        <PodiumShell title="Pódio Closers" gap="gap-3" surface="white">
           <CloserSlot rank={2} closer={c2} />
           <CloserSlot rank={1} closer={c1} />
           <CloserSlot rank={3} closer={c3} />

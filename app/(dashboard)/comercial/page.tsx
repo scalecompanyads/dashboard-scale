@@ -77,7 +77,7 @@ export default async function ComercialPage({
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="animate-enter flex flex-wrap items-center justify-between gap-3 rounded-xl border border-hairline bg-white/[0.02] px-4 py-2.5">
+      <div className="animate-enter flex flex-wrap items-center justify-between gap-3 rounded-none border border-hairline bg-white/[0.02] px-4 py-2.5">
         <ClosingFilterTabs filter={filter} dateFrom={dateFrom} dateTo={dateTo} />
         <MonthYearSelect year={year} month={month} />
       </div>
@@ -116,7 +116,7 @@ export default async function ComercialPage({
           sub={gapSubTxt}
         >
           {gapColor === "critical" && (
-            <span className="relative mt-2 inline-flex w-fit items-center gap-1 rounded-full bg-status-critical/12 px-2 py-0.5 text-[10.5px] font-bold text-status-critical">
+            <span className="relative mt-2 inline-flex w-fit items-center gap-1 rounded-none bg-status-critical/12 px-2 py-0.5 text-[10.5px] font-bold text-status-critical">
               ⚠ atenção
             </span>
           )}
@@ -158,13 +158,13 @@ export default async function ComercialPage({
         </KpiCard>
       </KpiRow>
 
-      <div className="animate-enter mt-2 grid grid-cols-1 gap-4 lg:h-[440px] lg:grid-cols-[34fr_32fr_34fr]" style={{ animationDelay: "440ms" }}>
+      <div className="animate-enter grid grid-cols-1 gap-4 lg:h-[440px] lg:grid-cols-[34fr_32fr_34fr]" style={{ animationDelay: "440ms" }}>
         <FunnelChart data={funnel} />
         <SdrPodium sdrs={sdrs} />
         <ClosersPodium closers={closers} />
       </div>
 
-      <div className="animate-enter mt-4 min-h-[320px] flex-1" style={{ animationDelay: "520ms" }}>
+      <div className="animate-enter min-h-[320px] flex-1" style={{ animationDelay: "520ms" }}>
         <ClosedDealsTable closings={closings} />
       </div>
     </div>

@@ -14,7 +14,7 @@ const TONE_CLASSES: Record<StatusTone, string> = {
 
 export function StatusBadge({ label, tone = "neutral" }: { label: React.ReactNode; tone?: StatusTone }) {
   return (
-    <span className={`inline-flex items-center justify-center rounded-full px-2.5 py-1 text-[11px] font-extrabold tabular-nums ${TONE_CLASSES[tone]}`}>
+    <span className={`inline-flex items-center justify-center rounded-none px-2.5 py-1 text-[11px] font-extrabold tabular-nums ${TONE_CLASSES[tone]}`}>
       {label}
     </span>
   );

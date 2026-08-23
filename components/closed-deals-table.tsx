@@ -97,7 +97,7 @@ export function ClosedDealsTable({ closings }: { closings: Lead[] }) {
                     <td className={tdNameClass}>
                       {item.item_name || "—"}
                       {isNew && (
-                        <span className="badge-new-deal ml-2 inline-flex items-center gap-1 rounded-full bg-status-good/15 px-2 py-0.5 align-middle text-[10px] font-extrabold uppercase tracking-wide text-status-good shadow-[0_0_10px_rgba(12,163,12,0.5)]">
+                        <span className="badge-new-deal ml-2 inline-flex items-center gap-1 rounded-none bg-status-good/15 px-2 py-0.5 align-middle text-[10px] font-extrabold uppercase tracking-wide text-status-good shadow-[0_0_10px_rgba(12,163,12,0.5)]">
                           <SparkleIcon />
                           Novo
                         </span>

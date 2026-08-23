@@ -1,5 +1,5 @@
 import type { FunnelData } from "@/lib/metrics/funnel";
-import { glassPanelClass, glassPanelStyle } from "@/lib/glass-panel";
+import { panelClass, panelStyle } from "@/lib/glass-panel";
 import { IconUsers, IconCalendarCheck, IconCheckCircle, IconFlag } from "@/components/kpi-icons";
 
 const STAGE_ICON = [IconUsers, IconCalendarCheck, IconCheckCircle, IconFlag];
@@ -49,26 +49,25 @@ const gid = (name: string) => `funnel-${name}`;
 export function FunnelChart({ data }: { data: FunnelData }) {
   return (
     <div
-      className={`relative flex h-full flex-col overflow-hidden ${glassPanelClass}`}
-      style={{ ...glassPanelStyle, containerType: "inline-size" }}
+      className={`relative flex h-full flex-col overflow-hidden ${panelClass("white")}`}
+      style={{ ...panelStyle("white"), containerType: "inline-size" }}
     >
       <div className="relative mb-5 flex flex-wrap items-center justify-between gap-2">
         {/* cqw (this card's own width) instead of a flat px size — grows on
             a wide TV layout, doesn't move at normal desktop widths */}
-        <h3 className="font-display flex items-center gap-2 text-[clamp(15px,2.8cqw,19px)] font-medium text-primary">
-          <FunnelIcon className="text-accent-light drop-shadow-[0_0_6px_rgba(38,135,255,0.6)]" />
+        <h3 className="font-display flex items-center gap-2 text-[clamp(15px,2.8cqw,19px)] font-bold text-ink-strong">
+          <FunnelIcon className="text-accent-primary" />
           Funil de Conversão
         </h3>
         <div
-          className="inline-flex items-center gap-1 rounded-full border px-3.5 py-2 text-[clamp(11px,2cqw,14px)]"
+          className="inline-flex items-center gap-1 rounded-none border px-3.5 py-2 text-[clamp(11px,2cqw,14px)]"
           style={{
-            borderColor: "rgba(50,139,255,0.45)",
-            background: "rgba(13,40,75,0.65)",
-            color: "#b8c8db",
-            boxShadow: "inset 0 0 12px rgba(36,124,255,0.1), 0 0 16px rgba(36,124,255,0.12)",
+            borderColor: "rgba(58,67,227,0.3)",
+            background: "rgba(58,67,227,0.06)",
+            color: "var(--color-ink-secondary)",
           }}
         >
-          <strong style={{ color: "#3f9cff" }}>{data.totalConversionPct.toFixed(1)}%</strong> conversão total
+          <strong className="text-accent-primary">{data.totalConversionPct.toFixed(1)}%</strong> conversão total
         </div>
       </div>
 
@@ -113,18 +112,10 @@ export function FunnelChart({ data }: { data: FunnelData }) {
               <stop offset="65%" stopColor="#ffffff" stopOpacity="0" />
               <stop offset="100%" stopColor="#001531" stopOpacity=".32" />
             </linearGradient>
-            <radialGradient id={gid("floor-glow")}>
-              <stop offset="0%" stopColor="#2081ff" stopOpacity=".6" />
-              <stop offset="42%" stopColor="#0758d4" stopOpacity=".18" />
-              <stop offset="100%" stopColor="#00112b" stopOpacity="0" />
-            </radialGradient>
             <filter id={gid("blue-shadow")} x="-40%" y="-50%" width="180%" height="220%">
-              <feDropShadow dx="0" dy="9" stdDeviation="10" floodColor="#001535" floodOpacity=".9" />
-              <feDropShadow dx="0" dy="0" stdDeviation="7" floodColor="#1677ff" floodOpacity=".3" />
+              <feDropShadow dx="0" dy="10" stdDeviation="9" floodColor="#0b1226" floodOpacity=".28" />
             </filter>
           </defs>
-
-          <ellipse cx="190" cy="430" rx="150" ry="35" fill={`url(#${gid("floor-glow")})`} />
 
           {data.stages.map((stage, i) => (
             <g key={stage.key} filter={`url(#${gid("blue-shadow")})`} style={{ transformBox: "fill-box", transformOrigin: "center" }}>
@@ -165,37 +156,26 @@ export function FunnelChart({ data }: { data: FunnelData }) {
                 className="absolute inset-x-0 flex -translate-y-1/2 items-center gap-2.5"
                 style={{ top: `${STAGE_LABEL_TOP_PCT[i]}%` }}
               >
-                <span className="h-px w-5 shrink-0" style={{ background: "rgba(107,151,204,0.38)" }} aria-hidden />
-                <span
-                  className="h-1.5 w-1.5 shrink-0 rounded-full"
-                  style={{ background: "#9fd0ff", boxShadow: "0 0 8px rgba(127,193,255,0.9)" }}
-                  aria-hidden
-                />
-                <span
-                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border"
-                  style={{ background: "rgba(5,18,35,0.75)", borderColor: "rgba(91,139,196,0.26)" }}
-                >
-                  <Icon className="h-4 w-4 text-[#74afff]" />
+                <span className="h-px w-5 shrink-0" style={{ background: "rgba(58,67,227,0.25)" }} aria-hidden />
+                <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-accent-primary" aria-hidden />
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-none border border-accent-primary/20 bg-accent-primary/10">
+                  <Icon className="h-4 w-4 text-accent-primary" />
                 </span>
                 <div className="min-w-0">
                   {stage.conversionFromPrevious !== null ? (
                     <>
-                      <p className="text-[clamp(13px,2.6cqw,18px)] font-extrabold leading-tight" style={{ color: "#3391ff" }}>
+                      <p className="text-accent-primary text-[clamp(13px,2.6cqw,18px)] font-extrabold leading-tight">
                         {stage.conversionFromPrevious.toFixed(1)}%
                       </p>
-                      <p className="truncate text-[clamp(11px,2.2cqw,15px)] font-medium" style={{ color: "#b2bed0" }}>
-                        {stage.label}
-                      </p>
+                      <p className="text-ink-secondary truncate text-[clamp(11px,2.2cqw,15px)] font-medium">{stage.label}</p>
                       {stage.nextMilestone && (
-                        <p className="truncate text-[clamp(9px,1.6cqw,11px)] font-medium leading-none" style={{ color: "rgba(178,190,208,0.62)" }}>
+                        <p className="truncate text-[clamp(9px,1.6cqw,11px)] font-medium leading-none text-black/40">
                           faltam {stage.nextMilestone.needed} p/ {stage.nextMilestone.targetPct}%
                         </p>
                       )}
                     </>
                   ) : (
-                    <p className="truncate text-[clamp(13px,2.6cqw,18px)] font-bold" style={{ color: "#f1f5f9" }}>
-                      {stage.label}
-                    </p>
+                    <p className="text-ink-strong truncate text-[clamp(13px,2.6cqw,18px)] font-bold">{stage.label}</p>
                   )}
                 </div>
               </div>

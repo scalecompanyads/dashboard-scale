@@ -29,7 +29,7 @@ export function SyncButton() {
       disabled={pending}
       title={failed ? "Falha ao sincronizar — tente novamente." : undefined}
       className={
-        "flex items-center gap-1.5 rounded-lg border px-3.5 py-1.5 text-[12.5px] font-bold transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-60 " +
+        "flex items-center gap-1.5 rounded-none border px-3.5 py-1.5 text-[12.5px] font-bold transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-60 " +
         (failed
           ? "border-red-500/40 bg-red-500/[0.08] text-red-400 hover:border-red-400 hover:bg-red-500/20"
           : "border-accent-primary/30 bg-accent-primary/[0.08] text-accent-light hover:border-transparent hover:bg-gradient-to-r hover:from-accent-primary hover:to-accent-light hover:text-ink-strong hover:shadow-[0_0_22px_var(--accent-primary-glow)]")

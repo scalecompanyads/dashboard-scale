@@ -32,7 +32,7 @@ export function CardSpotlight({
         className="pointer-events-none absolute inset-0 rounded-[inherit] opacity-0 transition-opacity duration-300 group-hover/spot:opacity-100"
         style={{
           background:
-            "radial-gradient(160px circle at var(--spot-x, 50%) var(--spot-y, 50%), rgba(17,77,219,0.4), transparent 70%)",
+            "radial-gradient(160px circle at var(--spot-x, 50%) var(--spot-y, 50%), rgba(58,67,227,0.4), transparent 70%)",
         }}
         aria-hidden
       />

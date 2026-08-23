@@ -1,4 +1,6 @@
-import { glassPanelClass, glassPanelStyle } from "@/lib/glass-panel";
+import { panelClass, panelStyle, type PanelSurface } from "@/lib/glass-panel";
+
+export type PodiumSurface = Extract<PanelSurface, "white" | "blue">;
 
 export function initials(name: string) {
   return name
@@ -55,8 +57,8 @@ export const PODIUM_MATERIAL = {
     // extra bright line right along the dome's top edge — the "raised
     // luminous line" only 1st place gets, on top of the shared edgeGlow
     edgeGlow:
-      "inset 0 1px 0 rgba(255,255,255,0.5), inset 0 0 30px var(--accent-primary-soft), 0 -1px 0 rgba(255,255,255,0.9), 0 -6px 16px rgba(150,200,255,0.7)",
-    dropShadow: "drop-shadow(0 8px 20px rgba(17,77,219,0.55)) drop-shadow(0 22px 26px rgba(0,0,0,0.55))",
+      "inset 0 1px 0 rgba(255,255,255,0.5), inset 0 0 30px var(--accent-primary-soft), 0 -1px 0 rgba(255,255,255,0.9), 0 -6px 16px rgba(140,182,255,0.7)",
+    dropShadow: "drop-shadow(0 8px 20px rgba(58,67,227,0.55)) drop-shadow(0 22px 26px rgba(0,0,0,0.55))",
     numberColor: "#ffffff",
     metallicTexture: undefined as string | undefined,
   },
@@ -156,19 +158,25 @@ export function Pedestal({ rank }: { rank: PodiumRank }) {
   );
 }
 
-export function EmptyPodiumSlot({ rank }: { rank: PodiumRank }) {
+const EMPTY_SLOT_TEXT: Record<PodiumSurface, { placeholder: string; dash: string; label: string; ring: string }> = {
+  white: { placeholder: "text-ink-strong", dash: "text-accent-primary", label: "text-ink-secondary", ring: "bg-black/[0.04] text-accent-primary" },
+  blue: { placeholder: "text-white", dash: "text-white", label: "text-white/70", ring: "bg-white/10 text-white" },
+};
+
+export function EmptyPodiumSlot({ rank, surface = "white" }: { rank: PodiumRank; surface?: PodiumSurface }) {
   const m = PODIUM_MATERIAL[rank];
+  const t = EMPTY_SLOT_TEXT[surface];
   return (
     <div className={`flex flex-col items-center gap-2.5 ${m.order}`}>
-      <div className={`flex items-center justify-center rounded-full border-[3px] bg-surface-2 text-accent-light ${m.ring} ${m.avatarSize}`}>
+      <div className={`flex items-center justify-center rounded-full border-[3px] ${t.ring} ${m.ring} ${m.avatarSize}`}>
         <svg viewBox="0 0 24 24" width="42%" height="42%" fill="currentColor">
           <circle cx="12" cy="8" r="4" />
           <path d="M4 20c0-4.4 3.6-8 8-8s8 3.6 8 8" />
         </svg>
       </div>
-      <p className="text-[clamp(13px,2.4cqw,17px)] font-bold text-primary">---</p>
-      <p className="text-[clamp(18px,5.5cqw,28px)] font-black text-accent-light">—</p>
-      <p className="mb-1 text-[clamp(11px,2cqw,14px)] font-semibold text-secondary">sem dados</p>
+      <p className={`text-[clamp(13px,2.4cqw,17px)] font-bold ${t.placeholder}`}>---</p>
+      <p className={`text-[clamp(18px,5.5cqw,28px)] font-black ${t.dash}`}>—</p>
+      <p className={`mb-1 text-[clamp(11px,2cqw,14px)] font-semibold ${t.label}`}>sem dados</p>
       <div className="opacity-50">
         <Pedestal rank={rank} />
       </div>
@@ -176,11 +184,17 @@ export function EmptyPodiumSlot({ rank }: { rank: PodiumRank }) {
   );
 }
 
+const SHELL_TEXT: Record<PodiumSurface, { title: string; subtitle: string; glow: string; radialGlow: string }> = {
+  white: { title: "text-ink-strong", subtitle: "text-ink-secondary", glow: "from-accent-primary/20 via-accent-light/8", radialGlow: "bg-accent-light/8" },
+  blue: { title: "text-white", subtitle: "text-white/70", glow: "from-white/25 via-white/10", radialGlow: "bg-white/12" },
+};
+
 export function PodiumShell({
   title,
   subtitle,
   gap = "gap-7",
   footer,
+  surface = "white",
   children,
 }: {
   title: string;
@@ -189,27 +203,26 @@ export function PodiumShell({
   gap?: string;
   /** Extra row below the podium itself — used for a 4th place that doesn't get a full pedestal slot. */
   footer?: React.ReactNode;
+  surface?: PodiumSurface;
   children: React.ReactNode;
 }) {
+  const t = SHELL_TEXT[surface];
   return (
-    <div
-      className={`relative flex h-full flex-col overflow-hidden ${glassPanelClass} pb-3`}
-      style={{ ...glassPanelStyle, containerType: "inline-size" }}
-    >
-      {/* 1st place casts light straight up through the card, like the block is the light source */}
-      <div className="pointer-events-none absolute bottom-0 left-1/2 h-[85%] w-36 -translate-x-1/2 bg-gradient-to-t from-accent-primary/45 via-accent-light/15 to-transparent blur-2xl" aria-hidden />
+    <div className={`relative flex h-full flex-col overflow-hidden ${panelClass(surface)} pb-3`} style={{ ...panelStyle(surface), containerType: "inline-size" }}>
+      {/* 1st place casts light straight up through the card, like the block is the light source — white-based on the blue card (a blue glow would vanish into it), brand-blue-based on the white card */}
+      <div className={`pointer-events-none absolute bottom-0 left-1/2 h-[85%] w-36 -translate-x-1/2 bg-gradient-to-t ${t.glow} to-transparent blur-xl`} aria-hidden />
       {/* discreet radial glow behind 1st place specifically, higher up than the bottom light beam */}
-      <div className="pointer-events-none absolute left-1/2 top-[38%] h-40 w-40 -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent-light/20 blur-3xl" aria-hidden />
+      <div className={`pointer-events-none absolute left-1/2 top-[38%] h-40 w-40 -translate-x-1/2 -translate-y-1/2 rounded-full ${t.radialGlow} blur-2xl`} aria-hidden />
 
       <div className="relative mb-3">
         {/* cqw (container-query width, tied to this card's own rendered
             width) instead of a flat px size — grows on a wide TV layout
             without touching how it looks at normal desktop widths */}
-        <h3 className="font-display flex items-center gap-2 text-[clamp(15px,2.4cqw,19px)] font-medium text-primary">
+        <h3 className={`font-display flex items-center gap-2 text-[clamp(15px,2.4cqw,19px)] font-bold ${t.title}`}>
           <TrophyIcon className="text-gold" />
           {title}
         </h3>
-        {subtitle && <p className="mt-0.5 pl-[21px] text-[clamp(11px,1.8cqw,13px)] font-medium text-muted">{subtitle}</p>}
+        {subtitle && <p className={`mt-0.5 pl-[21px] text-[clamp(11px,1.8cqw,13px)] font-medium ${t.subtitle}`}>{subtitle}</p>}
       </div>
 
       {/* pedestals sit close to the card's own bottom edge, as if rising
