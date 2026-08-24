@@ -85,13 +85,14 @@ export default async function ComercialPage({
       <KpiRow cols={7} staggerBase={60}>
         <KpiCard
           featured
+          surface="blue"
           label="TCV Fechado"
           value={<AnimatedNumber value={kpis.tcvTotal} format={{ type: "currency" }} />}
           sub={`${kpis.tcvCount} contratos TCV`}
         >
           {prevKpis.tcvTotal > 0 && (
             <div className="flex justify-start">
-              <TrendBadge current={kpis.tcvTotal} previous={prevKpis.tcvTotal} />
+              <TrendBadge current={kpis.tcvTotal} previous={prevKpis.tcvTotal} surface="blue" />
             </div>
           )}
         </KpiCard>

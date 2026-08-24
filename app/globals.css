@@ -25,7 +25,7 @@
   --color-bg-secondary: #101317; /* segundo tom de preto do site institucional */
   --color-surface-1: rgba(0, 0, 0, 0.75); /* cards translúcidos — só onde o blur ainda é funcional (sticky headers) */
   --color-surface-2: rgba(0, 0, 0, 0.85); /* cards em destaque */
-  --color-surface-solid: #000000; /* cards escuros — preto puro, sem cinza; a borda azul é o que dá contorno */
+  --color-surface-solid: #000000; /* cards escuros — preto puro, sem cinza; a borda branca é o que dá contorno */
   --color-hairline: #232a38; /* bordas */
   --color-hairline-strong: #47536b; /* bordas em hover/foco — tom Aço */
 
@@ -69,8 +69,7 @@
   --font-sans: var(--font-inter);
   --font-display: var(--font-canela); /* wordmark/headline serif — brand's "Títulos/Destaques" */
 
-  /* zero — identidade "editorial reta" do site institucional, sem cantos arredondados */
-  --radius-card: 0px;
+  --radius-card: 16px;
   --radius-control: 0px;
 
   /* toda utility "transition" passa a usar 200ms por padrão */

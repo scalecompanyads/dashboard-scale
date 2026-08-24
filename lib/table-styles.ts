@@ -8,7 +8,7 @@
 // under the clamp's floor, so the size resolves to the exact old fixed
 // px value — nothing moves there.
 export const tableShellClass =
-  "@container flex h-full flex-col overflow-hidden rounded-card border border-[rgba(88,141,255,0.5)] bg-surface-solid shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_14px_35px_rgba(0,0,0,0.3)]";
+  "@container flex h-full flex-col overflow-hidden rounded-card border border-white/15 bg-surface-solid shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_14px_35px_rgba(0,0,0,0.3)]";
 
 export const tableHeaderWrapClass = "flex items-center justify-between border-b border-hairline px-5 py-3.5";
 

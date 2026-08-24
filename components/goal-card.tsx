@@ -42,10 +42,11 @@ export function GoalCard({ monthKey, goalValue, progressPct }: { monthKey: strin
 
   return (
     <CardSpotlight
-      className="group flex h-full min-w-0 flex-col items-start overflow-hidden rounded-card border border-[rgba(88,141,255,0.5)] p-3.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_14px_35px_rgba(0,0,0,0.3)] transition-all duration-200 hover:-translate-y-0.5 hover:brightness-125"
+      className="group flex h-full min-w-0 flex-col items-start overflow-hidden rounded-card border border-white/15 p-3.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_14px_35px_rgba(0,0,0,0.3)] backdrop-blur-xl transition-all duration-200 hover:-translate-y-0.5 hover:brightness-125"
       style={{
         containerType: "inline-size",
-        backgroundImage: "linear-gradient(160deg, color-mix(in srgb, var(--color-status-good) 12%, transparent) 0%, #000000 45%, #000000 100%)",
+        backgroundImage:
+          "linear-gradient(160deg, color-mix(in srgb, var(--color-status-good) 12%, transparent) 0%, color-mix(in srgb, var(--color-surface-solid) 72%, transparent) 45%, color-mix(in srgb, var(--color-surface-solid) 72%, transparent) 100%)",
       }}
     >
       {/* editorial "kicker" stripe — matches every KPI card's top accent band */}

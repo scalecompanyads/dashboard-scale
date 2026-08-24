@@ -1,6 +1,6 @@
 import { panelClass, panelStyle, type PanelSurface } from "@/lib/glass-panel";
 
-export type PodiumSurface = Extract<PanelSurface, "white" | "blue">;
+export type PodiumSurface = PanelSurface;
 
 export function initials(name: string) {
   return name
@@ -159,11 +159,12 @@ export function Pedestal({ rank }: { rank: PodiumRank }) {
 }
 
 const EMPTY_SLOT_TEXT: Record<PodiumSurface, { placeholder: string; dash: string; label: string; ring: string }> = {
+  dark: { placeholder: "text-primary", dash: "text-accent-light", label: "text-secondary", ring: "bg-surface-2 text-accent-light" },
   white: { placeholder: "text-ink-strong", dash: "text-accent-primary", label: "text-ink-secondary", ring: "bg-black/[0.04] text-accent-primary" },
   blue: { placeholder: "text-white", dash: "text-white", label: "text-white/70", ring: "bg-white/10 text-white" },
 };
 
-export function EmptyPodiumSlot({ rank, surface = "white" }: { rank: PodiumRank; surface?: PodiumSurface }) {
+export function EmptyPodiumSlot({ rank, surface = "dark" }: { rank: PodiumRank; surface?: PodiumSurface }) {
   const m = PODIUM_MATERIAL[rank];
   const t = EMPTY_SLOT_TEXT[surface];
   return (
@@ -185,6 +186,7 @@ export function EmptyPodiumSlot({ rank, surface = "white" }: { rank: PodiumRank;
 }
 
 const SHELL_TEXT: Record<PodiumSurface, { title: string; subtitle: string; glow: string; radialGlow: string }> = {
+  dark: { title: "text-primary", subtitle: "text-muted", glow: "from-accent-primary/25 via-accent-light/8", radialGlow: "bg-accent-light/10" },
   white: { title: "text-ink-strong", subtitle: "text-ink-secondary", glow: "from-accent-primary/20 via-accent-light/8", radialGlow: "bg-accent-light/8" },
   blue: { title: "text-white", subtitle: "text-white/70", glow: "from-white/25 via-white/10", radialGlow: "bg-white/12" },
 };
@@ -194,7 +196,7 @@ export function PodiumShell({
   subtitle,
   gap = "gap-7",
   footer,
-  surface = "white",
+  surface = "dark",
   children,
 }: {
   title: string;

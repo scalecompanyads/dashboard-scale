@@ -32,7 +32,7 @@ export default function LoginPage() {
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-canvas px-4">
-      <div className="relative w-full max-w-sm overflow-hidden rounded-card border border-[rgba(88,141,255,0.5)] bg-surface-solid p-8 shadow-[0_20px_60px_rgba(0,0,0,0.5)]">
+      <div className="relative w-full max-w-sm overflow-hidden rounded-card border border-white/15 bg-surface-solid p-8 shadow-[0_20px_60px_rgba(0,0,0,0.5)]">
         <div className="absolute inset-x-0 top-0 h-[3px] bg-accent-primary" aria-hidden />
         <div className="mb-8 flex flex-col items-center gap-3">
           <ScaleLogo size="lg" />

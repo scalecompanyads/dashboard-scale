@@ -11,7 +11,7 @@ export function panelClass(surface: PanelSurface): string {
   const base = "rounded-card border p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_14px_35px_rgba(0,0,0,0.35)]";
   if (surface === "white") return `${base} border-black/10`;
   if (surface === "blue") return `${base} border-white/15`;
-  return `${base} border-[rgba(88,141,255,0.5)]`;
+  return `${base} border-white/15`;
 }
 
 export function panelStyle(surface: PanelSurface): CSSProperties {
@@ -24,7 +24,7 @@ export function panelStyle(surface: PanelSurface): CSSProperties {
         "linear-gradient(160deg, color-mix(in srgb, var(--color-accent-primary) 100%, white 8%) 0%, var(--color-accent-primary) 55%, color-mix(in srgb, var(--color-accent-primary) 88%, black) 100%)",
     };
   }
-  return { backgroundImage: "linear-gradient(160deg, rgba(58,67,227,0.22) 0%, #000000 42%, #000000 100%)" };
+  return { backgroundImage: "linear-gradient(160deg, rgba(58,67,227,0.14) 0%, var(--color-surface-solid) 42%, var(--color-surface-solid) 100%)" };
 }
 
 // Back-compat named export for any lingering dark-surface-only consumer.
