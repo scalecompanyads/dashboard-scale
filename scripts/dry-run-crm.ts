@@ -43,7 +43,7 @@ const dentro = (d: string | null, from: string, to: string) => !!d && d >= from 
 // responder.
 const comercial = (rows: Row[]) => rows.filter((r) => r.direcao !== DIRECAO_FILTER && r.origem !== ORIGEM_LIVE);
 
-const so = (rows: Row[], organico: boolean) => rows.filter((r) => isOrigemOrganica(r.origem) === organico);
+const so = (rows: Row[]) => rows.filter((r) => isOrigemOrganica(r.origem));
 
 function fatiar(rows: Row[], from: string, to: string) {
   const base = comercial(rows);
@@ -52,16 +52,14 @@ function fatiar(rows: Row[], from: string, to: string) {
     agenda: base.filter((r) => dentro(r.dt_agenda, from, to) && !ETAPA_EXCLUIDA_AGENDA.has(r.etapa ?? "")),
     fechamentos: base.filter((r) => dentro(r.dt_fecha, from, to) && r.etapa === "Fechado"),
   };
-  // Mesmo corte da página: o principal é o que alimenta KPIs, funil e
-  // pódios; o orgânico vai para a faixa de baixo.
+  // Como na página: o orgânico está DENTRO dos três de cima e aparece de
+  // novo aqui embaixo só como recorte, nunca subtraído.
   return {
-    leads: so(janela.leads, false),
-    agenda: so(janela.agenda, false),
-    fechamentos: so(janela.fechamentos, false),
+    ...janela,
     organico: {
-      leads: so(janela.leads, true),
-      agenda: so(janela.agenda, true),
-      fechamentos: so(janela.fechamentos, true),
+      leads: so(janela.leads),
+      agenda: so(janela.agenda),
+      fechamentos: so(janela.fechamentos),
     },
   };
 }
@@ -150,7 +148,7 @@ async function main() {
   // A faixa de baixo da página, e o que ficou de fora dela.
   const oMonday = calcKPIs(mondayMes.organico.leads as Lead[], mondayMes.organico.agenda as Lead[], mondayMes.organico.fechamentos as Lead[]);
   const oCrm = calcKPIs(crmMes.organico.leads as Lead[], crmMes.organico.agenda as Lead[], crmMes.organico.fechamentos as Lead[]);
-  console.log("\n  Orgânico (faixa própria, fora dos números acima):");
+  console.log("\n  Orgânico (recorte — já contado acima):");
   linha("  Leads", oMonday.total, oCrm.total);
   linha("  Agendadas", oMonday.agendadas, oCrm.agendadas);
   linha("  Fechados", oMonday.fechados, oCrm.fechados);

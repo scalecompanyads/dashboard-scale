@@ -46,18 +46,19 @@ function excludeNaoComercial<Q extends { or: (filters: string) => Q }>(query: Q)
 }
 
 /**
- * Separa o que entrou espontaneamente pelo site do resto.
+ * O recorte do que entrou espontaneamente pelo site.
  *
- * O orgânico continua sendo lido junto (é a mesma consulta, o mesmo mês),
- * mas não entra nos KPIs, no funil nem nos pódios: ele tem o seu próprio
- * painel. Misturar os dois faz o investimento em mídia parecer melhor do
- * que foi nos meses em que o site trouxe bem, e pior nos que não trouxe.
+ * É uma LEITURA, não um corte: o orgânico conta normalmente em tudo — nos
+ * KPIs, no funil, nos pódios, no agendamento e no fechamento. Chegou pelo
+ * site e não por anúncio, mas é lead igual, o SDR trabalhou igual e o
+ * closer fechou igual; tirá-lo dos totais some com trabalho que aconteceu.
+ *
+ * Isto aqui existe só para a faixa de components/organic-summary.tsx poder
+ * dizer quanto do total veio do site — os mesmos leads, contados de novo
+ * num recorte, nunca subtraídos dos números de cima.
  */
-export function splitOrganico<T extends Pick<Lead, "origem">>(rows: T[]): { principal: T[]; organico: T[] } {
-  const principal: T[] = [];
-  const organico: T[] = [];
-  for (const row of rows) (isOrigemOrganica(row.origem) ? organico : principal).push(row);
-  return { principal, organico };
+export function onlyOrganico<T extends Pick<Lead, "origem">>(rows: T[]): T[] {
+  return rows.filter((row) => isOrigemOrganica(row.origem));
 }
 
 // As funções *ByDateRange abaixo são a forma primitiva — o filtro do

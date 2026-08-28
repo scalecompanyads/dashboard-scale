@@ -29,10 +29,16 @@ export const ORIGEM_META_ADS = "Meta Ads";
 // Ver a seção "Lead de site" do AGENTS.md do CRM.
 export const ORIGEM_LIVE = "Site — Live";
 
-// Entrada espontânea pelo site. Conta, mas conta SEPARADO: sai dos KPIs, do
-// funil e dos pódios e ganha o seu próprio painel (components/organic-summary.tsx),
-// para que o resultado de mídia paga não fique com o crédito do que chegou
-// sozinho — nem o contrário.
+// Entrada espontânea pelo site. Conta COMO QUALQUER OUTRO LEAD — no total,
+// no agendamento, na reunião realizada, no fechamento e nos dois pódios. A
+// única coisa que esta lista faz é alimentar a faixa de
+// components/organic-summary.tsx, que mostra quanto do mês veio do site.
+//
+// Já foi um corte de verdade (o orgânico saía dos números principais) e o
+// usuário desfez: o lead chegou pelo site em vez de por anúncio, mas o SDR
+// marcou a reunião igual e o closer fechou igual. Tirá-lo dos totais apaga
+// trabalho que aconteceu. Só "Filter" e "Site — Live" ficam de fora do
+// dashboard — mais nada.
 //
 // Lista exata, não prefixo "Site — ": "Site — Live" também começa assim e
 // está justamente do outro lado da regra. É a mesma lista do Quadro

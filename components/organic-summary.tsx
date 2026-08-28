@@ -2,12 +2,14 @@ import { fmtBRL, ORIGEM_ORGANICO } from "@/lib/constants";
 import { panelClass, panelStyle } from "@/lib/glass-panel";
 import type { ComercialKPIs } from "@/lib/metrics/kpis";
 
-// O que entrou sozinho pelo site, fora dos números de cima.
+// Quanto do mês veio sozinho pelo site — um RECORTE dos números de cima,
+// não uma parcela tirada deles. Estes leads já estão contados no funil, nos
+// pódios e no faturamento; aqui eles aparecem de novo, sozinhos, para
+// responder "e o site, trouxe alguma coisa?".
 //
-// Faixa, e não uma segunda KpiRow: os cinco números aqui não competem com
-// TCV Fechado e Meta — eles respondem a uma pergunta lateral ("e o site,
-// trouxe alguma coisa?"). Card cheio para cada um faria o olho ler dois
-// dashboards de mesmo peso na mesma tela.
+// Faixa, e não uma segunda KpiRow: os cinco números não competem com TCV
+// Fechado e Meta. Card cheio para cada um faria o olho ler dois dashboards
+// de mesmo peso na mesma tela.
 //
 // Aparece mesmo zerado, de propósito. Sumir com a faixa num mês sem lead
 // orgânico esconderia justamente o fato que ela existe para mostrar — que
@@ -61,7 +63,7 @@ export function OrganicSummary({ kpis }: { kpis: ComercialKPIs }) {
             Orgânico
           </h3>
           <p className="text-[11.5px] text-muted">
-            {ORIGEM_ORGANICO.join(" · ")} — fora dos números acima
+            {ORIGEM_ORGANICO.join(" · ")} — já incluídos nos números acima
           </p>
         </div>
 

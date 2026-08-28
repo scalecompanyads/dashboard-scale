@@ -53,11 +53,12 @@ Nem todo lead do CRM é uma linha do funil comercial. Duas regras, as duas em
   contá-lo junto inflaria "Leads Totais" e afundaria toda taxa de conversão da
   página. São ~10 leads hoje, e eles só existem no CRM — a LP da live não
   passa pelo Make, então nunca chegaram ao board.
-- **Orgânico (`Site — Blog`, `Site — Cases`, `Site — Contato`) conta
-  separado.** Sai dos KPIs, do funil e dos pódios e ganha a faixa própria de
-  `components/organic-summary.tsx`, com leads, agendadas, realizadas,
-  fechados e faturamento dele. É o que impede o resultado de mídia paga de
-  levar o crédito do que chegou sozinho pelo site — e o contrário.
+- **Orgânico (`Site — Blog`, `Site — Cases`, `Site — Contato`) conta como
+  qualquer outro lead** — no total, no agendamento, na reunião realizada, no
+  fechamento e nos dois pódios. A faixa de `components/organic-summary.tsx`
+  mostra quanto do mês veio do site, mas é um **recorte** dos mesmos números
+  de cima, nunca uma parcela subtraída deles: o lead chegou pelo site em vez
+  de por anúncio, e o SDR marcou a reunião igual.
 
 A lista de origens é **exata**, não um prefixo `Site — `: "Site — Live" também
 começa assim e está do outro lado da regra. É a mesma lista do Quadro Orgânico

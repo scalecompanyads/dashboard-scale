@@ -4,7 +4,7 @@ import {
   getClosingsFiltered,
   getLeadsByEntryRange,
   filterByEntryCohort,
-  splitOrganico,
+  onlyOrganico,
   type ClosingFilter,
 } from "@/lib/data/leads";
 import { getGoal } from "@/lib/data/goals";
@@ -64,24 +64,22 @@ export default async function ComercialPage({
   const leads = filterByEntryCohort(leadsRaw, year, month, filter, { from: dateFrom, to: dateTo });
   const agendaItems = filterByEntryCohort(agendaRaw, year, month, filter, { from: dateFrom, to: dateTo });
 
-  // Orgânico sai dos números principais e vira o painel de baixo. O corte
-  // vem DEPOIS do filtro de coorte, e não antes, para que a faixa responda
-  // à aba selecionada junto com o resto da página — ela é mais uma leitura
-  // do mesmo recorte, não uma tabela paralela com regra própria.
-  //
-  // O mês anterior passa pelo mesmo corte: o TrendBadge compara os dois, e
-  // medir "com orgânico" contra "sem orgânico" inventaria uma variação que
-  // ninguém produziu.
-  const { principal: leadsPrincipal, organico: leadsOrganico } = splitOrganico(leads);
-  const { principal: agendaPrincipal, organico: agendaOrganico } = splitOrganico(agendaItems);
-  const { principal: closingsPrincipal, organico: closingsOrganico } = splitOrganico(closings);
-
-  const kpis = calcKPIs(leadsPrincipal, agendaPrincipal, closingsPrincipal);
-  const kpisOrganico = calcKPIs(leadsOrganico, agendaOrganico, closingsOrganico);
-  const prevKpis = calcKPIs([], [], splitOrganico(prevClosings).principal);
-  const closers = calcClosers(agendaPrincipal, closingsPrincipal);
-  const sdrs = calcSDRs(agendaPrincipal, closingsPrincipal);
+  // Tudo junto: os únicos leads que a página não considera são os que já
+  // saíram na consulta (Direção "Filter" e origem "Site — Live"). Orgânico
+  // conta como qualquer outro — no total, no agendamento, na reunião
+  // realizada, no fechamento e nos dois pódios. Ele chegou pelo site em vez
+  // de por anúncio, mas o SDR marcou a reunião igual e o closer fechou
+  // igual; tirá-lo dos totais apagaria trabalho que aconteceu.
+  const kpis = calcKPIs(leads, agendaItems, closings);
+  const prevKpis = calcKPIs([], [], prevClosings);
+  const closers = calcClosers(agendaItems, closings);
+  const sdrs = calcSDRs(agendaItems, closings);
   const funnel = buildFunnel(kpis);
+
+  // A faixa do Orgânico é um RECORTE dos mesmos números acima, não uma
+  // parcela subtraída deles: quanto do mês veio do site. O recorte vem
+  // depois do filtro de coorte para acompanhar a aba selecionada.
+  const kpisOrganico = calcKPIs(onlyOrganico(leads), onlyOrganico(agendaItems), onlyOrganico(closings));
 
   const metaPct = goal > 0 ? (kpis.tcvTotal / goal) * 100 : 0;
   // Só o verde (meta batida) e o vermelho (bem atrás) carregam sentido de
@@ -199,7 +197,7 @@ export default async function ComercialPage({
       </div>
 
       <div className="animate-enter min-h-[320px] flex-1" style={{ animationDelay: "560ms" }}>
-        <ClosedDealsTable closings={closingsPrincipal} />
+        <ClosedDealsTable closings={closings} />
       </div>
     </div>
   );
