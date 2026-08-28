@@ -76,8 +76,9 @@ function mapItemToRow(item: MondayItem): LeadInsert {
   return {
     source: "monday",
     monday_item_id: Number(item.id),
-    // Carimbo do board, não desta tabela: é com ele que leads_effective
-    // decide, lead a lead, se quem vale é esta linha ou a do CRM.
+    // Carimbo do board, não desta tabela. Já foi o critério de desempate
+    // entre as duas fontes; hoje é diagnóstico ("de quando é esta cópia?"),
+    // porque o board vence sempre (0005_board_vence.sql).
     source_updated_at: item.updated_at,
     item_name: item.name ?? "",
     etapa: colText(item, MONDAY_COL.etapa),

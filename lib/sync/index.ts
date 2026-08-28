@@ -52,8 +52,8 @@ export async function runFullSync(opts: {
     { source: "monday", run: () => syncMondayBoard() },
     // Segunda fonte de leads, ao lado do board. As duas gravam na MESMA
     // tabela sem se atropelar (cada uma tem a sua chave de conflito) e é a
-    // view leads_effective que escolhe uma das duas por lead, pelo carimbo
-    // de alteração da origem. Por isso podem continuar em paralelo: o
+    // view leads_effective que decide o que aparece: o board inteiro, mais
+    // o que só existe no CRM. Por isso podem rodar em paralelo — o
     // resultado não depende de qual terminar primeiro.
     { source: "crm", run: () => syncCrmLeads() },
     { source: "meta_ads_account", run: () => syncMetaAdsAccount(monthKeys) },

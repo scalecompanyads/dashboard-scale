@@ -24,14 +24,21 @@ As duas fontes convivem, e essa convivência é a parte que exige cuidado.
 mesma tabela sem uma regra de identidade dobraria todo número da tela. Então:
 
 - Cada fonte grava a **sua própria linha** em `leads`, com a sua chave
-  (`monday_item_id` de um lado, `crm_lead_id` do outro) e com o carimbo de
-  alteração **do sistema de origem** (`source_updated_at`).
+  (`monday_item_id` de um lado, `crm_lead_id` do outro).
 - O par entre as duas é reconhecido por `crm_monday_item_id` — o id do item do
   board que o CRM guardou quando migrou aquele lead.
-- A view **`leads_effective`** escolhe uma das duas por lead: **ganha quem foi
-  alterado por último**, com empate para o CRM. Lead que existe de um lado só
-  (item criado no board depois da migração, ou lead nascido no CRM) entra
-  inteiro — o total exibido é a união das duas fontes.
+- A view **`leads_effective`** devolve **o board inteiro**, mais o que só
+  existe no CRM (lead nascido lá, ou cujo item sumiu do board — hoje 43
+  linhas). **O Monday é a verdade absoluta**: é ele que está em produção, é
+  onde o time opera, e é contra ele que as pessoas conferem o dashboard.
+
+  Isto já foi "ganha quem foi alterado por último", e não funcionou: os dois
+  carimbos não são a mesma grandeza. No board, `updated_at` é quando uma
+  *pessoa* mexeu no item; no CRM é um trigger que dispara em qualquer update,
+  inclusive de script — 5.701 linhas ficaram com a data em que uma migration
+  reescreveu a tabela inteira. O CRM ganhava 7.596 dos 7.800 sem ninguém ter
+  editado nada, e o que aparecia na tela era a atribuição de SDR e closer
+  dele no lugar da do board. Ver `supabase/migrations/0005_board_vence.sql`.
 - **Toda leitura do dashboard passa por `leads_effective`.** `lib/data/leads.ts`
   nunca lê a tabela `leads` crua; ler a tabela crua conta cada lead migrado duas
   vezes.
@@ -112,9 +119,10 @@ npm run db:push -- --marcar=0001,0002,0003 --apply
 npm run db:push -- --apply       # agora sim, roda só a 0004
 ```
 
-`0004_crm_as_second_source.sql` é a que transforma `leads` em tabela de duas
-fontes e cria a view `leads_effective`. **O código deste repositório não roda
-sem ela** — `lib/data/leads.ts` lê a view, e as duas syncs gravam a coluna
+`0004_crm_as_second_source.sql` transforma `leads` em tabela de duas fontes e
+cria a view `leads_effective`; `0005_board_vence.sql` troca a regra da view
+para "o board vence sempre". **O código deste repositório não roda sem a
+0004** — `lib/data/leads.ts` lê a view, e as duas syncs gravam a coluna
 `source`.
 
 ## 3. Criar o primeiro usuário

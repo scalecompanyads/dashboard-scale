@@ -22,9 +22,12 @@ export type ClosingFilter = "all" | "mesmo_mes" | "outros_meses";
 // A leitura é da VIEW `leads_effective`, nunca da tabela `leads`: desde que
 // o CRM entrou como segunda fonte, a tabela guarda as duas origens
 // empilhadas e cada um dos ~7.700 leads migrados do Monday tem uma linha de
-// cada lado. Ler a tabela crua dobraria todo número desta página. A view
-// resolve o par pelo carimbo de alteração da origem — ver
-// supabase/migrations/0004_crm_as_second_source.sql.
+// cada lado. Ler a tabela crua dobraria todo número desta página.
+//
+// A view devolve o BOARD inteiro, mais o que só existe no CRM. O Monday é a
+// verdade absoluta — é ele que está em produção — e o CRM entra com lead
+// nascido lá ou cujo item sumiu do board. Ver
+// supabase/migrations/0005_board_vence.sql.
 const LEADS = "leads_effective" as const;
 
 // As duas exclusões que valem para TODA leitura desta página — nenhuma

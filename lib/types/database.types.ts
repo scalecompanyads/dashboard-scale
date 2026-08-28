@@ -6,8 +6,9 @@ export type SyncSource = "monday" | "crm" | "meta_ads_account" | "meta_ads_creat
 
 // De qual sistema esta linha de `leads` veio. As duas fontes descrevem
 // majoritariamente os MESMOS leads (o CRM foi migrado do mesmo board), e é a
-// view `leads_effective` que escolhe uma das duas por lead — ver
-// supabase/migrations/0004_crm_as_second_source.sql.
+// view `leads_effective` que escolhe uma das duas por lead: o board vence
+// sempre, o CRM entra com o que o board não tem — ver
+// supabase/migrations/0005_board_vence.sql.
 export type LeadSource = "monday" | "crm";
 export type SyncStatus = "running" | "success" | "error";
 export type TriggeredBy = "manual" | "cron";
