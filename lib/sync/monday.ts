@@ -1,6 +1,6 @@
 import { MONDAY_BOARD_ID, MONDAY_COL } from "@/lib/constants";
 import { createAdminClient } from "@/lib/supabase/admin";
-import type { Lead } from "@/lib/types/database.types";
+import type { LeadInsert } from "@/lib/types/database.types";
 import type { MondayGqlResponse, MondayItem, MondayItemsPage } from "@/lib/sync/types";
 
 const MONDAY_API_URL = "https://api.monday.com/v2";
@@ -42,14 +42,14 @@ async function fetchAllItems(): Promise<MondayItem[]> {
       ? `query {
           next_items_page(limit: ${PAGE_SIZE}, cursor: "${cursor}") {
             cursor
-            items { id name column_values(ids: [${COLS_LIST}]) { id text } }
+            items { id name updated_at column_values(ids: [${COLS_LIST}]) { id text } }
           }
         }`
       : `query {
           boards(ids: [${MONDAY_BOARD_ID}]) {
             items_page(limit: ${PAGE_SIZE}) {
               cursor
-              items { id name column_values(ids: [${COLS_LIST}]) { id text } }
+              items { id name updated_at column_values(ids: [${COLS_LIST}]) { id text } }
             }
           }
         }`;
@@ -68,13 +68,17 @@ function colText(item: MondayItem, colId: string): string | null {
   return item.column_values.find((c) => c.id === colId)?.text || null;
 }
 
-function mapItemToRow(item: MondayItem): Lead {
+function mapItemToRow(item: MondayItem): LeadInsert {
   const modeloText = colText(item, MONDAY_COL.modelo);
   const mrrText = colText(item, MONDAY_COL.mrr);
   const now = new Date().toISOString();
 
   return {
+    source: "monday",
     monday_item_id: Number(item.id),
+    // Carimbo do board, não desta tabela: é com ele que leads_effective
+    // decide, lead a lead, se quem vale é esta linha ou a do CRM.
+    source_updated_at: item.updated_at,
     item_name: item.name ?? "",
     etapa: colText(item, MONDAY_COL.etapa),
     modelo: modeloText === "TCV" || modeloText === "MRR" ? modeloText : null,

@@ -29,3 +29,13 @@ export const tdNumClass = `${tdBaseClass} text-right font-bold tabular-nums text
 export const tdNumMutedClass = `${tdBaseClass} text-right tabular-nums text-secondary`;
 
 export const emptyStateClass = "px-4 py-4 text-[13px] text-muted";
+
+// Cor de texto por status de meta (ver statusLowerIsBetter/statusHigherIsBetter
+// em lib/constants). "critical" usa o vermelho claro: o vermelho cheio some
+// contra o preto do card quando é só texto, sem fundo.
+export const metaTextClass = {
+  good: "text-status-good",
+  warning: "text-status-warning",
+  critical: "text-status-critical-light",
+  neutral: "text-secondary",
+} as const;

@@ -2,6 +2,10 @@ import { CardSpotlight } from "@/components/card-spotlight";
 
 export type KpiAccent = "primary" | "good" | "warning" | "critical" | "muted";
 export type KpiSurface = "dark" | "blue";
+// O azul da marca (#3a43e3) é escuro demais para texto pequeno sobre o card
+// preto — em títulos de KPI ele fica ilegível. "white" é a saída para as
+// telas onde a legibilidade do rótulo pesa mais que o toque de cor da marca.
+export type KpiLabelTone = "accent" | "white";
 
 const ACCENT_COLOR: Record<KpiAccent, string> = {
   primary: "var(--color-accent-primary)",
@@ -53,6 +57,7 @@ export function KpiCard({
   valueColor,
   featured = false,
   surface = "dark",
+  labelTone = "accent",
   children,
 }: {
   label: string;
@@ -65,9 +70,11 @@ export function KpiCard({
   featured?: boolean;
   /** "blue" is reserved for the single most important stat on the page (e.g. TCV Fechado) — a deliberate one-off highlight, not something derived automatically from accent/featured. Every other card stays "dark". */
   surface?: KpiSurface;
+  /** Cor do rótulo. "white" quando o azul da marca não tem contraste suficiente para o título ser lido. Cards "blue" já são brancos e ignoram isto. */
+  labelTone?: KpiLabelTone;
   children?: React.ReactNode;
 }) {
-  const labelClass = surface === "blue" ? "text-white" : "text-accent-primary";
+  const labelClass = surface === "blue" || labelTone === "white" ? "text-white" : "text-accent-primary";
   const valueClass = surface === "blue" ? "text-white" : VALUE_TEXT[valueColor ?? accent];
   const subClass = surface === "blue" ? "text-white/75" : "text-secondary";
   const iconBadgeClass = surface === "blue" ? "bg-white/15 text-white" : ICON_BADGE_DARK[accent];

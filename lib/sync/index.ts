@@ -2,6 +2,7 @@ import { monthKeyOf } from "@/lib/constants";
 import { formatSyncError, logSyncError, logSyncStart, logSyncSuccess } from "@/lib/sync/log";
 import { syncMetaAdsAccount, syncMetaAdsCreative } from "@/lib/sync/meta-ads";
 import { syncMondayBoard } from "@/lib/sync/monday";
+import { syncCrmLeads } from "@/lib/sync/crm";
 import type { SyncSource, TriggeredBy } from "@/lib/types/database.types";
 
 // Mês atual + 2 anteriores — cobre atualizações de atribuição tardia do
@@ -49,6 +50,12 @@ export async function runFullSync(opts: {
 
   const tasks: { source: SyncSource; run: () => Promise<number> }[] = [
     { source: "monday", run: () => syncMondayBoard() },
+    // Segunda fonte de leads, ao lado do board. As duas gravam na MESMA
+    // tabela sem se atropelar (cada uma tem a sua chave de conflito) e é a
+    // view leads_effective que escolhe uma das duas por lead, pelo carimbo
+    // de alteração da origem. Por isso podem continuar em paralelo: o
+    // resultado não depende de qual terminar primeiro.
+    { source: "crm", run: () => syncCrmLeads() },
     { source: "meta_ads_account", run: () => syncMetaAdsAccount(monthKeys) },
     { source: "meta_ads_creative", run: () => syncMetaAdsCreative(monthKeys) },
   ];

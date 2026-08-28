@@ -1,5 +1,12 @@
 import { createClient } from "@/lib/supabase/server";
-import { getAgendaByRange, getClosingsFiltered, getLeadsByEntryRange, filterByEntryCohort, type ClosingFilter } from "@/lib/data/leads";
+import {
+  getAgendaByRange,
+  getClosingsFiltered,
+  getLeadsByEntryRange,
+  filterByEntryCohort,
+  splitOrganico,
+  type ClosingFilter,
+} from "@/lib/data/leads";
 import { getGoal } from "@/lib/data/goals";
 import { calcKPIs } from "@/lib/metrics/kpis";
 import { calcClosers } from "@/lib/metrics/closers";
@@ -18,6 +25,7 @@ import { FunnelChart } from "@/components/funnel-chart";
 import { ClosedDealsTable } from "@/components/closed-deals-table";
 import { ClosersPodium } from "@/components/closers-podium";
 import { SdrPodium } from "@/components/sdr-podium";
+import { OrganicSummary } from "@/components/organic-summary";
 
 export default async function ComercialPage({
   searchParams,
@@ -56,10 +64,23 @@ export default async function ComercialPage({
   const leads = filterByEntryCohort(leadsRaw, year, month, filter, { from: dateFrom, to: dateTo });
   const agendaItems = filterByEntryCohort(agendaRaw, year, month, filter, { from: dateFrom, to: dateTo });
 
-  const kpis = calcKPIs(leads, agendaItems, closings);
-  const prevKpis = calcKPIs([], [], prevClosings);
-  const closers = calcClosers(agendaItems, closings);
-  const sdrs = calcSDRs(agendaItems, closings);
+  // Orgânico sai dos números principais e vira o painel de baixo. O corte
+  // vem DEPOIS do filtro de coorte, e não antes, para que a faixa responda
+  // à aba selecionada junto com o resto da página — ela é mais uma leitura
+  // do mesmo recorte, não uma tabela paralela com regra própria.
+  //
+  // O mês anterior passa pelo mesmo corte: o TrendBadge compara os dois, e
+  // medir "com orgânico" contra "sem orgânico" inventaria uma variação que
+  // ninguém produziu.
+  const { principal: leadsPrincipal, organico: leadsOrganico } = splitOrganico(leads);
+  const { principal: agendaPrincipal, organico: agendaOrganico } = splitOrganico(agendaItems);
+  const { principal: closingsPrincipal, organico: closingsOrganico } = splitOrganico(closings);
+
+  const kpis = calcKPIs(leadsPrincipal, agendaPrincipal, closingsPrincipal);
+  const kpisOrganico = calcKPIs(leadsOrganico, agendaOrganico, closingsOrganico);
+  const prevKpis = calcKPIs([], [], splitOrganico(prevClosings).principal);
+  const closers = calcClosers(agendaPrincipal, closingsPrincipal);
+  const sdrs = calcSDRs(agendaPrincipal, closingsPrincipal);
   const funnel = buildFunnel(kpis);
 
   const metaPct = goal > 0 ? (kpis.tcvTotal / goal) * 100 : 0;
@@ -165,8 +186,20 @@ export default async function ComercialPage({
         <ClosersPodium closers={closers} />
       </div>
 
-      <div className="animate-enter min-h-[320px] flex-1" style={{ animationDelay: "520ms" }}>
-        <ClosedDealsTable closings={closings} />
+      {/* Respiro bem maior em cima do que embaixo, de propósito. O `gap-5`
+          da página serve para blocos de peso parecido, e aqui ele encontra a
+          fileira de 440px cujos pedestais e feixe de luz encostam no rodapé
+          do card: com 20px — e mesmo com 32 — aquele fundo cheio e mais um
+          painel escuro igual leem como um bloco só, e a faixa parece a
+          quarta coluna do pódio. 52px no total é o que separa de verdade;
+          não é sobra, é a quebra de seção. Embaixo fica o gap normal: a
+          faixa e a tabela de fechamentos são, as duas, o rodapé da página. */}
+      <div className="animate-enter mt-8" style={{ animationDelay: "500ms" }}>
+        <OrganicSummary kpis={kpisOrganico} />
+      </div>
+
+      <div className="animate-enter min-h-[320px] flex-1" style={{ animationDelay: "560ms" }}>
+        <ClosedDealsTable closings={closingsPrincipal} />
       </div>
     </div>
   );

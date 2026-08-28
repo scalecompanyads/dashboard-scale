@@ -1,5 +1,5 @@
 import { fmtBRL, META_CPL, META_TAXA_CONVERSAO, statusHigherIsBetter, statusLowerIsBetter } from "@/lib/constants";
-import type { CreativeRow } from "@/lib/metrics/marketing";
+import type { CampaignRow } from "@/lib/metrics/marketing";
 import {
   emptyStateClass,
   metaTextClass,
@@ -10,16 +10,19 @@ import {
   trBaseClass,
 } from "@/lib/table-styles";
 
-// `hint` vira o title da coluna — "Taxa Compar." (compar/agend) e "Taxa de
-// Conversão" (compar/leads) são fáceis de confundir lado a lado.
+// Um nível acima da tabela de criativo: a campanha é onde a verba é de fato
+// alocada, então é nela que a decisão de escalar/cortar acontece. Mesmas
+// colunas do criativo (para as duas se lerem igual) + "Criativos" e a Taxa
+// de Conversão colorida contra a meta.
+
 const COLUMNS: { label: string; hint?: string }[] = [
-  { label: "Criativo" },
+  { label: "Campanha" },
+  { label: "Criativos", hint: "Anúncios distintos que rodaram nesta campanha no período" },
   { label: "Investimento", hint: "Gasto em Meta Ads no período" },
-  { label: "Leads", hint: "Leads no Monday com origem Meta Ads" },
+  { label: "Leads", hint: "Leads no Monday com origem Meta Ads atribuídos a criativos desta campanha" },
   { label: "CPL", hint: `Investimento / leads — meta: até ${fmtBRL(META_CPL)}` },
   { label: "Agend.", hint: "Reuniões agendadas" },
   { label: "Taxa Agend.", hint: "Agendamentos / leads" },
-  { label: "Custo/Agend.", hint: "Investimento / agendamentos" },
   { label: "Compar.", hint: "Reuniões realizadas" },
   { label: "Taxa Compar.", hint: "Comparecimentos / agendamentos" },
   { label: "Taxa de Conversão", hint: `Comparecimentos / leads — meta: ${META_TAXA_CONVERSAO}%` },
@@ -30,10 +33,6 @@ const COLUMNS: { label: string; hint?: string }[] = [
   { label: "ROAS", hint: "Valor fechado / investimento" },
 ];
 
-// Bespoke (not the shared table-styles) — every numeric column is centered
-// and runs a touch bigger than the other tables since it's the one people
-// actually study row by row. The Criativo column stays left-aligned (name +
-// thumbnail read better that way than centered).
 const thClass =
   "sticky top-0 z-10 whitespace-nowrap bg-surface-1 px-4 py-3 text-center text-[clamp(11.5px,0.75cqw,14px)] font-bold uppercase tracking-wide text-muted backdrop-blur-xl";
 const thLeftClass = `${thClass} text-left`;
@@ -41,27 +40,13 @@ const tdClass = "whitespace-nowrap border-b border-hairline/70 px-4 py-3.5 text-
 const tdNum = `${tdClass} font-bold tabular-nums text-primary`;
 const tdNumMuted = `${tdClass} tabular-nums text-secondary`;
 
-function CreativeThumb({ url, name }: { url?: string; name: string }) {
-  if (url) {
-    return (
-      // eslint-disable-next-line @next/next/no-img-element -- external Meta CDN URL, domain varies per creative
-      <img src={url} alt="" className="h-14 w-14 shrink-0 rounded-none border border-hairline object-cover" loading="lazy" />
-    );
-  }
-  return (
-    <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-none border border-hairline bg-white/[0.06] text-[14px] font-bold text-secondary">
-      {name.slice(0, 2).toUpperCase()}
-    </span>
-  );
-}
-
-export function CreativeTable({ creatives, thumbnails }: { creatives: CreativeRow[]; thumbnails: Map<string, string> }) {
+export function CampaignTable({ campaigns }: { campaigns: CampaignRow[] }) {
   return (
     <div className={tableShellClass}>
       <div className={tableHeaderWrapClass}>
-        <span className={tableHeaderTitleClass}>Por Criativo</span>
+        <span className={tableHeaderTitleClass}>Por Campanha</span>
         <span className="text-[11px] font-medium text-muted">
-          {creatives.length} criativos · meta CPL {fmtBRL(META_CPL)} · conversão {META_TAXA_CONVERSAO}%
+          {campaigns.length} {campaigns.length === 1 ? "campanha" : "campanhas"} · meta CPL {fmtBRL(META_CPL)} · conversão {META_TAXA_CONVERSAO}%
         </span>
       </div>
       <div className={tableScrollClass}>
@@ -76,21 +61,21 @@ export function CreativeTable({ creatives, thumbnails }: { creatives: CreativeRo
             </tr>
           </thead>
           <tbody>
-            {creatives.length === 0 ? (
+            {campaigns.length === 0 ? (
               <tr>
                 <td colSpan={COLUMNS.length} className={emptyStateClass}>
                   Sem dados para este período
                 </td>
               </tr>
             ) : (
-              creatives.map((c) => (
+              campaigns.map((c) => (
                 <tr key={c.name} className={trBaseClass}>
                   <td className={`${tdClass} whitespace-normal text-left`}>
-                    <div className="flex items-center justify-start gap-2.5">
-                      <CreativeThumb url={c.adId ? thumbnails.get(c.adId) : undefined} name={c.name} />
-                      <span className="max-w-[220px] truncate text-left font-bold text-primary">{c.name}</span>
-                    </div>
+                    <span className="block max-w-[320px] truncate font-bold text-primary" title={c.name}>
+                      {c.name}
+                    </span>
                   </td>
+                  <td className={tdNumMuted}>{c.criativos || "—"}</td>
                   <td className={tdNum}>{fmtBRL(c.spend)}</td>
                   <td className={tdNum}>{c.leads}</td>
                   <td className={`${tdClass} font-bold tabular-nums ${metaTextClass[statusLowerIsBetter(c.cpl, META_CPL)]}`}>
@@ -98,7 +83,6 @@ export function CreativeTable({ creatives, thumbnails }: { creatives: CreativeRo
                   </td>
                   <td className={tdNum}>{c.agendamentos}</td>
                   <td className={tdNumMuted}>{c.leads ? `${c.taxaAgendamento.toFixed(1)}%` : "—"}</td>
-                  <td className={tdNumMuted}>{c.custoAgendamento ? fmtBRL(c.custoAgendamento) : "—"}</td>
                   <td className={tdNum}>{c.comparecimentos}</td>
                   <td className={tdNumMuted}>{c.agendamentos ? `${c.taxaComparecimento.toFixed(1)}%` : "—"}</td>
                   <td className={`${tdClass} font-bold tabular-nums ${metaTextClass[statusHigherIsBetter(c.taxaConversao, META_TAXA_CONVERSAO)]}`}>

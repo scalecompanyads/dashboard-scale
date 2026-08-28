@@ -2,7 +2,13 @@
 // update this file in the same commit (or regenerate with
 // `npx supabase gen types typescript --linked` once the project is linked).
 
-export type SyncSource = "monday" | "meta_ads_account" | "meta_ads_creative";
+export type SyncSource = "monday" | "crm" | "meta_ads_account" | "meta_ads_creative";
+
+// De qual sistema esta linha de `leads` veio. As duas fontes descrevem
+// majoritariamente os MESMOS leads (o CRM foi migrado do mesmo board), e é a
+// view `leads_effective` que escolhe uma das duas por lead — ver
+// supabase/migrations/0004_crm_as_second_source.sql.
+export type LeadSource = "monday" | "crm";
 export type SyncStatus = "running" | "success" | "error";
 export type TriggeredBy = "manual" | "cron";
 
@@ -11,7 +17,16 @@ export interface Database {
     Tables: {
       leads: {
         Row: {
-          monday_item_id: number;
+          row_id: string;
+          source: LeadSource;
+          /** Preenchido só quando source = 'monday'. */
+          monday_item_id: number | null;
+          /** Preenchido só quando source = 'crm' — é o leads.id de lá. */
+          crm_lead_id: string | null;
+          /** Numa linha do CRM, o item do board de onde o lead veio: a chave de junção entre as duas fontes. */
+          crm_monday_item_id: number | null;
+          /** Quando a linha mudou no sistema de ORIGEM. É o critério de desempate de leads_effective. */
+          source_updated_at: string | null;
           item_name: string;
           etapa: string | null;
           modelo: "TCV" | "MRR" | null;
@@ -29,7 +44,7 @@ export interface Database {
           updated_at: string;
         };
         Insert: Partial<Database["public"]["Tables"]["leads"]["Row"]> & {
-          monday_item_id: number;
+          source: LeadSource;
         };
         Update: Partial<Database["public"]["Tables"]["leads"]["Row"]>;
         Relationships: [];
@@ -126,12 +141,21 @@ export interface Database {
         Relationships: [];
       };
     };
-    Views: Record<string, never>;
+    Views: {
+      // Um lead por linha, já resolvido entre Monday e CRM. É o que
+      // lib/data/leads.ts lê — a tabela `leads` crua tem as duas fontes
+      // empilhadas e contaria cada lead migrado duas vezes.
+      leads_effective: {
+        Row: Database["public"]["Tables"]["leads"]["Row"];
+        Relationships: [];
+      };
+    };
     Functions: Record<string, never>;
   };
 }
 
 export type Lead = Database["public"]["Tables"]["leads"]["Row"];
+export type LeadInsert = Database["public"]["Tables"]["leads"]["Insert"];
 export type MetaAdsAccountInsight = Database["public"]["Tables"]["meta_ads_account_insights"]["Row"];
 export type MetaAdsCreativeInsight = Database["public"]["Tables"]["meta_ads_creative_insights"]["Row"];
 export type MonthlyGoal = Database["public"]["Tables"]["monthly_goals"]["Row"];

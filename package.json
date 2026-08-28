@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "backfill:meta-ads": "tsx scripts/backfill-meta-ads.ts"
+    "backfill:meta-ads": "tsx scripts/backfill-meta-ads.ts",
+    "db:push": "tsx scripts/db-push.ts",
+    "sync:crm-dry": "tsx scripts/dry-run-crm.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.4",

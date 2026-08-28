@@ -25,7 +25,7 @@ async function fetchInsights(since: string, until: string, level?: "ad") {
   if (!token || !accountId) throw new Error("META_ADS_TOKEN / META_AD_ACCOUNT_ID não configurados.");
 
   const baseFields = ["spend", "impressions", "clicks", "cpc", "cpm", "ctr", "actions", "action_values"];
-  const fields = level === "ad" ? ["ad_id", "ad_name", ...baseFields] : baseFields;
+  const fields = level === "ad" ? ["ad_id", "ad_name", "campaign_id", "campaign_name", ...baseFields] : baseFields;
   const timeRange = encodeURIComponent(JSON.stringify({ since, until }));
   const levelParam = level === "ad" ? "&level=ad&limit=500" : "";
   const url = `https://graph.facebook.com/${GRAPH_API_VERSION}/act_${accountId}/insights?fields=${fields.join(",")}&time_range=${timeRange}${levelParam}&access_token=${token}`;

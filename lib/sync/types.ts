@@ -6,6 +6,10 @@ export interface MondayColumnValue {
 export interface MondayItem {
   id: string;
   name: string;
+  // Última alteração do item NO BOARD. É metade do desempate entre as duas
+  // fontes de lead (a outra metade vem do CRM) — ver a view leads_effective
+  // em supabase/migrations/0004_crm_as_second_source.sql.
+  updated_at: string | null;
   column_values: MondayColumnValue[];
 }
 
@@ -37,4 +41,10 @@ export interface MetaAdsAccountRow {
 export interface MetaAdsAdRow extends MetaAdsAccountRow {
   ad_id: string;
   ad_name: string;
+  // A campanha não tem coluna própria em meta_ads_creative_insights — vem
+  // junto no `raw` (que guarda a linha crua da Graph API) e é lida de lá
+  // por getMetaAdsCreativeSpend. Mesmo ad_name aparece em campanhas
+  // diferentes, então é campaign_id que separa de verdade.
+  campaign_id?: string;
+  campaign_name?: string;
 }
