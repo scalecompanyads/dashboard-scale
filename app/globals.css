@@ -67,7 +67,8 @@
   --color-funnel-4: #184f95;
 
   --font-sans: var(--font-inter);
-  --font-display: var(--font-canela); /* wordmark/headline serif — brand's "Títulos/Destaques" */
+  --font-display: var(--font-manrope); /* títulos, rótulos de KPI, cabeçalhos de tabela */
+  --font-brand: var(--font-canela); /* serifa da marca — só a assinatura "Scale" */
 
   --radius-card: 16px;
   --radius-control: 0px;
