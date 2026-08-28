@@ -110,7 +110,6 @@ export default async function MarketingPage({
       <KpiRow cols={5} staggerBase={60}>
         <KpiCard
           featured
-          labelTone="white"
           icon={<IconCurrency />}
           label="Faturamento"
           accent="good"
@@ -124,28 +123,24 @@ export default async function MarketingPage({
           )}
         </KpiCard>
         <KpiCard
-          labelTone="white"
           icon={<IconReceipt />}
           label={`Investimento — ${label}`}
           value={<AnimatedNumber value={k.spend} format={{ type: "currency" }} />}
           sub="gasto em Meta Ads"
         />
         <KpiCard
-          labelTone="white"
           icon={<IconUsers />}
           label="Leads"
           value={<AnimatedNumber value={k.leadsMeta} format={{ type: "integer" }} />}
           sub="reportados pelo Meta Ads"
         />
         <KpiCard
-          labelTone="white"
           icon={<IconUsers />}
           label="Leads no Monday"
           value={<AnimatedNumber value={k.leadsMonday} format={{ type: "integer" }} />}
           sub="origem Meta Ads"
         />
         <KpiCard
-          labelTone="white"
           icon={<IconTarget />}
           label="CPL"
           accent={cplColor === "neutral" ? "primary" : cplColor}
@@ -158,7 +153,6 @@ export default async function MarketingPage({
       <KpiRow cols={5} staggerBase={310}>
         <KpiCard
           featured
-          labelTone="white"
           icon={<IconGauge />}
           label="ROAS"
           accent={roasColor}
@@ -167,7 +161,6 @@ export default async function MarketingPage({
         />
         <KpiCard
           featured
-          labelTone="white"
           icon={<IconCheckCircle />}
           label="Taxa de Conversão"
           accent={conversaoColor === "neutral" ? "primary" : conversaoColor}
@@ -175,21 +168,18 @@ export default async function MarketingPage({
           sub={`comparecimentos / leads — meta: ${META_TAXA_CONVERSAO}%`}
         />
         <KpiCard
-          labelTone="white"
           icon={<IconCalendarCheck />}
           label="Custo / Agendamento"
           value={<AnimatedNumber value={k.custoAgendamento || null} format={{ type: "currency" }} />}
           sub={`${k.agendamentos} reuniões agendadas`}
         />
         <KpiCard
-          labelTone="white"
           icon={<IconCheckCircle />}
           label="Custo / Comparecimento"
           value={<AnimatedNumber value={k.custoComparecimento || null} format={{ type: "currency" }} />}
           sub={`${k.comparecimentos} reuniões realizadas`}
         />
         <KpiCard
-          labelTone="white"
           icon={<IconHandshake />}
           label="CAC"
           value={<AnimatedNumber value={k.cac || null} format={{ type: "currency" }} />}

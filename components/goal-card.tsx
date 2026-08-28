@@ -64,7 +64,7 @@ export function GoalCard({ monthKey, goalValue, progressPct }: { monthKey: strin
 
       <div className="relative mb-1.5 flex w-full items-start justify-start gap-1.5">
         <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full" style={{ backgroundColor: "var(--color-status-good)", opacity: 0.55 }} aria-hidden />
-        <p className="font-display line-clamp-2 text-left text-[clamp(10px,2.1cqw,15px)] font-bold uppercase leading-snug tracking-wider text-accent-primary">
+        <p className="font-display line-clamp-2 text-left text-[clamp(10px,2.1cqw,15px)] font-bold uppercase leading-snug tracking-wider text-white">
           Meta do Mês
         </p>
       </div>
