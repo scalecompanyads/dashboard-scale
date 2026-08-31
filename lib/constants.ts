@@ -104,23 +104,37 @@ export const PERSON_PHOTOS: Record<string, PersonPhoto> = {
   yakin: { src: "/yakin.jpeg" },
 };
 
-// Quem é SDR. A coluna `sdr` do board acumulou dez meses de história e não
-// serve como lista de time: além do José e do Henrique ela guarda gente que
-// já saiu (Samuel, Lícia, Camila, Carol), valores que não são pessoa nenhuma
-// ("IA", "Recomendação"), duas pessoas numa célula só ("Lícia, José") e o
-// Gabriel, que é closer e aparece com um punhado de agendamentos.
+// Quem entra no pódio de SDR — ou melhor, o que NÃO entra.
 //
-// Esta lista é o time de HOJE, e vale para as duas coisas: quem entra no
-// pódio e por quantos a meta de agendamentos do time é dividida. Mexer aqui
-// muda os dois de uma vez, que é o ponto.
-export const SDR_ROSTER = ["José", "Henrique"] as const;
+// A coluna `sdr` do board acumulou dez meses de uso e guarda três coisas
+// diferentes na mesma gaveta: gente, origem de lead ("Recomendação") e
+// automação ("IA"). E, às vezes, duas pessoas numa célula só ("Lícia, José"),
+// trabalho a quatro mãos que não dá para atribuir a uma sem inventar nem às
+// duas sem contar em dobro.
+//
+// É uma lista de EXCLUSÃO, e não um elenco fixo, de propósito. Já foi elenco
+// (só José e Henrique) e estava errado: o Gabriel é closer, não SDR de cargo,
+// mas de vez em quando ajuda no agendamento — e o pódio mostra TRABALHO, não
+// cargo. Pela mesma razão, quem já saiu do time continua aparecendo no pódio
+// dos meses em que estava.
+//
+// Nada aqui divide meta: as metas do funil são taxas, e taxa vale igual para
+// todo mundo, sem repartir por cabeça.
+const SDR_NAO_PESSOA = new Set(["ia", "recomendacao", "nenhum"]);
 
-/** Compara ignorando acento e caixa — o board escreve "José" e "Jose". */
-export function isSdrDoTime(name: string | null | undefined): boolean {
+/** Sem acento e sem caixa — o board escreve "José" e "Jose", "Recomendação" e "Recomendacao". */
+function normalizaNome(s: string) {
+  return s.trim().toLowerCase().normalize("NFD").replace(/\p{Diacritic}/gu, "");
+}
+
+export function isSdrPessoa(name: string | null | undefined): boolean {
   if (!name) return false;
-  const norm = (s: string) => s.trim().toLowerCase().normalize("NFD").replace(/\p{Diacritic}/gu, "");
-  const alvo = norm(name);
-  return SDR_ROSTER.some((r) => norm(r) === alvo);
+  const nome = name.trim();
+  if (!nome) return false;
+  // Célula com dois nomes: o agendamento é das duas pessoas, e atribuí-lo a
+  // uma só seria escolher no chute. Fica de fora (zerado desde jun/2026).
+  if (nome.includes(",")) return false;
+  return !SDR_NAO_PESSOA.has(normalizaNome(nome));
 }
 
 export const FIRST_DATA_MONTH = "2025-11"; // earliest month with a configured goal / Meta Ads backfill

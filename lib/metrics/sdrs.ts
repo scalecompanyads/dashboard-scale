@@ -1,4 +1,4 @@
-import { ETAPA_REALIZADA, isSdrDoTime } from "@/lib/constants";
+import { ETAPA_REALIZADA, isSdrPessoa } from "@/lib/constants";
 import type { Lead } from "@/lib/types/database.types";
 
 export interface SdrStats {
@@ -13,18 +13,20 @@ export interface SdrStats {
 // `closings` list already fed to calcClosers, just grouped by `sdr` instead
 // of `closer`).
 //
-// Só o time de hoje entra (SDR_ROSTER, em lib/constants.ts). A coluna `sdr`
-// tem dez meses de gente que já saiu, valores que não são pessoa e células
-// com dois nomes; contar tudo aquilo como SDR faria o pódio ranquear "IA" e
-// "Recomendação", e dividiria a meta do time por um número que não é o
-// tamanho do time. Consequência a saber: num mês antigo, quem já saiu não
-// aparece mais no pódio daquele mês.
+// Entra quem AGENDOU, e não quem tem o cargo. O Gabriel é closer e de vez
+// em quando ajuda no agendamento — o trabalho aconteceu, e o pódio mostra
+// trabalho. Pela mesma razão, quem já saiu do time continua no pódio dos
+// meses em que estava.
+//
+// O que fica de fora é o que não é uma pessoa que agendou: "IA",
+// "Recomendação" e as células com dois nomes. Ver isSdrPessoa em
+// lib/constants.ts.
 export function calcSDRs(agendaItems: Lead[], closings: Lead[]): SdrStats[] {
   const map = new Map<string, SdrStats>();
 
   for (const item of agendaItems) {
     const name = item.sdr;
-    if (!isSdrDoTime(name)) continue;
+    if (!isSdrPessoa(name)) continue;
     if (!map.has(name!)) map.set(name!, { name: name!, agendadas: 0, feitas: 0, contratos: 0 });
     const stats = map.get(name!)!;
     stats.agendadas++;
@@ -33,7 +35,7 @@ export function calcSDRs(agendaItems: Lead[], closings: Lead[]): SdrStats[] {
 
   for (const item of closings) {
     const name = item.sdr;
-    if (!isSdrDoTime(name)) continue;
+    if (!isSdrPessoa(name)) continue;
     if (!map.has(name!)) map.set(name!, { name: name!, agendadas: 0, feitas: 0, contratos: 0 });
     map.get(name!)!.contratos++;
   }
