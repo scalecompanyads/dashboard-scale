@@ -157,14 +157,20 @@ export function RateGoalCard({
 
       {/* A linha acionável: onde se está é o número grande, o que fazer é
           aqui. Contra a META do time, e não contra um marco de 5 em 5 pontos
-          que ninguém combinou. */}
+          que ninguém combinou.
+
+          Déficit é SEMPRE vermelho, mesmo com a taxa quase lá. O número
+          grande pode ficar no azul neutro (74,7% contra 75% não é motivo de
+          alarme), mas isto aqui só existe quando falta alguma coisa — pintá-lo
+          de azul faria uma pendência parecer informação. */}
       {!editing && (
         <p className="relative mt-0.5 text-left text-[clamp(10px,2.2cqw,15px)] font-bold tabular-nums">
           {progress.reached ? (
             <span className="text-status-good">✓ meta batida</span>
           ) : progress.needed !== null ? (
-            <span style={{ color }}>
-              faltam {progress.needed} {progress.needed === 1 ? neededLabel.replace(/s$/, "") : neededLabel}
+            <span className="text-status-critical">
+              {progress.needed === 1 ? "falta" : "faltam"} {progress.needed}{" "}
+              {progress.needed === 1 ? neededLabel.replace(/s$/, "") : neededLabel}
             </span>
           ) : (
             <span className="text-muted">sem base para calcular</span>

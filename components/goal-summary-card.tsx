@@ -156,11 +156,14 @@ export function GoalSummaryCard({
         )}
       </p>
 
+      {/* Mesma regra do "faltam N" dos cards de taxa: déficit é sempre
+          vermelho. O percentual acima pode ficar azul quando está quase lá —
+          esta linha, não, porque ela só aparece quando falta dinheiro. */}
       {!editing && !semMeta && (
         <p
           className={
             "relative text-left text-[clamp(11px,2.3cqw,15px)] font-bold tabular-nums " +
-            (progress.reached ? "text-status-good" : progress.gapAccent === "critical" ? "text-status-critical" : "text-accent-light")
+            (progress.reached ? "text-status-good" : "text-status-critical")
           }
         >
           {progress.reached ? "✓ meta superada" : `faltam ${fmtBRL(progress.gap)}`}
