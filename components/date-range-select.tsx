@@ -13,21 +13,13 @@ import {
   rangeLength,
   type DateRange,
 } from "@/lib/constants";
+import { controlClass, dateInputClass, chevronStyle } from "@/lib/control-styles";
 
 // Filtro de período do Marketing. Substitui o par de selects mês/ano por um
 // intervalo livre ('from'/'to' na URL) — o time precisa isolar recortes
 // específicos (a semana em que um criativo novo subiu, os 10 dias de um
 // teste) e comparar um contra o outro, o que o recorte mensal não permitia.
 // O mês inteiro continua a um clique de distância nos atalhos.
-
-const controlClass =
-  "cursor-pointer appearance-none rounded-none border border-hairline bg-black/20 py-1.5 pl-3 pr-7 text-[12.5px] font-semibold text-primary outline-none transition-colors duration-200 hover:border-hairline-strong focus:border-accent-primary";
-
-const dateInputClass =
-  "cursor-pointer rounded-none border border-hairline bg-black/20 px-2.5 py-1.5 text-[12.5px] font-semibold text-primary outline-none transition-colors duration-200 hover:border-hairline-strong focus:border-accent-primary [color-scheme:dark]";
-
-const chevronBg =
-  "url(\"data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e\")";
 
 interface Preset {
   id: string;
@@ -132,7 +124,7 @@ export function DateRangeSelect({ range, today }: { range: DateRange; today: str
         value={matched?.id ?? "custom"}
         onChange={(e) => onPreset(e.target.value)}
         className={controlClass}
-        style={{ backgroundImage: chevronBg, backgroundRepeat: "no-repeat", backgroundPosition: "right 8px center", backgroundSize: "14px" }}
+        style={chevronStyle}
         aria-label="Período"
       >
         {!matched && <option value="custom">Personalizado</option>}

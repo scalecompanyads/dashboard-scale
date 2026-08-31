@@ -2,6 +2,7 @@
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { ClosingFilter } from "@/lib/data/leads";
+import { dateInputClass, filterKickerClass, tabClass, tabTrackClass } from "@/lib/control-styles";
 
 const FILTERS: { value: ClosingFilter; label: string }[] = [
   { value: "all", label: "Todos" },
@@ -13,10 +14,13 @@ export function ClosingFilterTabs({
   filter,
   dateFrom,
   dateTo,
+  showCohortCaveat = false,
 }: {
   filter: ClosingFilter;
   dateFrom?: string;
   dateTo?: string;
+  /** Modo Semanal/Diário com "Outros meses": ver a nota no rodapé do componente. */
+  showCohortCaveat?: boolean;
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -33,19 +37,14 @@ export function ClosingFilterTabs({
 
   return (
     <div className="flex flex-wrap items-center gap-3">
-      <span className="font-display text-[12px] font-bold uppercase tracking-wider text-accent-primary">Fechamentos</span>
+      <span className={filterKickerClass}>Fechamentos</span>
 
-      <div className="flex items-center gap-1 rounded-none bg-black/20 p-1">
+      <div className={tabTrackClass}>
         {FILTERS.map((f) => (
           <button
             key={f.value}
             onClick={() => setParam({ filter: f.value === "all" ? undefined : f.value })}
-            className={
-              "rounded-none px-3 py-1.5 text-[12.5px] font-bold transition-all duration-200 " +
-              (filter === f.value
-                ? "bg-gradient-to-r from-accent-primary to-accent-light text-ink-strong shadow-[0_0_14px_var(--accent-primary-glow)]"
-                : "text-secondary hover:text-white")
-            }
+            className={tabClass(filter === f.value)}
           >
             {f.label}
           </button>
@@ -59,16 +58,31 @@ export function ClosingFilterTabs({
             type="date"
             value={dateFrom ?? ""}
             onChange={(e) => setParam({ dateFrom: e.target.value || undefined })}
-            className="rounded-none border border-hairline bg-black/20 px-2 py-1.5 text-[12px] text-primary outline-none [color-scheme:dark] transition-colors duration-200 focus:border-accent-primary"
+            className={dateInputClass}
           />
           <span>até</span>
           <input
             type="date"
             value={dateTo ?? ""}
             onChange={(e) => setParam({ dateTo: e.target.value || undefined })}
-            className="rounded-none border border-hairline bg-black/20 px-2 py-1.5 text-[12px] text-primary outline-none [color-scheme:dark] transition-colors duration-200 focus:border-accent-primary"
+            className={dateInputClass}
           />
         </div>
+      )}
+
+      {/* A coorte é sempre MENSAL, em qualquer modo de visualização — "Leads
+          do mês" precisa continuar significando "o lead entrou neste mês", e
+          não "entrou hoje". A consequência é que, num dia ou numa semana,
+          "Outros meses" zera as colunas de leads e reuniões por definição
+          (quem entrou hoje entrou neste mês), enquanto a de fechamentos segue
+          perfeitamente útil: dos que fecharam hoje, quantos vieram de lead
+          antigo. Explicar o zero é melhor do que escondê-lo — e melhor do que
+          sumir com a aba, que mudaria todo número da tela sem causa visível
+          na hora de trocar de visão. */}
+      {showCohortCaveat && filter === "outros_meses" && (
+        <span className="text-[11.5px] font-medium text-muted">
+          a coorte é sempre do mês — nenhum lead que entrou no período pertence a &ldquo;outros meses&rdquo;
+        </span>
       )}
     </div>
   );

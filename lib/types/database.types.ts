@@ -13,6 +13,9 @@ export type LeadSource = "monday" | "crm";
 export type SyncStatus = "running" | "success" | "error";
 export type TriggeredBy = "manual" | "cron";
 
+/** Granularidade de um override manual de meta. O mês fica em monthly_goals. */
+export type PeriodType = "week" | "day";
+
 export interface Database {
   public: {
     Tables: {
@@ -96,7 +99,14 @@ export interface Database {
       monthly_goals: {
         Row: {
           month: string;
+          /** Faturamento (TCV) do mês. */
           goal_value: number;
+          /** Taxa de agendamento alvo, 0–100: dos leads, quantos viraram reunião. NÃO é rateada. NULL = sem meta. */
+          goal_agendamento_pct: number | null;
+          /** Taxa de comparecimento alvo, 0–100. NÃO é rateada. NULL = vale META_PADRAO. */
+          goal_comparecimento_pct: number | null;
+          /** Taxa de conversão alvo, 0–100: das realizadas, quantas fecharam. NULL = vale META_PADRAO. */
+          goal_conversao_pct: number | null;
           updated_by: string | null;
           updated_at: string;
         };
@@ -104,6 +114,32 @@ export interface Database {
           month: string;
         };
         Update: Partial<Database["public"]["Tables"]["monthly_goals"]["Row"]>;
+        Relationships: [];
+      };
+      // Só a EXCEÇÃO ao rateio: semana ou dia com meta digitada à mão. Linha
+      // ausente = vale o rateio da meta mensal por dias úteis. Ver
+      // supabase/migrations/0006_period_goals.sql.
+      period_goals: {
+        Row: {
+          period_type: PeriodType;
+          /** Primeiro dia da janela: o próprio dia, ou a segunda-feira da semana (ou o dia 1º, quando a semana foi recortada na virada do mês). */
+          period_key: string;
+          /** Coluna GERADA no Postgres: left(period_key, 7). */
+          month: string;
+          // Só faturamento: as outras duas metas são TAXA, e taxa não se
+          // rateia — logo não há o que sobrescrever por semana.
+          /** Override de faturamento. NULL = vale o rateio da meta mensal. */
+          goal_value: number | null;
+          updated_by: string | null;
+          updated_at: string;
+        };
+        // `month` fica FORA do Insert/Update: é `generated always`, e mandá-la
+        // no payload faz o PostgREST devolver 428.
+        Insert: Omit<Partial<Database["public"]["Tables"]["period_goals"]["Row"]>, "month"> & {
+          period_type: PeriodType;
+          period_key: string;
+        };
+        Update: Omit<Partial<Database["public"]["Tables"]["period_goals"]["Row"]>, "month">;
         Relationships: [];
       };
       sync_runs: {
@@ -160,5 +196,8 @@ export type LeadInsert = Database["public"]["Tables"]["leads"]["Insert"];
 export type MetaAdsAccountInsight = Database["public"]["Tables"]["meta_ads_account_insights"]["Row"];
 export type MetaAdsCreativeInsight = Database["public"]["Tables"]["meta_ads_creative_insights"]["Row"];
 export type MonthlyGoal = Database["public"]["Tables"]["monthly_goals"]["Row"];
+// Sufixo `Row` de propósito: `PeriodGoal` sem sufixo é a meta JÁ RESOLVIDA
+// (override ou rateio) de lib/metrics/goal-pacing.ts, que é outra coisa.
+export type PeriodGoalRow = Database["public"]["Tables"]["period_goals"]["Row"];
 export type SyncRun = Database["public"]["Tables"]["sync_runs"]["Row"];
 export type SyncStateRow = Database["public"]["Tables"]["sync_state"]["Row"];

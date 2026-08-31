@@ -2,19 +2,20 @@ import { fmtBRL, ORIGEM_ORGANICO } from "@/lib/constants";
 import { panelClass, panelStyle } from "@/lib/glass-panel";
 import type { ComercialKPIs } from "@/lib/metrics/kpis";
 
-// Quanto do mês veio sozinho pelo site — um RECORTE dos números de cima,
+// Quanto do PERÍODO veio sozinho pelo site — um RECORTE dos números de cima,
 // não uma parcela tirada deles. Estes leads já estão contados no funil, nos
 // pódios e no faturamento; aqui eles aparecem de novo, sozinhos, para
-// responder "e o site, trouxe alguma coisa?".
+// responder "e o site, trouxe alguma coisa?". A janela acompanha a da
+// página: o mês, a semana ou o dia que estiver selecionado.
 //
 // Faixa, e não uma segunda KpiRow: os cinco números não competem com TCV
 // Fechado e Meta. Card cheio para cada um faria o olho ler dois dashboards
 // de mesmo peso na mesma tela.
 //
-// Aparece mesmo zerado, de propósito. Sumir com a faixa num mês sem lead
+// Aparece mesmo zerado, de propósito. Sumir com a faixa num período sem lead
 // orgânico esconderia justamente o fato que ela existe para mostrar — que
-// o site não trouxe nada —, e ainda faria a página mudar de forma de um mês
-// para o outro.
+// o site não trouxe nada —, e ainda faria a página mudar de forma de um
+// período para o outro.
 
 function LeafIcon({ className }: { className?: string }) {
   return (

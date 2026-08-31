@@ -5,7 +5,6 @@ import {
   ETAPA_EXCLUIDA_AGENDA,
   isOrigemOrganica,
   monthKeyOf,
-  monthRangeOf,
   ORIGEM_LIVE,
   type DateRange,
 } from "@/lib/constants";
@@ -65,79 +64,68 @@ export function onlyOrganico<T extends Pick<Lead, "origem">>(rows: T[]): T[] {
 }
 
 // As funções *ByDateRange abaixo são a forma primitiva — o filtro do
-// Marketing aceita qualquer intervalo. As variantes por (ano, mês) que a
-// aba Comercial usa são só um wrapper em cima delas.
+// Marketing aceita qualquer intervalo, e a aba Comercial agora também lê
+// semana e dia por aqui. As variantes por (ano, mês) são só um wrapper.
+//
+// O PostgREST corta a resposta em 1000 linhas e NÃO avisa — vem uma página
+// curta, sem erro, e o total simplesmente para de crescer. Falha silenciosa,
+// impossível de perceber olhando a tela.
+//
+// `.limit(n)` não resolve: o teto de 1000 é configuração do SERVIDOR
+// (db-max-rows), e um limit maior que ele é ignorado — medido neste projeto,
+// `.limit(5000)` numa view de 7.934 linhas devolveu 1000. O único jeito é
+// paginar com .range() até vir uma página incompleta.
+//
+// A margem hoje é menor do que parece: agosto/2026 já tem ~592 leads em
+// dt_entrada, e um dia de campanha sozinho passou de 90.
+const PAGE_SIZE = 1000;
 
-export async function getLeadsByEntryDateRange(supabase: DB, range: DateRange): Promise<Lead[]> {
-  const { data, error } = await excludeNaoComercial(
-    supabase.from(LEADS).select("*").gte("dt_entrada", range.from).lte("dt_entrada", range.to)
+/**
+ * Lê todas as páginas de uma consulta.
+ *
+ * A ordenação por `row_id` não é estética: sem ORDER BY, o Postgres não
+ * garante ordem estável entre as páginas, e o offset passaria a repetir uma
+ * linha e pular outra.
+ */
+async function fetchAllPages(
+  build: () => {
+    order: (column: string) => {
+      range: (from: number, to: number) => PromiseLike<{ data: Lead[] | null; error: unknown }>;
+    };
+  }
+): Promise<Lead[]> {
+  const out: Lead[] = [];
+  for (let offset = 0; ; offset += PAGE_SIZE) {
+    const { data, error } = await build()
+      .order("row_id")
+      .range(offset, offset + PAGE_SIZE - 1);
+    if (error) throw error;
+    if (!data || data.length === 0) break;
+    out.push(...data);
+    if (data.length < PAGE_SIZE) break;
+  }
+  return out;
+}
+
+export function getLeadsByEntryDateRange(supabase: DB, range: DateRange): Promise<Lead[]> {
+  return fetchAllPages(() =>
+    excludeNaoComercial(supabase.from(LEADS).select("*").gte("dt_entrada", range.from).lte("dt_entrada", range.to))
   );
-  if (error) throw error;
-  return data ?? [];
 }
 
 export async function getAgendaByDateRange(supabase: DB, range: DateRange): Promise<Lead[]> {
-  const { data, error } = await excludeNaoComercial(
-    supabase.from(LEADS).select("*").gte("dt_agenda", range.from).lte("dt_agenda", range.to)
+  const rows = await fetchAllPages(() =>
+    excludeNaoComercial(supabase.from(LEADS).select("*").gte("dt_agenda", range.from).lte("dt_agenda", range.to))
   );
-  if (error) throw error;
-  return (data ?? []).filter((i) => !ETAPA_EXCLUIDA_AGENDA.has(i.etapa ?? ""));
+  return rows.filter((i) => !ETAPA_EXCLUIDA_AGENDA.has(i.etapa ?? ""));
 }
 
-async function getClosingsRawByDateRange(supabase: DB, range: DateRange): Promise<Lead[]> {
-  const { data, error } = await excludeNaoComercial(
-    supabase.from(LEADS).select("*").gte("dt_fecha", range.from).lte("dt_fecha", range.to).eq("etapa", "Fechado")
+function getClosingsRawByDateRange(supabase: DB, range: DateRange): Promise<Lead[]> {
+  return fetchAllPages(() =>
+    excludeNaoComercial(
+      supabase.from(LEADS).select("*").gte("dt_fecha", range.from).lte("dt_fecha", range.to).eq("etapa", "Fechado")
+    )
   );
-  if (error) throw error;
-  return data ?? [];
-}
-
-export function getLeadsByEntryRange(supabase: DB, year: number, month: number): Promise<Lead[]> {
-  return getLeadsByEntryDateRange(supabase, monthRangeOf(year, month));
-}
-
-export function getAgendaByRange(supabase: DB, year: number, month: number): Promise<Lead[]> {
-  return getAgendaByDateRange(supabase, monthRangeOf(year, month));
-}
-
-// Shared by getClosingsFiltered below AND filterByEntryCohort — same
-// "did this row's lead enter THIS month, or another one" question, just
-// applied to different date-column-filtered slices of the leads table
-// (closings by dt_fecha, leads/agenda by dt_entrada/dt_agenda).
-function applyCohortFilter<T extends Pick<Lead, "dt_entrada">>(
-  items: T[],
-  key: string,
-  filter: ClosingFilter,
-  customRange?: { from?: string; to?: string }
-): T[] {
-  if (filter === "mesmo_mes") {
-    return items.filter((i) => dateMonth(i.dt_entrada) === key);
-  }
-
-  if (filter === "outros_meses") {
-    const cFrom = customRange?.from;
-    const cTo = customRange?.to;
-    return items.filter((i) => {
-      if (!i.dt_entrada) return false;
-      if (dateMonth(i.dt_entrada) === key) return false; // exclui leads do próprio mês
-      if (cFrom && i.dt_entrada < cFrom) return false;
-      if (cTo && i.dt_entrada > cTo) return false;
-      return true;
-    });
-  }
-
-  return items;
-}
-
-export async function getClosingsFiltered(
-  supabase: DB,
-  year: number,
-  month: number,
-  filter: ClosingFilter,
-  customRange?: { from?: string; to?: string }
-): Promise<Lead[]> {
-  const closings = await getClosingsRawByDateRange(supabase, monthRangeOf(year, month));
-  return applyCohortFilter(closings, monthKeyOf(year, month), filter, customRange);
 }
 
 /**
@@ -165,6 +153,13 @@ export async function getClosingsByDateRange(
 // closings actually moved). Applying the same cohort filter to leads and
 // agenda items keeps the whole page's picture consistent with the
 // selected tab, not just the closings-derived numbers.
+//
+// A coorte é MENSAL em qualquer modo de visualização, inclusive quando a
+// janela de leitura é uma semana ou um dia: "Leads do mês" tem que continuar
+// significando "o lead entrou neste mês", e não "entrou hoje". Reinterpretar
+// a pergunta como "mesma janela" não sobraria quase nada num dia — fechar no
+// mesmo dia em que entrou é raro — e isso leria como página quebrada, não
+// como filtro. Quem chama passa o mês DONO da janela.
 export function filterByEntryCohort<T extends Pick<Lead, "dt_entrada">>(
   items: T[],
   year: number,
@@ -172,5 +167,23 @@ export function filterByEntryCohort<T extends Pick<Lead, "dt_entrada">>(
   filter: ClosingFilter,
   customRange?: { from?: string; to?: string }
 ): T[] {
-  return applyCohortFilter(items, monthKeyOf(year, month), filter, customRange);
+  const key = monthKeyOf(year, month);
+
+  if (filter === "mesmo_mes") {
+    return items.filter((i) => dateMonth(i.dt_entrada) === key);
+  }
+
+  if (filter === "outros_meses") {
+    const cFrom = customRange?.from;
+    const cTo = customRange?.to;
+    return items.filter((i) => {
+      if (!i.dt_entrada) return false;
+      if (dateMonth(i.dt_entrada) === key) return false; // exclui leads do próprio mês
+      if (cFrom && i.dt_entrada < cFrom) return false;
+      if (cTo && i.dt_entrada > cTo) return false;
+      return true;
+    });
+  }
+
+  return items;
 }

@@ -86,7 +86,7 @@ export function ClosedDealsTable({ closings }: { closings: Lead[] }) {
             {sorted.length === 0 ? (
               <tr>
                 <td colSpan={4} className={emptyStateClass}>
-                  Sem dados para este mês
+                  Sem fechamentos no período
                 </td>
               </tr>
             ) : (

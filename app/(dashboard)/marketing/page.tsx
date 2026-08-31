@@ -11,7 +11,7 @@ import {
   rangeLabel,
   statusHigherIsBetter,
   statusLowerIsBetter,
-  toISODate,
+  todayInSaoPaulo,
   type DateRange,
 } from "@/lib/constants";
 import { DateRangeSelect } from "@/components/date-range-select";
@@ -44,15 +44,15 @@ const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
  * antigo e continua sendo aceito para não quebrar link salvo — só que agora
  * como um intervalo qualquer, o do mês inteiro.
  */
-function resolveRange(params: Record<string, string | string[] | undefined>, today: Date): DateRange {
+function resolveRange(params: Record<string, string | string[] | undefined>, today: string): DateRange {
   const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v);
   const from = one(params.from);
   const to = one(params.to);
   if (from && to && ISO_DATE.test(from) && ISO_DATE.test(to)) {
     return from <= to ? { from, to } : { from: to, to: from };
   }
-  const year = Number(one(params.year)) || today.getFullYear();
-  const month = Number(one(params.month)) || today.getMonth() + 1;
+  const year = Number(one(params.year)) || Number(today.slice(0, 4));
+  const month = Number(one(params.month)) || Number(today.slice(5, 7));
   return monthRangeOf(year, month);
 }
 
@@ -62,10 +62,11 @@ export default async function MarketingPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const params = await searchParams;
-  const now = new Date();
-  // Data de hoje no fuso local, como YYYY-MM-DD — a base dos atalhos do filtro.
-  const today = toISODate(new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate())));
-  const range = resolveRange(params, now);
+  // Hoje no fuso de BRASÍLIA, e não o do servidor — a base dos atalhos do
+  // filtro. Na Vercel o servidor roda em UTC, 3h à frente, então das 21h à
+  // meia-noite "Hoje" apontaria para amanhã.
+  const today = todayInSaoPaulo();
+  const range = resolveRange(params, today);
   const prev = previousRange(range);
 
   const supabase = await createClient();

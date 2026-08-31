@@ -104,6 +104,25 @@ export const PERSON_PHOTOS: Record<string, PersonPhoto> = {
   yakin: { src: "/yakin.jpeg" },
 };
 
+// Quem é SDR. A coluna `sdr` do board acumulou dez meses de história e não
+// serve como lista de time: além do José e do Henrique ela guarda gente que
+// já saiu (Samuel, Lícia, Camila, Carol), valores que não são pessoa nenhuma
+// ("IA", "Recomendação"), duas pessoas numa célula só ("Lícia, José") e o
+// Gabriel, que é closer e aparece com um punhado de agendamentos.
+//
+// Esta lista é o time de HOJE, e vale para as duas coisas: quem entra no
+// pódio e por quantos a meta de agendamentos do time é dividida. Mexer aqui
+// muda os dois de uma vez, que é o ponto.
+export const SDR_ROSTER = ["José", "Henrique"] as const;
+
+/** Compara ignorando acento e caixa — o board escreve "José" e "Jose". */
+export function isSdrDoTime(name: string | null | undefined): boolean {
+  if (!name) return false;
+  const norm = (s: string) => s.trim().toLowerCase().normalize("NFD").replace(/\p{Diacritic}/gu, "");
+  const alvo = norm(name);
+  return SDR_ROSTER.some((r) => norm(r) === alvo);
+}
+
 export const FIRST_DATA_MONTH = "2025-11"; // earliest month with a configured goal / Meta Ads backfill
 
 export function pad(n: number) {
@@ -244,6 +263,153 @@ export function previousRange(range: DateRange): DateRange {
   return { from: addDays(range.from, -len), to: addDays(range.to, -len) };
 }
 
+// ---------------------------------------------------------------------------
+// Dias úteis (seg–sex)
+//
+// A meta nasce MENSAL. O dia e a semana são um rateio dela por dias úteis:
+//
+//   meta do dia    = meta do mês / dias úteis do mês
+//   meta da semana = meta do dia * dias úteis da semana DENTRO do mês
+//
+// Rateio por dia útil, e não por dia corrido, porque dia corrido cobraria
+// meta de sábado e domingo — e faria toda segunda-feira nascer atrasada.
+//
+// Repare na assimetria de propósito entre JANELA e META: a janela de leitura
+// da semana é segunda a DOMINGO, mas só seg–sex conta para a meta. `dt_fecha`
+// é um `date` puro, sem restrição de dia da semana em nenhum dos dois syncs:
+// fechamento no sábado é possível. Se a janela fosse seg–sex, esse negócio
+// sumiria da semana e da soma das semanas, mas continuaria no total do mês —
+// e número que não fecha é pior que meta imperfeita. Como a meta ignora o fim
+// de semana, um sábado só empurra a semana acima de 100%, que é a leitura
+// certa: receita que o plano não pediu.
+//
+// Tudo aqui é construído sobre parseISODate (meio-dia UTC), então herda a
+// mesma imunidade a fuso do resto do arquivo.
+// ---------------------------------------------------------------------------
+
+/** 0 = domingo … 6 = sábado. */
+export function weekdayOf(s: string): number {
+  return parseISODate(s).getUTCDay();
+}
+
+export function isBusinessDay(s: string): boolean {
+  const day = weekdayOf(s);
+  return day >= 1 && day <= 5;
+}
+
+/**
+ * Dias úteis do intervalo, inclusivo nas duas pontas.
+ *
+ * Laço simples de no máximo ~31 voltas — a comparação lexical entre strings
+ * 'YYYY-MM-DD' é correta, e a versão fechada em O(1) não paga o custo de
+ * legibilidade nesta escala. É também o único ponto onde uma eventual lista
+ * de feriados entraria: hoje o rateio não conhece feriado nenhum.
+ */
+export function businessDaysIn(range: DateRange): number {
+  let count = 0;
+  for (let d = range.from; d <= range.to; d = addDays(d, 1)) {
+    if (isBusinessDay(d)) count++;
+  }
+  return count;
+}
+
+export function businessDaysList(range: DateRange): string[] {
+  const out: string[] = [];
+  for (let d = range.from; d <= range.to; d = addDays(d, 1)) {
+    if (isBusinessDay(d)) out.push(d);
+  }
+  return out;
+}
+
+/** O denominador do rateio. Nunca é 0: todo mês tem pelo menos 20 dias úteis. */
+export function businessDaysInMonth(monthKey: string): number {
+  const [year, month] = monthKey.split("-").map(Number);
+  return businessDaysIn(monthRangeOf(year, month));
+}
+
+/**
+ * Dias úteis do intervalo já vividos até `today`, inclusive — 0 se o período
+ * é todo futuro, o total se já fechou. Alimenta a linha de ritmo, que é
+ * separada da meta de propósito: a meta é sempre do PERÍODO INTEIRO (ver
+ * deriveGoal em lib/metrics/goal-pacing.ts), e o quanto já se viveu dele é
+ * outra informação.
+ */
+export function businessDaysElapsed(range: DateRange, today: string): number {
+  if (today < range.from) return 0;
+  return businessDaysIn({ from: range.from, to: today < range.to ? today : range.to });
+}
+
+/** A semana SEGUNDA–DOMINGO que contém `s`. */
+export function weekRangeOf(s: string): DateRange {
+  const day = weekdayOf(s);
+  // Domingo (0) fecha a semana que começou 6 dias antes, não abre uma nova.
+  const from = addDays(s, -(day === 0 ? 6 : day - 1));
+  return { from, to: addDays(from, 6) };
+}
+
+/** Interseção dos dois intervalos, ou null se não se cruzam. */
+export function intersectRange(a: DateRange, b: DateRange): DateRange | null {
+  const from = a.from > b.from ? a.from : b.from;
+  const to = a.to < b.to ? a.to : b.to;
+  return from <= to ? { from, to } : null;
+}
+
+/**
+ * A semana de `s`, recortada ao mês de `monthKey`.
+ *
+ * É o recorte que garante o invariante do rateio: **a soma das metas
+ * semanais de um mês é exatamente a meta mensal**. Cada dia útil do mês
+ * pertence a uma, e só uma, semana recortada, então
+ * Σ (metaDoDia × diasÚteisDaSemana) = metaDoDia × diasÚteisDoMês = metaDoMês.
+ *
+ * Sem o recorte, a semana da virada do mês seria contada nos dois meses e a
+ * soma estouraria. Não "simplifique" isto de volta para weekRangeOf().
+ */
+export function weekRangeClippedToMonth(s: string, monthKey: string): DateRange {
+  const [year, month] = monthKey.split("-").map(Number);
+  const week = weekRangeOf(s);
+  // Só devolve null se o chamador passar uma âncora fora do mês — o que
+  // resolveComercialPeriod nunca faz, já que deriva o mês da própria âncora.
+  return intersectRange(week, monthRangeOf(year, month)) ?? week;
+}
+
+/**
+ * Dia útil imediatamente anterior a `s` (pula sábado e domingo).
+ *
+ * É contra ele que o modo Diário compara. Comparar segunda-feira com domingo
+ * seria comparar com zero, e o TrendBadge devolve null quando o anterior é
+ * <= 0 — toda segunda perderia os indicadores de variação em silêncio.
+ */
+export function previousBusinessDay(s: string): string {
+  let d = addDays(s, -1);
+  while (!isBusinessDay(d)) d = addDays(d, -1);
+  return d;
+}
+
+/** O par de previousBusinessDay — usado pelo avanço do seletor de dia. */
+export function nextBusinessDay(s: string): string {
+  let d = addDays(s, 1);
+  while (!isBusinessDay(d)) d = addDays(d, 1);
+  return d;
+}
+
+/**
+ * Hoje no fuso de quem usa o dashboard, 'YYYY-MM-DD'.
+ *
+ * NÃO use `new Date()` local do servidor para isto: na Vercel o servidor roda
+ * em UTC, 3h à frente de Brasília, então das 21h à meia-noite BRT a página
+ * acharia que já é amanhã — e cairia todo fim de tarde num dia sem dado
+ * nenhum. O locale 'en-CA' já formata como YYYY-MM-DD.
+ */
+export function todayInSaoPaulo(): string {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Sao_Paulo",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
+}
+
 const SHORT_DATE = new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "short", timeZone: "UTC" });
 
 /** "Agosto 2026" para mês inteiro, "01 ago – 15 ago 2026" para recorte livre. */
@@ -268,6 +434,32 @@ export function rangeLabel(range: DateRange): string {
 // abaixo/acima da meta = verde, até a margem de tolerância = amarelo,
 // pior que isso = vermelho.
 // ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// Metas das três conversões do funil comercial.
+//
+// Cada uma mede a passagem de uma etapa para a seguinte:
+//
+//   agendamento     leads      -> agendadas     "dos leads, quantos marcaram?"
+//   comparecimento  agendadas  -> realizadas    "dos marcados, quantos vieram?"
+//   conversão       realizadas -> fechados      "das reuniões, quantas fecharam?"
+//
+// Estes são os PADRÕES do time. Cada mês pode sobrescrever qualquer uma delas
+// (monthly_goals.goal_*_pct); coluna nula quer dizer "vale o padrão daqui".
+//
+// Ficam em código, e não como default no banco, porque assim mudar o padrão
+// do time é uma linha e vale para todo mês que nunca foi editado à mão —
+// gravar 40 em cada linha na criação congelaria o valor antigo em todo mês já
+// visitado.
+//
+// Taxa não se rateia: 40% é 40% num dia, numa semana e no mês. Por isso estas
+// três metas não têm versão semanal, ao contrário da de faturamento.
+// ---------------------------------------------------------------------------
+export const META_PADRAO = {
+  agendamentoPct: 40,
+  comparecimentoPct: 75,
+  conversaoPct: 25,
+} as const;
+
 export const META_CPL = 65; // R$ por lead — menor é melhor
 export const META_TAXA_CONVERSAO = 25; // % de leads que comparecem à reunião — maior é melhor
 
