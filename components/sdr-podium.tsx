@@ -13,6 +13,16 @@ function SdrSlot({ rank, sdr, meta }: { rank: PodiumRank; sdr?: SdrStats; meta?:
   const pct = sdr.agendadas ? (sdr.feitas / sdr.agendadas) * 100 : 0;
   const photo = PERSON_PHOTOS[sdr.name.toLowerCase().split(" ")[0]];
   const bateu = meta !== undefined && sdr.agendadas > 0 && pct >= meta;
+  // Verde bateu, azul quase la, vermelho bem atras — mesmos cortes dos
+  // cards de taxa la em cima, para o podio nao inventar uma escala propria.
+  const cor =
+    meta === undefined || sdr.agendadas === 0
+      ? "text-accent-light"
+      : bateu
+        ? "text-status-good"
+        : pct >= meta * 0.7
+          ? "text-accent-light"
+          : "text-status-critical";
 
   return (
     <div className={`relative flex flex-col items-center gap-2.5 ${m.order}`}>
@@ -40,20 +50,20 @@ function SdrSlot({ rank, sdr, meta }: { rank: PodiumRank; sdr?: SdrStats; meta?:
         </div>
       )}
       <p className="max-w-[75cqw] truncate text-[clamp(13px,2.6cqw,17px)] font-bold text-primary">{sdr.name.split(" ")[0]}</p>
-      <p className="text-[clamp(18px,5.5cqw,28px)] font-black text-accent-light">{pct.toFixed(1)}%</p>
-      <p className="text-[clamp(13px,2.6cqw,17px)] font-semibold text-primary">
-        {sdr.feitas} de {sdr.agendadas} ag.
+      {/* A meta entra como sufixo da linha que ja existia, e nao como linha
+          nova: o PodiumShell tem altura fixa e alinha os slots por baixo
+          (items-end + overflow-hidden), entao cada linha a mais empurra o
+          conteudo para fora pelo topo — e corta justamente o 1o e o 2o, que
+          sao os slots mais altos. A cor do percentual ja diz se bateu. */}
+      <p className={"text-[clamp(18px,5.5cqw,28px)] font-black leading-none tabular-nums " + cor}>
+        {pct.toFixed(1)}%
       </p>
-      {meta !== undefined && sdr.agendadas > 0 && (
-        <p
-          className={
-            "text-[clamp(11px,2.2cqw,14px)] font-bold tabular-nums " +
-            (bateu ? "text-status-good" : pct >= meta * 0.7 ? "text-accent-light" : "text-status-critical")
-          }
-        >
-          {bateu ? "✓ " : ""}meta {Math.round(meta)}%
-        </p>
-      )}
+      <p className="text-[clamp(12px,2.5cqw,16px)] font-semibold text-primary">
+        {sdr.feitas} de {sdr.agendadas} ag.
+        {meta !== undefined && sdr.agendadas > 0 && (
+          <span className={"font-bold " + cor}> · {bateu ? "✓ " : ""}meta {Math.round(meta)}%</span>
+        )}
+      </p>
       <p className="mb-1 text-[clamp(12px,2.4cqw,15px)] font-medium text-primary">
         {sdr.contratos} contrato{sdr.contratos === 1 ? "" : "s"}
       </p>
