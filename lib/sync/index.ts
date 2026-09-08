@@ -1,7 +1,6 @@
 import { monthKeyOf } from "@/lib/constants";
 import { formatSyncError, logSyncError, logSyncStart, logSyncSuccess } from "@/lib/sync/log";
 import { syncMetaAdsAccount, syncMetaAdsCreative } from "@/lib/sync/meta-ads";
-import { syncMondayBoard } from "@/lib/sync/monday";
 import { syncCrmLeads } from "@/lib/sync/crm";
 import type { SyncSource, TriggeredBy } from "@/lib/types/database.types";
 
@@ -32,7 +31,7 @@ export interface SyncResult {
   error?: string;
 }
 
-// Orchestrates the 3 sync sources independently: a failure in one (say, the
+// Orchestrates the sync sources independently: a failure in one (say, the
 // Meta Ads token expired) is logged and surfaced in sync_state, but never
 // blocks the others and never touches previously-synced rows in that table.
 //
@@ -40,8 +39,15 @@ export interface SyncResult {
 // (7000+ items, paged 500 at a time) was already taking 43-63s on its own
 // depending on Monday's API latency, and running it sequentially before the
 // Meta Ads calls pushed some manual triggers right past the route's serverless
-// timeout, killing the sync mid-upsert. Running all 3 in parallel means the
-// total wall-clock time is roughly the SLOWEST source, not the sum of all 3.
+// timeout, killing the sync mid-upsert. Running all in parallel means the
+// total wall-clock time is roughly the SLOWEST source, not the sum of all.
+//
+// O Monday PAROU de entrar aqui em 04/09/2026: o time passou a operar só o
+// CRM a partir de CRM_SOLO_DESDE (lib/constants.ts), então sincronizar o
+// board diariamente só reimportaria uma cópia parada que ninguém mais
+// edita. As linhas `source = 'monday'` já gravadas continuam intactas —
+// `leads_effective` (0005_board_vence.sql) segue valendo para qualquer
+// leitura com data até BOARD_ATE, ver lib/data/leads.ts.
 export async function runFullSync(opts: {
   triggeredBy: TriggeredBy;
   triggeredByUser?: string;
@@ -49,12 +55,6 @@ export async function runFullSync(opts: {
   const monthKeys = trailingMonthKeys(META_SYNC_TRAILING_MONTHS);
 
   const tasks: { source: SyncSource; run: () => Promise<number> }[] = [
-    { source: "monday", run: () => syncMondayBoard() },
-    // Segunda fonte de leads, ao lado do board. As duas gravam na MESMA
-    // tabela sem se atropelar (cada uma tem a sua chave de conflito) e é a
-    // view leads_effective que decide o que aparece: o board inteiro, mais
-    // o que só existe no CRM. Por isso podem rodar em paralelo — o
-    // resultado não depende de qual terminar primeiro.
     { source: "crm", run: () => syncCrmLeads() },
     { source: "meta_ads_account", run: () => syncMetaAdsAccount(monthKeys) },
     { source: "meta_ads_creative", run: () => syncMetaAdsCreative(monthKeys) },

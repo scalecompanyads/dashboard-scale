@@ -1,5 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import {
+  BOARD_ATE,
+  CRM_SOLO_DESDE,
   DIRECAO_FILTER,
   dateMonth,
   ETAPA_EXCLUIDA_AGENDA,
@@ -18,15 +20,18 @@ export type ClosingFilter = "all" | "mesmo_mes" | "outros_meses";
 // over the same lead set — mirrors fetchLeads/fetchAgendadas/
 // fetchClosingsFiltered in the legacy dashboard.
 //
-// A leitura é da VIEW `leads_effective`, nunca da tabela `leads`: desde que
-// o CRM entrou como segunda fonte, a tabela guarda as duas origens
-// empilhadas e cada um dos ~7.700 leads migrados do Monday tem uma linha de
-// cada lado. Ler a tabela crua dobraria todo número desta página.
-//
-// A view devolve o BOARD inteiro, mais o que só existe no CRM. O Monday é a
-// verdade absoluta — é ele que está em produção — e o CRM entra com lead
-// nascido lá ou cujo item sumiu do board. Ver
+// Até BOARD_ATE (31/08/2026), a leitura é da VIEW `leads_effective` — nunca
+// da tabela `leads` crua, que guarda as duas fontes empilhadas e dobraria
+// todo número. A view devolve o BOARD inteiro mais o que só existe no CRM;
+// o Monday era a verdade porque era ele quem estava em produção. Ver
 // supabase/migrations/0005_board_vence.sql.
+//
+// De CRM_SOLO_DESDE (01/09/2026) em diante, ninguém mais mexe no Monday — o
+// time passou a operar só o CRM — então a leitura é direto de `leads` com
+// `source = 'crm'`, sem o board. Um intervalo pode cruzar essa fronteira
+// (ex.: a semana de 31/08 a 04/09), e cada *ByDateRange function abaixo
+// decide o lado pela PRÓPRIA coluna de data que filtra (dt_entrada/
+// dt_agenda/dt_fecha) — ver partesPorFonte.
 const LEADS = "leads_effective" as const;
 
 // As duas exclusões que valem para TODA leitura desta página — nenhuma
@@ -34,17 +39,24 @@ const LEADS = "leads_effective" as const;
 //
 // 1. "Direção" (color_mkta1n92 no Monday) marca lead de lixo/teste/duplicado
 //    com o valor "Filter".
-// 2. Origem "Site — Live": inscrito em live não é lead do funil comercial
-//    (ver ORIGEM_LIVE em lib/constants.ts).
+// 2. Origem de live (ver ORIGEM_LIVE em lib/constants.ts): inscrito em live
+//    não é lead do funil comercial. Duas grafias porque o vocabulário mudou
+//    em 01/09/2026 — lead antigo pode ter qualquer uma das duas.
 //
-// As duas são null-safe: `.neq` sozinho também derrubaria linha com o campo
-// vazio, porque em SQL `!=` nunca casa com NULL — e a maioria dos leads não
-// tem direção nenhuma. Dois `.or()` encadeados viram um E entre dois grupos
-// OU, que é exatamente a leitura desejada.
-function excludeNaoComercial<Q extends { or: (filters: string) => Q }>(query: Q): Q {
+// As duas são null-safe: `.neq`/`.not.in` sozinhos também derrubariam linha
+// com o campo vazio, porque em SQL `!=`/`not in` nunca casam com NULL — e a
+// maioria dos leads não tem direção nenhuma. Dois `.or()` encadeados viram
+// um E entre dois grupos OU, que é exatamente a leitura desejada.
+const ORIGEM_LIVE_FILTRO = ORIGEM_LIVE.map((v) => `"${v}"`).join(",");
+// O builder do supabase-js muda de tipo a cada `.eq`/`.gte`/`.or` encadeado;
+// baseQuery() abaixo já precisa devolver dois formatos de builder (view vs
+// tabela + filtro de source), e perseguir esse tipo exato aqui não paga o
+// esforço.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function excludeNaoComercial(query: any) {
   return query
     .or(`direcao.is.null,direcao.neq.${DIRECAO_FILTER}`)
-    .or(`origem.is.null,origem.neq."${ORIGEM_LIVE}"`);
+    .or(`origem.is.null,origem.not.in.(${ORIGEM_LIVE_FILTRO})`);
 }
 
 /**
@@ -107,25 +119,59 @@ async function fetchAllPages(
   return out;
 }
 
+/**
+ * Parte um intervalo na fronteira BOARD_ATE/CRM_SOLO_DESDE: a fatia até
+ * 31/08/2026 lê o board (view leads_effective); a fatia de 01/09/2026 em
+ * diante lê só o CRM. Um intervalo inteiramente de um lado só produz UMA
+ * parte; cruzando a fronteira, produz duas, sem sobra nem buraco no meio.
+ */
+function partesPorFonte(range: DateRange): { fonte: "board" | "crm"; from: string; to: string }[] {
+  const partes: { fonte: "board" | "crm"; from: string; to: string }[] = [];
+  if (range.from <= BOARD_ATE) {
+    partes.push({ fonte: "board", from: range.from, to: range.to < BOARD_ATE ? range.to : BOARD_ATE });
+  }
+  if (range.to >= CRM_SOLO_DESDE) {
+    partes.push({ fonte: "crm", from: range.from > CRM_SOLO_DESDE ? range.from : CRM_SOLO_DESDE, to: range.to });
+  }
+  return partes;
+}
+
+function baseQuery(supabase: DB, fonte: "board" | "crm") {
+  return fonte === "board" ? supabase.from(LEADS).select("*") : supabase.from("leads").select("*").eq("source", "crm");
+}
+
+/** Busca por UMA coluna de data, dividindo o intervalo pela fronteira acima e
+ *  concatenando o resultado das duas fatias (quando existem as duas). */
+async function fetchByColumn(
+  supabase: DB,
+  range: DateRange,
+  column: "dt_entrada" | "dt_agenda" | "dt_fecha",
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- ver excludeNaoComercial acima
+  extra?: (q: any) => any
+): Promise<Lead[]> {
+  const out: Lead[] = [];
+  for (const parte of partesPorFonte(range)) {
+    const rows = await fetchAllPages(() => {
+      let q = excludeNaoComercial(baseQuery(supabase, parte.fonte)).gte(column, parte.from).lte(column, parte.to);
+      if (extra) q = extra(q);
+      return q;
+    });
+    out.push(...rows);
+  }
+  return out;
+}
+
 export function getLeadsByEntryDateRange(supabase: DB, range: DateRange): Promise<Lead[]> {
-  return fetchAllPages(() =>
-    excludeNaoComercial(supabase.from(LEADS).select("*").gte("dt_entrada", range.from).lte("dt_entrada", range.to))
-  );
+  return fetchByColumn(supabase, range, "dt_entrada");
 }
 
 export async function getAgendaByDateRange(supabase: DB, range: DateRange): Promise<Lead[]> {
-  const rows = await fetchAllPages(() =>
-    excludeNaoComercial(supabase.from(LEADS).select("*").gte("dt_agenda", range.from).lte("dt_agenda", range.to))
-  );
+  const rows = await fetchByColumn(supabase, range, "dt_agenda");
   return rows.filter((i) => !ETAPA_EXCLUIDA_AGENDA.has(i.etapa ?? ""));
 }
 
 function getClosingsRawByDateRange(supabase: DB, range: DateRange): Promise<Lead[]> {
-  return fetchAllPages(() =>
-    excludeNaoComercial(
-      supabase.from(LEADS).select("*").gte("dt_fecha", range.from).lte("dt_fecha", range.to).eq("etapa", "Fechado")
-    )
-  );
+  return fetchByColumn(supabase, range, "dt_fecha", (q) => q.eq("etapa", "Fechado"));
 }
 
 /**

@@ -43,6 +43,30 @@ mesma tabela sem uma regra de identidade dobraria todo número da tela. Então:
   nunca lê a tabela `leads` crua; ler a tabela crua conta cada lead migrado duas
   vezes.
 
+### A fronteira de 01/09/2026: o CRM vira a única fonte
+
+"O Monday é a verdade absoluta" acima descreve **até 31/08/2026**. O time
+passou a operar só o CRM a partir de setembro/2026 — ninguém mais edita o
+board — e o dashboard passou a refletir isso: sincronizar o Monday
+diariamente só reimportaria uma cópia parada, e usá-la para dado novo
+mostraria um board sempre desatualizado no lugar do que aconteceu de
+verdade no CRM.
+
+- `lib/sync/index.ts` **parou de chamar `syncMondayBoard()`**. As linhas
+  `source = 'monday'` já sincronizadas continuam na tabela, congeladas — é
+  contra elas que agosto/2026 e meses anteriores foram conferidos, lead a
+  lead, antes desse corte.
+- `lib/data/leads.ts` decide a fonte **por qual coluna de data cada métrica
+  filtra** (`dt_entrada`/`dt_agenda`/`dt_fecha`), não pela data de hoje nem
+  por quando o lead nasceu: até `BOARD_ATE` (31/08/2026) lê `leads_effective`
+  (board vence, como sempre); de `CRM_SOLO_DESDE` (01/09/2026) em diante lê
+  só `leads` com `source = 'crm'`. Um lead que entrou em agosto mas fechou em
+  setembro usa o board para "Leads Totais" e o CRM para "Fechados" — ver
+  `partesPorFonte` em `lib/data/leads.ts`.
+- As duas constantes vivem em `lib/constants.ts`. Mover a fronteira (se um
+  dia fizer sentido reabrir o Monday, ou se a data mudar) é editar as duas
+  ali, não reescrever a lógica de leitura.
+
 Por que ler o Postgres do CRM direto, e não a API v1 dele: a API existe e é boa,
 mas hoje `/leads` devolve `funnel_stage_id` e `owner_sdr_id` crus, não há rota de
 etapas nem de usuários para traduzir esses uuids em nome, e `/deals` — de onde
@@ -157,7 +181,8 @@ Acesse `http://localhost:3000` — deve redirecionar para `/login`.
    a Vercel injeta `Authorization: Bearer $CRON_SECRET` automaticamente nessa
    chamada, então nenhuma configuração extra de cron é necessária além da env var.
 4. Depois do primeiro deploy, confira a tabela `sync_runs` no Supabase para
-   validar que o cron rodou com sucesso nas quatro fontes.
+   validar que o cron rodou com sucesso nas três fontes (o Monday parou de
+   rodar em 04/09/2026 — ver "A fronteira de 01/09/2026" acima).
 
 O site antigo (Netlify, pasta `Dash Comercial Scale/`) continua no ar sem
 alterações — só desative quando tiver confiança nos números deste novo dashboard
@@ -166,15 +191,15 @@ alterações — só desative quando tiver confiança nos números deste novo da
 ## Arquitetura
 
 - `lib/sync/*` — sincronização → Supabase, via service-role key
-  (`lib/supabase/admin.ts`). São quatro fontes independentes: `monday.ts`
-  (GraphQL do board), `crm.ts` (Postgres do CRM, via `lib/supabase/crm.ts`) e
-  `meta-ads.ts` (conta + criativo, Graph API). Rodam **em paralelo** e o
-  resultado não depende de qual termina primeiro: cada uma tem a sua chave de
-  conflito, e quem resolve o empate entre Monday e CRM é a view, não a ordem de
-  escrita. Uma falha em qualquer uma é registrada em `sync_state` sem derrubar
-  as outras. Disparadas por `app/api/cron/sync` (diário, protegido por
-  `CRON_SECRET`) e `app/api/sync/trigger` (botão "Atualizar", protegido por
-  sessão).
+  (`lib/supabase/admin.ts`). Três fontes independentes rodando hoje: `crm.ts`
+  (Postgres do CRM, via `lib/supabase/crm.ts`) e `meta-ads.ts` (conta +
+  criativo, Graph API) — `monday.ts` (GraphQL do board) ainda existe, mas
+  `lib/sync/index.ts` parou de chamá-lo em 04/09/2026 (ver "A fronteira de
+  01/09/2026" acima). Rodam **em paralelo** e o resultado não depende de qual
+  termina primeiro: cada uma tem a sua chave de conflito. Uma falha em
+  qualquer uma é registrada em `sync_state` sem derrubar as outras.
+  Disparadas por `app/api/cron/sync` (diário, protegido por `CRON_SECRET`) e
+  `app/api/sync/trigger` (botão "Atualizar", protegido por sessão).
 - `lib/data/*` — camada de acesso a dados (Supabase → linhas tipadas), usada
   pelas Server Components das páginas. Leads vêm de `leads_effective`.
 - `lib/metrics/*` — funções puras portadas do dashboard antigo (KPIs, funil,

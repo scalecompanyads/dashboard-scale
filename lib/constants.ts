@@ -17,6 +17,21 @@ export const MONDAY_COL = {
   direcao: "color_mkta1n92",
 } as const;
 
+// A fronteira em que o CRM vira a única fonte. Até aqui, o board é a
+// verdade (view leads_effective, board vence — 0005_board_vence.sql),
+// porque era ele quem estava em produção; o time começou a operar o CRM em
+// setembro/2026, então NINGUÉM mais atualiza o Monday a partir desta data —
+// ler o board dali em diante seria ler uma cópia congelada. Ver
+// lib/data/leads.ts (partesPorFonte) para onde isso decide a fonte, e
+// lib/sync/index.ts para o sync do Monday ter parado de rodar.
+//
+// Qual das duas colunas vale depende de QUAL coluna de data a métrica olha
+// (dt_entrada/dt_agenda/dt_fecha) — não da data de hoje, nem de quando o
+// lead nasceu. Um lead entrado em agosto mas fechado em setembro usa o board
+// para "Leads Totais" e o CRM para "Fechados".
+export const BOARD_ATE = "2026-08-31";
+export const CRM_SOLO_DESDE = "2026-09-01";
+
 export const ORIGEM_META_ADS = "Meta Ads";
 
 // Inscrito em live (a /scale-class do site) — FORA do dashboard, em todo
@@ -24,10 +39,20 @@ export const ORIGEM_META_ADS = "Meta Ads";
 // contá-lo junto infla "Leads Totais" e afunda toda taxa de conversão da
 // página com gente que se inscreveu para assistir a uma aula, não para
 // comprar. Esses leads existem só no CRM (a /scale-class não passa pelo
-// Make, então nunca chegaram ao board) — quer dizer que eles só apareceriam
-// aqui agora, junto com a sincronização do CRM, e a exclusão nasce com ela.
-// Ver a seção "Lead de site" do AGENTS.md do CRM.
-export const ORIGEM_LIVE = "Site — Live";
+// Make, então nunca chegaram ao board).
+//
+// Duas grafias porque o vocabulário de `origem` mudou no meio do caminho:
+// até 01/09/2026 o webhook do site gravava "Site — Live"; a partir daí o CRM
+// aposentou esse vocabulário paralelo e passou a usar o mesmo da coluna
+// Origem do Monday — "Evento" é o rótulo de lá para "Quadro Live" (ver
+// ORIGENS_QUADRO_LIVE em lib/origens.ts do CRM). As duas convivem porque
+// lead antigo mantém a grafia com que nasceu. Ver a seção "Lead de site" do
+// AGENTS.md do CRM.
+export const ORIGEM_LIVE = ["Site — Live", "Evento"] as const;
+
+export function isOrigemLive(origem: string | null | undefined): boolean {
+  return !!origem && (ORIGEM_LIVE as readonly string[]).includes(origem);
+}
 
 // Entrada espontânea pelo site. Conta COMO QUALQUER OUTRO LEAD — no total,
 // no agendamento, na reunião realizada, no fechamento e nos dois pódios. A
@@ -37,14 +62,15 @@ export const ORIGEM_LIVE = "Site — Live";
 // Já foi um corte de verdade (o orgânico saía dos números principais) e o
 // usuário desfez: o lead chegou pelo site em vez de por anúncio, mas o SDR
 // marcou a reunião igual e o closer fechou igual. Tirá-lo dos totais apaga
-// trabalho que aconteceu. Só "Filter" e "Site — Live" ficam de fora do
-// dashboard — mais nada.
+// trabalho que aconteceu. Só "Filter" e as grafias de "Live" acima ficam de
+// fora do dashboard — mais nada.
 //
-// Lista exata, não prefixo "Site — ": "Site — Live" também começa assim e
-// está justamente do outro lado da regra. É a mesma lista do Quadro
-// Orgânico do CRM (ORIGEM_ORGANICO, em components/crm/leads-workspace.tsx)
-// — origem nova no site precisa entrar nos dois lugares.
-export const ORIGEM_ORGANICO = ["Site — Blog", "Site — Cases", "Site — Contato"] as const;
+// Mesma troca de vocabulário do ORIGEM_LIVE: "Site — Blog"/"Site — Cases"/
+// "Site — Contato" era a grafia do webhook até 01/09/2026; "Orgânico" é o
+// rótulo único que o CRM usa desde então (Quadro Orgânico, mesma lista de
+// components/crm/leads-workspace.tsx do CRM) — origem nova no site precisa
+// entrar nos dois lugares.
+export const ORIGEM_ORGANICO = ["Site — Blog", "Site — Cases", "Site — Contato", "Orgânico"] as const;
 
 export function isOrigemOrganica(origem: string | null | undefined): boolean {
   return !!origem && (ORIGEM_ORGANICO as readonly string[]).includes(origem);

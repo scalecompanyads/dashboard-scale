@@ -24,9 +24,9 @@ import {
   DIRECAO_FILTER,
   ETAPA_EXCLUIDA_AGENDA,
   fmtBRL,
+  isOrigemLive,
   isOrigemOrganica,
   monthRange,
-  ORIGEM_LIVE,
   pad,
 } from "@/lib/constants";
 import type { Lead } from "@/lib/types/database.types";
@@ -41,7 +41,7 @@ const dentro = (d: string | null, from: string, to: string) => !!d && d >= from 
 // As mesmas duas exclusões de lib/data/leads.ts. Sem elas a comparação
 // deixaria de descrever a tela — que é a única coisa que ela serve para
 // responder.
-const comercial = (rows: Row[]) => rows.filter((r) => r.direcao !== DIRECAO_FILTER && r.origem !== ORIGEM_LIVE);
+const comercial = (rows: Row[]) => rows.filter((r) => r.direcao !== DIRECAO_FILTER && !isOrigemLive(r.origem));
 
 const so = (rows: Row[]) => rows.filter((r) => isOrigemOrganica(r.origem));
 
@@ -154,8 +154,8 @@ async function main() {
   linha("  Fechados", oMonday.fechados, oCrm.fechados);
   linha("  Faturamento", fmtBRL(oMonday.mrr), fmtBRL(oCrm.mrr));
 
-  const liveNoMes = (rows: Row[]) => rows.filter((r) => r.origem === ORIGEM_LIVE && dentro(r.dt_entrada, from, to)).length;
-  console.log(`\n  Descartados como live (${ORIGEM_LIVE}): ${liveNoMes(mondayRows)} no Monday, ${liveNoMes(crmRows)} no CRM`);
+  const liveNoMes = (rows: Row[]) => rows.filter((r) => isOrigemLive(r.origem) && dentro(r.dt_entrada, from, to)).length;
+  console.log(`\n  Descartados como live: ${liveNoMes(mondayRows)} no Monday, ${liveNoMes(crmRows)} no CRM`);
 
   const closersMonday = calcClosers(mondayMes.agenda as Lead[], mondayMes.fechamentos as Lead[]);
   const closersCrm = calcClosers(crmMes.agenda as Lead[], crmMes.fechamentos as Lead[]);

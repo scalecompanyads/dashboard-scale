@@ -87,7 +87,7 @@ export default async function ComercialPage({
   const closings = filterByEntryCohort(closingsRaw, period.year, period.month, filter, cohort);
 
   // Tudo junto: os únicos leads que a página não considera são os que já
-  // saíram na consulta (Direção "Filter" e origem "Site — Live"). Orgânico
+  // saíram na consulta (Direção "Filter" e origem de live). Orgânico
   // conta como qualquer outro — no total, no agendamento, na reunião
   // realizada, no fechamento e nos dois pódios. Ele chegou pelo site em vez
   // de por anúncio, mas o SDR marcou a reunião igual e o closer fechou
