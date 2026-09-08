@@ -313,7 +313,10 @@ export async function buildCrmLeadRows(syncedAt: string): Promise<LeadInsert[]> 
     else dealsByLead.set(deal.lead_id, [deal]);
   }
 
-  const meetingByLead = new Map<string, { data: string; responsavelId: string | null }>();
+  const meetingByLead = new Map<
+    string,
+    { data: string; responsavelId: string | null; dealId: string | null }
+  >();
   const leadIdsWithMeetingHistory = new Set<string>();
   for (const meeting of meetings) {
     const leadId =
@@ -329,7 +332,11 @@ export async function buildCrmLeadRows(syncedAt: string): Promise<LeadInsert[]> 
     // Várias rodadas (R1, R2…) no mesmo lead: vale a primeira, que é o que a
     // coluna histórica "Data Agendamento" representava.
     if (!current || meeting.data < current.data) {
-      meetingByLead.set(leadId, { data: meeting.data, responsavelId: meeting.responsavel_id });
+      meetingByLead.set(leadId, {
+        data: meeting.data,
+        responsavelId: meeting.responsavel_id,
+        dealId: meeting.referencia_tipo === "deal" ? meeting.referencia_id : null,
+      });
     }
   }
 
@@ -427,10 +434,16 @@ export async function buildCrmLeadRows(syncedAt: string): Promise<LeadInsert[]> 
       // criado_em é a primeira entrada e ultima_entrada_em é a entrada que o
       // quadro atual representa. Setembro precisa seguir a segunda.
       dt_entrada: crmEntryDay(lead),
-      // Se existe histórico na Agenda, uma reunião cancelada não pode voltar
-      // pelo campo legado do deal. O fallback só vale para negócios anteriores
-      // à adoção da tabela meetings.
-      dt_agenda: meeting?.data || (!leadIdsWithMeetingHistory.has(lead.id) ? deal?.data_agendamento : null) || null,
+      // No contrato atual, a data do negócio é a referência da R1. A tabela
+      // meetings continua necessária para reuniões ligadas direto ao lead e
+      // para saber que uma reunião foi cancelada. Quando as duas linhas do
+      // mesmo negócio divergem, como no caso 31/08 x 01/09, vale o deal.
+      dt_agenda:
+        (meeting?.dealId === deal?.id && deal?.data_agendamento
+          ? deal.data_agendamento
+          : meeting?.data) ||
+        (!leadIdsWithMeetingHistory.has(lead.id) ? deal?.data_agendamento : null) ||
+        null,
       dt_fecha: deal?.data_fechamento ?? null,
       closer:
         owners?.closer.join(", ") ||
