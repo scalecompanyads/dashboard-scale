@@ -18,6 +18,16 @@ import { createClient as createSupabaseClient, type SupabaseClient } from "@supa
 // comercial; o dashboard não escreve lá.
 let cached: SupabaseClient | null = null;
 
+// Este dashboard pertence à organização original da Scale. O CRM passou a
+// ser multi-tenant e a service role ignora RLS, então toda consulta da sync
+// precisa carregar este filtro explicitamente. O default mantém os deploys
+// existentes funcionando; CRM_ORG_ID permite trocar o alvo sem alterar código.
+const SCALE_CRM_ORG_ID = "589a220d-5276-42e2-9e50-911cb2b1e5c8";
+
+export function crmOrgId(): string {
+  return process.env.CRM_ORG_ID?.trim() || SCALE_CRM_ORG_ID;
+}
+
 export function createCrmClient(): SupabaseClient {
   if (cached) return cached;
 

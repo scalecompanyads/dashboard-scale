@@ -21,6 +21,7 @@ import { calcKPIs } from "@/lib/metrics/kpis";
 import { calcClosers } from "@/lib/metrics/closers";
 import { calcSDRs } from "@/lib/metrics/sdrs";
 import {
+  CRM_SOLO_DESDE,
   DIRECAO_FILTER,
   ETAPA_EXCLUIDA_AGENDA,
   fmtBRL,
@@ -98,6 +99,10 @@ function linha(rotulo: string, monday: string | number, crm: string | number) {
   );
 }
 
+function linhaCrm(rotulo: string, crm: string | number) {
+  console.log(`  ${rotulo.padEnd(22)} ${String(crm).padStart(14)}`);
+}
+
 async function main() {
   const argv = process.argv.slice(2);
   const mesArg = argv.find((a) => /^\d{4}-\d{2}$/.test(a));
@@ -123,6 +128,54 @@ async function main() {
   console.log("\nEtapas traduzidas:");
   for (const [nome, n] of [...etapas].sort((a, b) => b[1] - a[1])) console.log(`  ${nome.padEnd(22)} ${String(n).padStart(6)}`);
 
+  const crmMes = fatiar(crmRows, from, to);
+  const kCrm = calcKPIs(crmMes.leads as Lead[], crmMes.agenda as Lead[], crmMes.fechamentos as Lead[]);
+
+  // Desde o corte, comparar com o Monday não valida nada: ele é uma cópia
+  // congelada. O diagnóstico mostra apenas a fonte que realmente alimenta a
+  // tela e evita sinalizar como erro uma divergência esperada.
+  if (from >= CRM_SOLO_DESDE) {
+    console.log(`\n${mes} — CRM (fonte única):\n`);
+    console.log(`  ${"".padEnd(22)} ${"CRM".padStart(14)}`);
+    linhaCrm("Leads totais", kCrm.total);
+    linhaCrm("Agendadas", kCrm.agendadas);
+    linhaCrm("Realizadas", kCrm.realizadas);
+    linhaCrm("Fechados", kCrm.fechados);
+    linhaCrm("Faturamento", fmtBRL(kCrm.mrr));
+    linhaCrm("Ticket médio", fmtBRL(kCrm.ticketMedio));
+
+    const organico = calcKPIs(
+      crmMes.organico.leads as Lead[],
+      crmMes.organico.agenda as Lead[],
+      crmMes.organico.fechamentos as Lead[]
+    );
+    console.log("\n  Orgânico (recorte — já contado acima):");
+    linhaCrm("  Leads", organico.total);
+    linhaCrm("  Agendadas", organico.agendadas);
+    linhaCrm("  Fechados", organico.fechados);
+    linhaCrm("  Faturamento", fmtBRL(organico.mrr));
+
+    console.log("\n  Closers (reuniões / fechados / MRR):");
+    for (const closer of calcClosers(crmMes.agenda as Lead[], crmMes.fechamentos as Lead[])) {
+      linhaCrm(`  ${closer.name}`, `${closer.reunioes}/${closer.fechados}/${fmtBRL(closer.mrr)}`);
+    }
+
+    console.log("\n  SDRs (agendadas / feitas / contratos):");
+    for (const sdr of calcSDRs(crmMes.agenda as Lead[], crmMes.fechamentos as Lead[])) {
+      linhaCrm(`  ${sdr.name}`, `${sdr.agendadas}/${sdr.feitas}/${sdr.contratos}`);
+    }
+
+    if (amostra > 0) {
+      console.log(`\nAmostra de ${amostra} fechamentos do CRM em ${mes}:`);
+      for (const r of crmMes.fechamentos.slice(0, amostra)) {
+        console.log(
+          `  ${(r.dt_fecha ?? "").padEnd(11)} ${fmtBRL(r.mrr_value).padStart(12)} ${(r.modelo ?? "—").padEnd(4)} closer=${r.closer ?? "—"} sdr=${r.sdr ?? "—"} origem=${r.origem ?? "—"}`
+        );
+      }
+    }
+    return;
+  }
+
   let mondayRows: Row[] = [];
   try {
     mondayRows = await lerLinhasDoMonday();
@@ -132,9 +185,7 @@ async function main() {
   }
 
   const mondayMes = fatiar(mondayRows, from, to);
-  const crmMes = fatiar(crmRows, from, to);
   const kMonday = calcKPIs(mondayMes.leads as Lead[], mondayMes.agenda as Lead[], mondayMes.fechamentos as Lead[]);
-  const kCrm = calcKPIs(crmMes.leads as Lead[], crmMes.agenda as Lead[], crmMes.fechamentos as Lead[]);
 
   console.log(`\n${mes} — o que cada fonte diz, isolada:\n`);
   console.log(`  ${"".padEnd(22)} ${"MONDAY".padStart(14)} ${"CRM".padStart(14)}`);

@@ -1,6 +1,6 @@
 import { createAdminClient } from "@/lib/supabase/admin";
-import { createCrmClient } from "@/lib/supabase/crm";
-import { MONDAY_COL } from "@/lib/constants";
+import { createCrmClient, crmOrgId } from "@/lib/supabase/crm";
+import { CRM_SOLO_DESDE, MONDAY_COL } from "@/lib/constants";
 import type { LeadInsert } from "@/lib/types/database.types";
 
 // Leitura completa do CRM a cada execução, igual à do board: um lead pode
@@ -27,8 +27,12 @@ interface CrmLead {
   origem: string | null;
   direcao: string | null;
   criado_em: string | null;
+  ultima_entrada_em: string;
+  entradas: number;
   updated_at: string;
   owner_sdr_id: string | null;
+  sdr_txt: string | null;
+  closer_txt: string | null;
   funnel_stage_id: string | null;
 }
 
@@ -44,8 +48,11 @@ interface CrmDeal {
 }
 
 interface CrmMeeting {
+  referencia_tipo: "lead" | "deal" | "client";
   referencia_id: string;
   data: string | null;
+  responsavel_id: string | null;
+  cancelada_em: string | null;
 }
 
 interface CrmUser {
@@ -60,8 +67,17 @@ interface CrmFunnelStage {
 }
 
 interface CrmAttribution {
+  id: string;
   lead_id: string;
   utm_content: string | null;
+  capturado_em: string;
+}
+
+interface CrmLeadOwner {
+  lead_id: string;
+  user_id: string;
+  papel: "sdr" | "closer";
+  ordem: number;
 }
 
 interface CrmRawMonday {
@@ -167,6 +183,15 @@ function brazilDay(timestamp: string | null): string | null {
   return new Date(ms - BRAZIL_OFFSET_MS).toISOString().slice(0, 10);
 }
 
+function crmEntryDay(lead: Pick<CrmLead, "criado_em" | "ultima_entrada_em">): string | null {
+  const firstEntry = brazilDay(lead.criado_em);
+  const latestEntry = brazilDay(lead.ultima_entrada_em);
+  // A coluna nova foi retropreenchida em massa durante agosto e não descreve
+  // com fidelidade a entrada histórica anterior ao corte. Sua semântica passa
+  // a valer junto com o CRM como fonte única, em setembro.
+  return latestEntry && latestEntry >= CRM_SOLO_DESDE ? latestEntry : firstEntry;
+}
+
 function latest(...timestamps: (string | null | undefined)[]): string | null {
   const valid = timestamps.filter((t): t is string => !!t);
   return valid.length ? valid.reduce((a, b) => (a > b ? a : b)) : null;
@@ -192,16 +217,20 @@ function pickDeal(deals: CrmDeal[]): CrmDeal | undefined {
 // scripts/dry-run-crm.ts.
 export async function buildCrmLeadRows(syncedAt: string): Promise<LeadInsert[]> {
   const crm = createCrmClient();
+  const orgId = crmOrgId();
 
-  const [leads, deals, users, stages, attributions, meetings] = await Promise.all([
+  const [leads, deals, stages, attributions, meetings, leadOwners] = await Promise.all([
     fetchAllRows<CrmLead>("leads", (from, to) =>
       crm
         .from("leads")
-        .select("id, monday_item_id, nome, origem, direcao, criado_em, updated_at, owner_sdr_id, funnel_stage_id")
+        .select(
+          "id, monday_item_id, nome, origem, direcao, criado_em, ultima_entrada_em, entradas, updated_at, owner_sdr_id, sdr_txt, closer_txt, funnel_stage_id"
+        )
         // A lixeira do CRM não é dado: lead excluído lá tem que sumir daqui
         // também. Para quem já tinha sido sincronizado antes de ir para a
         // lixeira, quem resolve é a limpeza no fim desta função.
         .is("deleted_at", null)
+        .eq("org_id", orgId)
         .order("id", { ascending: true })
         .range(from, to)
     ),
@@ -209,77 +238,153 @@ export async function buildCrmLeadRows(syncedAt: string): Promise<LeadInsert[]> 
       crm
         .from("deals")
         .select("id, lead_id, closer_id, valor_bruto, modelo, data_agendamento, data_fechamento, updated_at")
+        .eq("org_id", orgId)
         .order("id", { ascending: true })
         .range(from, to)
     ),
-    fetchAllRows<CrmUser>("users", (from, to) =>
-      crm.from("users").select("id, nome").order("id", { ascending: true }).range(from, to)
-    ),
     fetchAllRows<CrmFunnelStage>("funnel_stages", (from, to) =>
-      crm.from("funnel_stages").select("id, nome, system_key").order("id", { ascending: true }).range(from, to)
+      crm
+        .from("funnel_stages")
+        .select("id, nome, system_key")
+        .eq("org_id", orgId)
+        .order("id", { ascending: true })
+        .range(from, to)
     ),
     fetchAllRows<CrmAttribution>("lead_attribution", (from, to) =>
-      crm.from("lead_attribution").select("lead_id, utm_content").order("id", { ascending: true }).range(from, to)
+      crm
+        .from("lead_attribution")
+        .select("id, lead_id, utm_content, capturado_em")
+        .eq("org_id", orgId)
+        .order("id", { ascending: true })
+        .range(from, to)
     ),
-    // Remarcar uma reunião pela Agenda mexe em `meetings.data` e NÃO reescreve
-    // `deals.data_agendamento` (set_meeting_schedule, migration
-    // 20260828100000 do CRM) — então a reunião é a data mais fresca sempre
-    // que existir uma. A tabela é pequena (a Agenda nasceu em 28/08/2026) e o
-    // grosso dos ~2.350 agendamentos migrados do Monday continua vindo do
-    // negócio.
+    // A Agenda agora aceita referência direta ao lead, além do negócio.
+    // Reunião cancelada é lixeira e reunião de acompanhamento não pertence ao
+    // funil comercial. Para o histórico anterior à Agenda, o fallback continua
+    // sendo deals.data_agendamento.
     fetchAllRows<CrmMeeting>("meetings", (from, to) =>
       crm
         .from("meetings")
-        .select("referencia_id, data")
-        .eq("referencia_tipo", "deal")
-        .not("data", "is", null)
+        .select("referencia_tipo, referencia_id, data, responsavel_id, cancelada_em")
+        .eq("org_id", orgId)
+        .eq("tipo", "venda")
         .order("referencia_id", { ascending: true })
+        .range(from, to)
+    ),
+    fetchAllRows<CrmLeadOwner>("lead_owners", (from, to) =>
+      crm
+        .from("lead_owners")
+        .select("lead_id, user_id, papel, ordem")
+        .eq("org_id", orgId)
+        .order("lead_id", { ascending: true })
+        .order("papel", { ascending: true })
+        .order("ordem", { ascending: true })
+        .order("user_id", { ascending: true })
         .range(from, to)
     ),
   ]);
 
+  // users é global no CRM e não possui org_id. A service role não pode ler o
+  // diretório inteiro: buscamos apenas os UUIDs já referenciados por registros
+  // da organização acima.
+  const relevantUserIds = [
+    ...leads.map((lead) => lead.owner_sdr_id),
+    ...deals.map((deal) => deal.closer_id),
+    ...meetings.filter((meeting) => !meeting.cancelada_em).map((meeting) => meeting.responsavel_id),
+    ...leadOwners.map((owner) => owner.user_id),
+  ].filter((id): id is string => !!id);
+  const userIds = [...new Set(relevantUserIds)];
+  const users: CrmUser[] = [];
+  for (let i = 0; i < userIds.length; i += IN_CHUNK) {
+    const { data, error } = await crm
+      .from("users")
+      .select("id, nome")
+      .in("id", userIds.slice(i, i + IN_CHUNK));
+    if (error) throw fail("users referenciados", error);
+    users.push(...((data ?? []) as CrmUser[]));
+  }
+
   const dealsByLead = new Map<string, CrmDeal[]>();
+  const dealById = new Map<string, CrmDeal>();
   for (const deal of deals) {
+    dealById.set(deal.id, deal);
     const list = dealsByLead.get(deal.lead_id);
     if (list) list.push(deal);
     else dealsByLead.set(deal.lead_id, [deal]);
   }
 
-  const meetingDateByDeal = new Map<string, string>();
+  const meetingByLead = new Map<string, { data: string; responsavelId: string | null }>();
+  const leadIdsWithMeetingHistory = new Set<string>();
   for (const meeting of meetings) {
-    if (!meeting.data) continue;
-    const current = meetingDateByDeal.get(meeting.referencia_id);
-    // Várias rodadas (R1, R2…) no mesmo negócio: vale a primeira, que é o que
-    // o Monday registrava como "Data Agendamento".
-    if (!current || meeting.data < current) meetingDateByDeal.set(meeting.referencia_id, meeting.data);
-  }
-
-  const userNameById = new Map(users.map((u) => [u.id, u.nome]));
-  const etapaByStageId = new Map(
-    stages.map((s) => [s.id, (s.system_key && STAGE_KEY_TO_ETAPA[s.system_key]) || s.nome])
-  );
-  const criativoByLead = new Map<string, string>();
-  for (const attribution of attributions) {
-    if (attribution.utm_content && !criativoByLead.has(attribution.lead_id)) {
-      criativoByLead.set(attribution.lead_id, attribution.utm_content);
+    const leadId =
+      meeting.referencia_tipo === "lead"
+        ? meeting.referencia_id
+        : meeting.referencia_tipo === "deal"
+          ? dealById.get(meeting.referencia_id)?.lead_id
+          : undefined;
+    if (!leadId) continue;
+    leadIdsWithMeetingHistory.add(leadId);
+    if (!meeting.data || meeting.cancelada_em) continue;
+    const current = meetingByLead.get(leadId);
+    // Várias rodadas (R1, R2…) no mesmo lead: vale a primeira, que é o que a
+    // coluna histórica "Data Agendamento" representava.
+    if (!current || meeting.data < current.data) {
+      meetingByLead.set(leadId, { data: meeting.data, responsavelId: meeting.responsavel_id });
     }
   }
 
-  // SDR/Closer que a migração do Monday não conseguiu virar FK.
+  const userNameById = new Map(users.map((u) => [u.id, u.nome]));
+  const ownerNamesByLead = new Map<string, { sdr: string[]; closer: string[] }>();
+  for (const owner of leadOwners) {
+    const name = userNameById.get(owner.user_id);
+    if (!name || (owner.papel !== "sdr" && owner.papel !== "closer")) continue;
+    const names = ownerNamesByLead.get(owner.lead_id) ?? { sdr: [], closer: [] };
+    names[owner.papel].push(name);
+    ownerNamesByLead.set(owner.lead_id, names);
+  }
+  const etapaByStageId = new Map(
+    stages.map((s) => [s.id, (s.system_key && STAGE_KEY_TO_ETAPA[s.system_key]) || s.nome])
+  );
+  const attributionByLead = new Map<string, CrmAttribution>();
+  for (const attribution of attributions) {
+    const current = attributionByLead.get(attribution.lead_id);
+    if (
+      !current ||
+      attribution.capturado_em > current.capturado_em ||
+      (attribution.capturado_em === current.capturado_em && attribution.id > current.id)
+    ) {
+      attributionByLead.set(attribution.lead_id, attribution);
+    }
+  }
+
+  // SDR/Closer que a migração do Monday não conseguiu virar FK nem preservar
+  // nas novas colunas literais sdr_txt/closer_txt.
   //
   // resolveUserByName() (no repo do CRM) só casa nome que já existe em
-  // public.users — nome do board sem usuário correspondente ficou NULL em
-  // owner_sdr_id/closer_id, com o texto original preservado apenas dentro de
-  // raw_monday. Sem este resgate, um lead cuja linha do CRM ganhasse a
-  // disputa por data sairia do pódio de SDR/Closer sem que ninguém tivesse
-  // mexido nele — o número mudaria só porque a fonte mudou.
+  // public.users. Para linhas antigas que também não receberam sdr_txt ou
+  // closer_txt, o texto original ainda existe dentro de raw_monday. Sem este
+  // último resgate, o lead sairia do pódio sem que ninguém tivesse mexido nele.
   //
   // Busca dirigida: só os leads onde falta o nome, e não a base inteira
   // (`raw_monday` é o item cru do Monday, ~1,3 KB por linha — puxá-lo para as
   // ~7.800 linhas seria ~10 MB por sincronização).
-  const leadIdsMissingCloser = new Set(deals.filter((d) => !d.closer_id).map((d) => d.lead_id));
   const needsRawMonday = leads
-    .filter((l) => l.monday_item_id !== null && (!l.owner_sdr_id || leadIdsMissingCloser.has(l.id)))
+    .filter((lead) => {
+      if (lead.monday_item_id === null) return false;
+      const owners = ownerNamesByLead.get(lead.id);
+      const deal = pickDeal(dealsByLead.get(lead.id) ?? []);
+      const meeting = meetingByLead.get(lead.id);
+      const hasSdr =
+        !!owners?.sdr.length ||
+        !!(lead.owner_sdr_id && userNameById.get(lead.owner_sdr_id)) ||
+        !!lead.sdr_txt;
+      const hasCloser =
+        !!owners?.closer.length ||
+        !!(deal?.closer_id && userNameById.get(deal.closer_id)) ||
+        !!(meeting?.responsavelId && userNameById.get(meeting.responsavelId)) ||
+        !!lead.closer_txt;
+      return !hasSdr || (!!deal && !hasCloser);
+    })
     .map((l) => l.id);
 
   const rawByLead = new Map<string, Map<string, string>>();
@@ -287,6 +392,7 @@ export async function buildCrmLeadRows(syncedAt: string): Promise<LeadInsert[]> 
     const { data, error } = await crm
       .from("leads")
       .select("id, raw_monday")
+      .eq("org_id", orgId)
       .in("id", needsRawMonday.slice(i, i + IN_CHUNK));
     if (error) throw fail("leads.raw_monday", error);
     for (const row of (data ?? []) as CrmRawMonday[]) {
@@ -300,6 +406,8 @@ export async function buildCrmLeadRows(syncedAt: string): Promise<LeadInsert[]> 
 
   return leads.map((lead) => {
     const deal = pickDeal(dealsByLead.get(lead.id) ?? []);
+    const meeting = meetingByLead.get(lead.id);
+    const owners = ownerNamesByLead.get(lead.id);
     const raw = rawByLead.get(lead.id);
     const modelo = deal?.modelo === "TCV" || deal?.modelo === "MRR" ? deal.modelo : null;
 
@@ -315,15 +423,38 @@ export async function buildCrmLeadRows(syncedAt: string): Promise<LeadInsert[]> 
       etapa: (lead.funnel_stage_id && etapaByStageId.get(lead.funnel_stage_id)) || null,
       modelo,
       mrr_value: deal?.valor_bruto ?? null,
-      dt_entrada: brazilDay(lead.criado_em),
-      dt_agenda: (deal && meetingDateByDeal.get(deal.id)) || deal?.data_agendamento || null,
+      // O CRM passou a consolidar reentradas da mesma pessoa numa única linha:
+      // criado_em é a primeira entrada e ultima_entrada_em é a entrada que o
+      // quadro atual representa. Setembro precisa seguir a segunda.
+      dt_entrada: crmEntryDay(lead),
+      // Se existe histórico na Agenda, uma reunião cancelada não pode voltar
+      // pelo campo legado do deal. O fallback só vale para negócios anteriores
+      // à adoção da tabela meetings.
+      dt_agenda: meeting?.data || (!leadIdsWithMeetingHistory.has(lead.id) ? deal?.data_agendamento : null) || null,
       dt_fecha: deal?.data_fechamento ?? null,
-      closer: (deal?.closer_id && userNameById.get(deal.closer_id)) || raw?.get(MONDAY_COL.closer) || null,
-      sdr: (lead.owner_sdr_id && userNameById.get(lead.owner_sdr_id)) || raw?.get(MONDAY_COL.sdr) || null,
+      closer:
+        owners?.closer.join(", ") ||
+        (deal?.closer_id && userNameById.get(deal.closer_id)) ||
+        (meeting?.responsavelId && userNameById.get(meeting.responsavelId)) ||
+        lead.closer_txt ||
+        raw?.get(MONDAY_COL.closer) ||
+        null,
+      sdr:
+        owners?.sdr.join(", ") ||
+        (lead.owner_sdr_id && userNameById.get(lead.owner_sdr_id)) ||
+        lead.sdr_txt ||
+        raw?.get(MONDAY_COL.sdr) ||
+        null,
       origem: lead.origem,
-      criativo: criativoByLead.get(lead.id) ?? null,
+      criativo: attributionByLead.get(lead.id)?.utm_content ?? null,
       direcao: lead.direcao,
-      raw: { crm_lead_id: lead.id, crm_deal_id: deal?.id ?? null, monday_item_id: lead.monday_item_id },
+      raw: {
+        crm_lead_id: lead.id,
+        crm_deal_id: deal?.id ?? null,
+        crm_org_id: orgId,
+        monday_item_id: lead.monday_item_id,
+        entradas: lead.entradas,
+      },
       created_at: syncedAt,
       updated_at: syncedAt,
     };

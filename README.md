@@ -74,6 +74,17 @@ saem valor, modelo, closer e as datas de agendamento e fechamento — não aceit
 filtro por lead nem paginação por cursor. Ver o cabeçalho de
 `lib/supabase/crm.ts`.
 
+O CRM agora é multi-tenant. Como a service role ignora RLS, **toda tabela que
+possui `org_id` é filtrada pela organização da Scale**; a tabela global de
+usuários é consultada somente pelos UUIDs já referenciados nessas linhas. O id
+padrão está em `lib/supabase/crm.ts` e pode ser sobrescrito por `CRM_ORG_ID`.
+
+O contrato novo também consolida reentradas da mesma pessoa. Para setembro em
+diante, `dt_entrada` vem de `ultima_entrada_em` (a entrada representada hoje no
+quadro), a atribuição vem do registro mais recente de `lead_attribution`, e a
+agenda considera reuniões de venda ligadas diretamente ao lead ou ao negócio,
+sempre ignorando a lixeira (`cancelada_em`).
+
 ### O que o dash conta, e o que fica de fora
 
 Nem todo lead do CRM é uma linha do funil comercial. Duas regras, as duas em
@@ -102,12 +113,9 @@ npm run sync:crm-dry            # mês corrente
 npm run sync:crm-dry -- 2026-07 # um mês específico
 ```
 
-Lê o CRM **sem gravar nada** e põe lado a lado, para o mês pedido, o que cada
-fonte diria sozinha: leads, agendadas, realizadas, fechados, faturamento, pódio
-de closer e de SDR. Para um mês que ninguém editou dos dois lados, as duas
-colunas têm que sair iguais. Diferença pequena é a distância normal entre board
-e CRM (`npm run diff:monday`, no repo do CRM). Diferença grande é mapeamento
-errado.
+Lê o CRM **sem gravar nada** e mostra leads, agendadas, realizadas, fechados,
+faturamento e os pódios. Até agosto/2026 ele também põe Monday e CRM lado a lado;
+de setembro em diante mostra só o CRM, que é a fonte única desse período.
 
 ## 1. Configurar variáveis de ambiente
 
@@ -120,6 +128,7 @@ chaves públicas do Supabase preenchidas) e preencha o que falta:
 | `MONDAY_TOKEN` | O mesmo token já usado na Netlify function do dashboard antigo |
 | `META_ADS_TOKEN` / `META_AD_ACCOUNT_ID` | Os mesmos já usados na Netlify function do dashboard antigo |
 | `CRM_SUPABASE_URL` / `CRM_SUPABASE_SERVICE_ROLE_KEY` | Do projeto Supabase **do CRM**, não deste. Só leitura — o dashboard nunca escreve lá. |
+| `CRM_ORG_ID` | Organização do CRM que alimenta este dashboard. Opcional: o projeto usa a organização original da Scale por padrão. |
 | `SUPABASE_ACCESS_TOKEN` | Personal Access Token da conta Supabase (https://supabase.com/dashboard/account/tokens). Usado só por `npm run db:push`. |
 | `CRON_SECRET` | Gere com `openssl rand -base64 32`. **O nome precisa ser exatamente `CRON_SECRET`** — é assim que a Vercel identifica qual variável anexar automaticamente como `Authorization: Bearer …` nas chamadas do Cron Job. |
 
