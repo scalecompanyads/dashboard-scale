@@ -24,6 +24,7 @@ import {
   CRM_SOLO_DESDE,
   DIRECAO_FILTER,
   ETAPA_EXCLUIDA_AGENDA,
+  ETAPA_IGNORADA_DASH,
   fmtBRL,
   isOrigemLive,
   isOrigemOrganica,
@@ -42,7 +43,13 @@ const dentro = (d: string | null, from: string, to: string) => !!d && d >= from 
 // As mesmas duas exclusões de lib/data/leads.ts. Sem elas a comparação
 // deixaria de descrever a tela — que é a única coisa que ela serve para
 // responder.
-const comercial = (rows: Row[]) => rows.filter((r) => r.direcao !== DIRECAO_FILTER && !isOrigemLive(r.origem));
+const comercial = (rows: Row[]) =>
+  rows.filter(
+    (r) =>
+      r.direcao !== DIRECAO_FILTER &&
+      !isOrigemLive(r.origem) &&
+      r.etapa !== ETAPA_IGNORADA_DASH
+  );
 
 const so = (rows: Row[]) => rows.filter((r) => isOrigemOrganica(r.origem));
 

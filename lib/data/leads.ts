@@ -5,6 +5,7 @@ import {
   DIRECAO_FILTER,
   dateMonth,
   ETAPA_EXCLUIDA_AGENDA,
+  ETAPA_IGNORADA_DASH,
   isOrigemOrganica,
   monthKeyOf,
   ORIGEM_LIVE,
@@ -34,7 +35,7 @@ export type ClosingFilter = "all" | "mesmo_mes" | "outros_meses";
 // dt_agenda/dt_fecha) — ver partesPorFonte.
 const LEADS = "leads_effective" as const;
 
-// As duas exclusões que valem para TODA leitura desta página — nenhuma
+// As três exclusões que valem para TODA leitura desta página — nenhuma
 // consulta daqui deve escapar delas.
 //
 // 1. "Direção" (color_mkta1n92 no Monday) marca lead de lixo/teste/duplicado
@@ -42,6 +43,8 @@ const LEADS = "leads_effective" as const;
 // 2. Origem de live (ver ORIGEM_LIVE em lib/constants.ts): inscrito em live
 //    não é lead do funil comercial. Duas grafias porque o vocabulário mudou
 //    em 01/09/2026 — lead antigo pode ter qualquer uma das duas.
+// 3. Etapa "DADOS INVALIDOS": descarte operacional, mantido no CRM só para
+//    auditoria.
 //
 // As duas são null-safe: `.neq`/`.not.in` sozinhos também derrubariam linha
 // com o campo vazio, porque em SQL `!=`/`not in` nunca casam com NULL — e a
@@ -56,7 +59,8 @@ const ORIGEM_LIVE_FILTRO = ORIGEM_LIVE.map((v) => `"${v}"`).join(",");
 function excludeNaoComercial(query: any) {
   return query
     .or(`direcao.is.null,direcao.neq.${DIRECAO_FILTER}`)
-    .or(`origem.is.null,origem.not.in.(${ORIGEM_LIVE_FILTRO})`);
+    .or(`origem.is.null,origem.not.in.(${ORIGEM_LIVE_FILTRO})`)
+    .or(`etapa.is.null,etapa.neq."${ETAPA_IGNORADA_DASH}"`);
 }
 
 /**

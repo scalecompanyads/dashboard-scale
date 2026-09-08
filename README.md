@@ -101,6 +101,9 @@ Nem todo lead do CRM é uma linha do funil comercial. Duas regras, as duas em
   mostra quanto do mês veio do site, mas é um **recorte** dos mesmos números
   de cima, nunca uma parcela subtraída deles: o lead chegou pelo site em vez
   de por anúncio, e o SDR marcou a reunião igual.
+- **Etapa `DADOS INVALIDOS` fica fora de todo o dashboard.** A linha permanece
+  no CRM para auditoria, mas não entra em leads, agenda, reuniões, fechamentos,
+  pódios ou métricas de marketing.
 
 A lista de origens é **exata**, não um prefixo `Site — `: "Site — Live" também
 começa assim e está do outro lado da regra. É a mesma lista do Quadro Orgânico

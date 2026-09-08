@@ -80,6 +80,10 @@ export function isOrigemOrganica(origem: string | null | undefined): boolean {
 // dashboard (leads, agenda, closings), not just from fechamentos.
 export const DIRECAO_FILTER = "Filter";
 
+// Descarte operacional do CRM: permanece armazenado para auditoria, mas não
+// representa oportunidade comercial e não entra em nenhuma métrica do dash.
+export const ETAPA_IGNORADA_DASH = "DADOS INVALIDOS";
+
 // Meetings that actually happened (vs. still open / cancelled before the call)
 export const ETAPA_REALIZADA = new Set([
   "R1 Realizada",
