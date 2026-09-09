@@ -167,9 +167,9 @@ async function main() {
       linhaCrm(`  ${closer.name}`, `${closer.reunioes}/${closer.fechados}/${fmtBRL(closer.mrr)}`);
     }
 
-    console.log("\n  SDRs (agendadas / feitas / contratos):");
+    console.log("\n  SDRs (agendadas / feitas / contratos = pontos):");
     for (const sdr of calcSDRs(crmMes.agenda as Lead[], crmMes.fechamentos as Lead[])) {
-      linhaCrm(`  ${sdr.name}`, `${sdr.agendadas}/${sdr.feitas}/${sdr.contratos}`);
+      linhaCrm(`  ${sdr.name}`, `${sdr.agendadas}/${sdr.feitas}/${sdr.contratos} = ${sdr.pontos} pts`);
     }
 
     if (amostra > 0) {
@@ -228,12 +228,12 @@ async function main() {
 
   const sdrsMonday = calcSDRs(mondayMes.agenda as Lead[], mondayMes.fechamentos as Lead[]);
   const sdrsCrm = calcSDRs(crmMes.agenda as Lead[], crmMes.fechamentos as Lead[]);
-  console.log("\n  SDRs (agendadas / feitas / contratos):");
+  console.log("\n  SDRs (agendadas / feitas / contratos = pontos):");
   for (const nome of new Set([...sdrsMonday, ...sdrsCrm].map((s) => s.name))) {
     const a = sdrsMonday.find((s) => s.name === nome);
     const b = sdrsCrm.find((s) => s.name === nome);
-    const fmt = (s?: { agendadas: number; feitas: number; contratos: number }) =>
-      s ? `${s.agendadas}/${s.feitas}/${s.contratos}` : "—";
+    const fmt = (s?: { agendadas: number; feitas: number; contratos: number; pontos: number }) =>
+      s ? `${s.agendadas}/${s.feitas}/${s.contratos} = ${s.pontos} pts` : "—";
     linha(`  ${nome}`, fmt(a), fmt(b));
   }
 
