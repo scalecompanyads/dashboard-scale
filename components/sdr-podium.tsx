@@ -7,6 +7,9 @@ function SdrSlot({ rank, sdr, meta }: { rank: PodiumRank; sdr?: SdrStats; meta?:
   if (!sdr) return <EmptyPodiumSlot rank={rank} />;
 
   const m = PODIUM_MATERIAL[rank];
+  // O número grande do pódio JÁ É a taxa de comparecimento desta pessoa —
+  // das reuniões que ela marcou, quantas aconteceram. Então a meta do time
+  // vale aqui direto, sem dividir por ninguém: taxa não se reparte.
   const pct = sdr.agendadas ? (sdr.feitas / sdr.agendadas) * 100 : 0;
   const photo = PERSON_PHOTOS[sdr.name.toLowerCase().split(" ")[0]];
   const bateu = meta !== undefined && sdr.agendadas > 0 && pct >= meta;
@@ -47,28 +50,22 @@ function SdrSlot({ rank, sdr, meta }: { rank: PodiumRank; sdr?: SdrStats; meta?:
         </div>
       )}
       <p className="max-w-[75cqw] truncate text-[clamp(13px,2.6cqw,17px)] font-bold text-primary">{sdr.name.split(" ")[0]}</p>
-      {/* O numero grande do podio e o que ordena o podio — agora sao os
-          PONTOS (contrato 3, comparecimento 2, agendamento 1), e nao mais a
-          taxa de comparecimento. A taxa desce uma linha e continua carregando
-          a cor do status e o ✓ da meta.
-
-          O orcamento de LINHAS continua o mesmo de antes: o PodiumShell tem
-          altura fixa, alinha os slots por baixo (items-end + overflow-hidden)
-          e cada linha a mais empurra o conteudo para fora pelo topo, cortando
-          justamente o 1o e o 2o lugar. Por isso a conta dos pontos entra como
-          linha unica no lugar do "3 contratos", e nao como linha nova. */}
-      <p className="text-[clamp(18px,5.5cqw,28px)] font-black leading-none tabular-nums text-accent-light">
-        {sdr.pontos}
-        <span className="ml-1 text-[clamp(11px,2.2cqw,14px)] font-bold">pts</span>
+      {/* A meta entra como sufixo da linha que ja existia, e nao como linha
+          nova: o PodiumShell tem altura fixa e alinha os slots por baixo
+          (items-end + overflow-hidden), entao cada linha a mais empurra o
+          conteudo para fora pelo topo — e corta justamente o 1o e o 2o, que
+          sao os slots mais altos. A cor do percentual ja diz se bateu. */}
+      <p className={"text-[clamp(18px,5.5cqw,28px)] font-black leading-none tabular-nums " + cor}>
+        {pct.toFixed(1)}%
       </p>
-      <p className="text-[clamp(11px,2.3cqw,15px)] font-semibold tabular-nums text-primary">
-        {sdr.contratos}×3 · {sdr.feitas}×2 · {sdr.agendadas}×1
-      </p>
-      <p className={"mb-1 text-[clamp(11px,2.3cqw,15px)] font-medium tabular-nums " + cor}>
-        {pct.toFixed(1)}% comp.
+      <p className="text-[clamp(12px,2.5cqw,16px)] font-semibold text-primary">
+        {sdr.feitas} de {sdr.agendadas} ag.
         {meta !== undefined && sdr.agendadas > 0 && (
-          <span className="font-bold"> · {bateu ? "✓ " : ""}meta {Math.round(meta)}%</span>
+          <span className={"font-bold " + cor}> · {bateu ? "✓ " : ""}meta {Math.round(meta)}%</span>
         )}
+      </p>
+      <p className="mb-1 text-[clamp(12px,2.4cqw,15px)] font-medium text-primary">
+        {sdr.contratos} contrato{sdr.contratos === 1 ? "" : "s"}
       </p>
       <Pedestal rank={rank} />
     </div>
@@ -76,14 +73,17 @@ function SdrSlot({ rank, sdr, meta }: { rank: PodiumRank; sdr?: SdrStats; meta?:
 }
 
 /**
- * O pódio ordena por PONTOS: contrato vale 3, comparecimento vale 2 e
- * agendamento vale 1, somando — a mesma reunião pode pagar os três se ela
- * for marcada, acontecer e fechar. Ver PONTOS_SDR em lib/metrics/sdrs.ts.
+ * A ORDEM do pódio vem de podiumTop3(), que ranqueia por PONTOS (contrato 3,
+ * comparecimento 2, agendamento 1 — ver PONTOS_SDR em lib/metrics/sdrs.ts).
+ * O card continua mostrando a taxa de comparecimento, e não a pontuação: a
+ * ordem é o ranking, o número grande é o desempenho de quem está ali. Não são
+ * a mesma coisa, de propósito — a pontuação é regra interna de classificação.
  *
  * `meta` é a meta de COMPARECIMENTO do mês (0–100) — a mesma para todo mundo.
- * Ela não entra na pontuação: é o status da taxa que aparece embaixo do
- * total de pontos. Não há meta individual cadastrada, e não faria sentido
- * dividir a do time por pessoa, porque taxa não se reparte entre gente.
+ *
+ * Não há meta individual cadastrada, e não faria sentido dividir a do time
+ * por pessoa: o número que o pódio mostra é uma taxa (das reuniões que a
+ * pessoa marcou, quantas aconteceram), e taxa não se reparte entre gente.
  */
 export function SdrPodium({ sdrs, meta }: { sdrs: SdrStats[]; meta?: number }) {
   const [s1, s2, s3] = podiumTop3(sdrs);
