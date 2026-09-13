@@ -132,15 +132,19 @@ export const PERSON_PHOTOS: Record<string, PersonPhoto> = {
   pedro: { src: "/pedro-clarck.jpeg", position: "center 25%" },
   samuel: { src: "/samuel.jpeg", position: "center 25%" },
   yakin: { src: "/yakin.jpeg" },
+  // A IA é o Agente do CRM assumindo o lead como SDR (usuário "IA" lá). A
+  // "foto" é a marca do DEAM — o ícone maskable do PWA, que já nasce com a
+  // margem certa para ser recortado em círculo. Pedido do usuário, 13/09/2026.
+  ia: { src: "/deam-icon.png" },
 };
 
 // Quem entra no pódio de SDR — ou melhor, o que NÃO entra.
 //
-// A coluna `sdr` do board acumulou dez meses de uso e guarda três coisas
+// A coluna `sdr` do board acumulou dez meses de uso e guarda coisas
 // diferentes na mesma gaveta: gente, origem de lead ("Recomendação") e
-// automação ("IA"). E, às vezes, duas pessoas numa célula só ("Lícia, José"),
-// trabalho a quatro mãos que não dá para atribuir a uma sem inventar nem às
-// duas sem contar em dobro.
+// vazio por extenso ("Nenhum"). E, às vezes, duas pessoas numa célula só
+// ("Lícia, José"), trabalho a quatro mãos que não dá para atribuir a uma sem
+// inventar nem às duas sem contar em dobro.
 //
 // É uma lista de EXCLUSÃO, e não um elenco fixo, de propósito. Já foi elenco
 // (só José e Henrique) e estava errado: o Gabriel é closer, não SDR de cargo,
@@ -148,9 +152,16 @@ export const PERSON_PHOTOS: Record<string, PersonPhoto> = {
 // cargo. Pela mesma razão, quem já saiu do time continua aparecendo no pódio
 // dos meses em que estava.
 //
+// "IA" ficou de fora até 13/09/2026 como rótulo herdado do board. Desde
+// 11/09/2026 ela é o SDR de verdade dos leads que aborda no CRM (o Agente da
+// Scale assume o lead como usuário "IA"), com agendamento próprio — e o pódio
+// mostra trabalho, então ela concorre igual (pedido do usuário). Os "IA" do
+// board são de jul–out/2025, antes de FIRST_DATA_MONTH: nenhum mês da tela
+// muda por isso.
+//
 // Nada aqui divide meta: as metas do funil são taxas, e taxa vale igual para
 // todo mundo, sem repartir por cabeça.
-const SDR_NAO_PESSOA = new Set(["ia", "recomendacao", "nenhum"]);
+const SDR_NAO_PESSOA = new Set(["recomendacao", "nenhum"]);
 
 /** Sem acento e sem caixa — o board escreve "José" e "Jose", "Recomendação" e "Recomendacao". */
 function normalizaNome(s: string) {
