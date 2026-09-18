@@ -143,8 +143,9 @@ export const PERSON_PHOTOS: Record<string, PersonPhoto> = {
 // A coluna `sdr` do board acumulou dez meses de uso e guarda coisas
 // diferentes na mesma gaveta: gente, origem de lead ("Recomendação") e
 // vazio por extenso ("Nenhum"). E, às vezes, duas pessoas numa célula só
-// ("Lícia, José"), trabalho a quatro mãos que não dá para atribuir a uma sem
-// inventar nem às duas sem contar em dobro.
+// ("Lícia, José" no board; "Henrique, IA" no CRM, que desde 14/09/2026
+// deixa escolher dois SDRs no mesmo lead e o sync junta os nomes com
+// vírgula — ver sdrsDaCelula abaixo).
 //
 // É uma lista de EXCLUSÃO, e não um elenco fixo, de propósito. Já foi elenco
 // (só José e Henrique) e estava errado: o Gabriel é closer, não SDR de cargo,
@@ -172,10 +173,26 @@ export function isSdrPessoa(name: string | null | undefined): boolean {
   if (!name) return false;
   const nome = name.trim();
   if (!nome) return false;
-  // Célula com dois nomes: o agendamento é das duas pessoas, e atribuí-lo a
-  // uma só seria escolher no chute. Fica de fora (zerado desde jun/2026).
-  if (nome.includes(",")) return false;
   return !SDR_NAO_PESSOA.has(normalizaNome(nome));
+}
+
+/**
+ * As pessoas de uma célula de SDR — uma, duas ou nenhuma.
+ *
+ * Célula com dois nomes conta PARA OS DOIS, em tudo: agendamento,
+ * comparecimento e contrato. Regra do usuário, 18/09/2026: "quando um lead
+ * tiver 2 SDR, o contrato deve contar para os dois no dash". Até então a
+ * célula com vírgula ficava fora do pódio inteira — "trabalho a quatro mãos
+ * que não dá para atribuir a uma sem inventar nem às duas sem contar em
+ * dobro" — e o efeito, desde que o CRM passou a dividir lead entre o SDR e a
+ * IA, era o contrato de um lead dividido não aparecer para NINGUÉM.
+ *
+ * O "em dobro" só existe no pódio, que é por pessoa; os totais do time
+ * (Agendadas, Realizadas, Fechados, TCV) continuam contando o lead uma vez.
+ */
+export function sdrsDaCelula(cell: string | null | undefined): string[] {
+  if (!cell) return [];
+  return [...new Set(cell.split(",").map((n) => n.trim()).filter(isSdrPessoa))];
 }
 
 export const FIRST_DATA_MONTH = "2025-11"; // earliest month with a configured goal / Meta Ads backfill

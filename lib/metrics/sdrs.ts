@@ -1,4 +1,4 @@
-import { ETAPA_REALIZADA, isSdrPessoa } from "@/lib/constants";
+import { ETAPA_REALIZADA, sdrsDaCelula } from "@/lib/constants";
 import type { Lead } from "@/lib/types/database.types";
 
 // Quanto vale cada critério no ranking dos SDRs. Os três SOMAM: uma reunião
@@ -46,26 +46,30 @@ export function comparaSdrs(a: SdrStats, b: SdrStats): number {
 // trabalho. Pela mesma razão, quem já saiu do time continua no pódio dos
 // meses em que estava.
 //
-// O que fica de fora é o que não é uma pessoa que agendou: "IA",
-// "Recomendação" e as células com dois nomes. Ver isSdrPessoa em
-// lib/constants.ts.
+// O que fica de fora é o que não é uma pessoa que agendou: "Recomendação",
+// "Nenhum". Célula com dois nomes ("Henrique, IA") conta para os dois — em
+// agendamento, comparecimento E contrato. Ver sdrsDaCelula em lib/constants.ts.
 export function calcSDRs(agendaItems: Lead[], closings: Lead[]): SdrStats[] {
   const map = new Map<string, SdrStats>();
+  const statsDe = (name: string) => {
+    let stats = map.get(name);
+    if (!stats) {
+      stats = { name, agendadas: 0, feitas: 0, contratos: 0, pontos: 0 };
+      map.set(name, stats);
+    }
+    return stats;
+  };
 
   for (const item of agendaItems) {
-    const name = item.sdr;
-    if (!isSdrPessoa(name)) continue;
-    if (!map.has(name!)) map.set(name!, { name: name!, agendadas: 0, feitas: 0, contratos: 0, pontos: 0 });
-    const stats = map.get(name!)!;
-    stats.agendadas++;
-    if (item.etapa && ETAPA_REALIZADA.has(item.etapa)) stats.feitas++;
+    for (const name of sdrsDaCelula(item.sdr)) {
+      const stats = statsDe(name);
+      stats.agendadas++;
+      if (item.etapa && ETAPA_REALIZADA.has(item.etapa)) stats.feitas++;
+    }
   }
 
   for (const item of closings) {
-    const name = item.sdr;
-    if (!isSdrPessoa(name)) continue;
-    if (!map.has(name!)) map.set(name!, { name: name!, agendadas: 0, feitas: 0, contratos: 0, pontos: 0 });
-    map.get(name!)!.contratos++;
+    for (const name of sdrsDaCelula(item.sdr)) statsDe(name).contratos++;
   }
 
   // A lista já sai na ordem do ranking, para quem consome ela (pódio, script
