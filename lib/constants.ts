@@ -96,8 +96,11 @@ export const ETAPA_REALIZADA = new Set([
   "Desqualificado",
 ]);
 
-// Excluded from the "agendadas" (scheduled meetings) funnel stage
-export const ETAPA_EXCLUIDA_AGENDA = new Set(["Em Aberto", "Perdido SDR"]);
+// Excluded from the "agendadas" (scheduled meetings) funnel stage.
+// "Follow SDR" e "Desqualificado SDR" são etapas do CRM (a partir de
+// 01/09/2026) em que o lead ainda está — ou morreu — com o SDR: mesmo com
+// dt_agenda preenchida, não há reunião marcada com o closer.
+export const ETAPA_EXCLUIDA_AGENDA = new Set(["Em Aberto", "Perdido SDR", "Follow SDR", "Desqualificado SDR"]);
 
 export const MONTHS = [
   "Janeiro",

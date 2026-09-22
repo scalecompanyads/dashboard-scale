@@ -5,7 +5,7 @@ import type { Lead, MetaAdsAccountInsight } from "@/lib/types/database.types";
 export interface MarketingKPIs {
   spend: number;
   leadsMeta: number;
-  leadsMonday: number;
+  leadsCrm: number;
   cpl: number;
   agendamentos: number;
   custoAgendamento: number;
@@ -37,7 +37,7 @@ export function calcMarketingKPIs(
   closingsMeta: Lead[],
   cacClosingsMeta: Lead[]
 ): MarketingKPIs {
-  const leadsMonday = leadsMeta.length;
+  const leadsCrm = leadsMeta.length;
   const agendamentos = agendaMeta.length;
   const comparecimentos = agendaMeta.filter((i) => !!i.etapa && ETAPA_REALIZADA.has(i.etapa)).length;
   const fechamentos = closingsMeta.length;
@@ -47,13 +47,13 @@ export function calcMarketingKPIs(
   return {
     spend: ads.spend,
     leadsMeta: ads.leads_count,
-    leadsMonday,
-    cpl: leadsMonday ? ads.spend / leadsMonday : 0,
+    leadsCrm,
+    cpl: leadsCrm ? ads.spend / leadsCrm : 0,
     agendamentos,
     custoAgendamento: agendamentos ? ads.spend / agendamentos : 0,
     comparecimentos,
     custoComparecimento: comparecimentos ? ads.spend / comparecimentos : 0,
-    taxaConversao: leadsMonday ? (comparecimentos / leadsMonday) * 100 : 0,
+    taxaConversao: leadsCrm ? (comparecimentos / leadsCrm) * 100 : 0,
     fechamentos,
     cacFechamentos,
     cac: cacFechamentos ? ads.spend / cacFechamentos : 0,

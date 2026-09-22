@@ -137,8 +137,8 @@ export default async function MarketingPage({
         />
         <KpiCard
           icon={<IconUsers />}
-          label="Leads no Monday"
-          value={<AnimatedNumber value={k.leadsMonday} format={{ type: "integer" }} />}
+          label="Leads no CRM"
+          value={<AnimatedNumber value={k.leadsCrm} format={{ type: "integer" }} />}
           sub="origem Meta Ads"
         />
         <KpiCard

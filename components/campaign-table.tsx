@@ -19,7 +19,7 @@ const COLUMNS: { label: string; hint?: string }[] = [
   { label: "Campanha" },
   { label: "Criativos", hint: "Anúncios distintos que rodaram nesta campanha no período" },
   { label: "Investimento", hint: "Gasto em Meta Ads no período" },
-  { label: "Leads", hint: "Leads no Monday com origem Meta Ads atribuídos a criativos desta campanha" },
+  { label: "Leads", hint: "Leads no CRM com origem Meta Ads atribuídos a criativos desta campanha" },
   { label: "CPL", hint: `Investimento / leads — meta: até ${fmtBRL(META_CPL)}` },
   { label: "Agend.", hint: "Reuniões agendadas" },
   { label: "Taxa Agend.", hint: "Agendamentos / leads" },
