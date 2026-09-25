@@ -45,6 +45,8 @@ interface CrmDeal {
   data_agendamento: string | null;
   data_fechamento: string | null;
   updated_at: string;
+  criado_em: string;
+  status: string;
 }
 
 interface CrmMeeting {
@@ -197,15 +199,27 @@ function latest(...timestamps: (string | null | undefined)[]): string | null {
   return valid.length ? valid.reduce((a, b) => (a > b ? a : b)) : null;
 }
 
-// Um lead tem no máximo um negócio hoje (conferido contra o banco), mas o
-// schema permite vários. Escolha determinística: o que fechou vem primeiro,
-// depois o alterado mais recentemente — nunca "o que a página devolveu antes".
+// O negócio que representa o lead nesta linha. Escolha determinística: o que
+// fechou vem primeiro, depois o MAIS ANTIGO — o mesmo que o CRM chama de "o
+// negócio do lead" (`order by criado_em limit 1` nas RPCs de reunião e
+// closer), e é nele que moram as reuniões. Nunca "o que a página devolveu
+// antes".
 function pickDeal(deals: CrmDeal[]): CrmDeal | undefined {
   if (deals.length <= 1) return deals[0];
   return [...deals].sort((a, b) => {
     const closed = Number(!!b.data_fechamento) - Number(!!a.data_fechamento);
-    return closed !== 0 ? closed : b.updated_at.localeCompare(a.updated_at);
+    return closed !== 0 ? closed : a.criado_em.localeCompare(b.criado_em);
   })[0];
+}
+
+// Desde 25/09/2026 o CRM abre uma "nova venda" no MESMO lead quando o cliente
+// fecha uma segunda empresa ou um segundo contrato (Daniel Figueiredo: SIMEÃO
+// R$ 12.000 + Escolha Certa R$ 6.000, dois negócios fechados). Esta tabela é
+// uma linha por lead, e com um negócio só por linha a segunda venda sumia do
+// dash — ficava a que tivesse sido alterada por último. Cada negócio fechado
+// além do escolhido por pickDeal vira uma linha própria, só de FECHAMENTO.
+function vendasExtras(deals: CrmDeal[], escolhido: CrmDeal | undefined): CrmDeal[] {
+  return deals.filter((d) => d !== escolhido && d.status === "fechado" && !!d.data_fechamento);
 }
 
 // ---------------------------------------------------------------------------
@@ -237,7 +251,7 @@ export async function buildCrmLeadRows(syncedAt: string): Promise<LeadInsert[]> 
     fetchAllRows<CrmDeal>("deals", (from, to) =>
       crm
         .from("deals")
-        .select("id, lead_id, closer_id, valor_bruto, modelo, data_agendamento, data_fechamento, updated_at")
+        .select("id, lead_id, closer_id, valor_bruto, modelo, data_agendamento, data_fechamento, updated_at, criado_em, status")
         .eq("org_id", orgId)
         .order("id", { ascending: true })
         .range(from, to)
@@ -411,14 +425,15 @@ export async function buildCrmLeadRows(syncedAt: string): Promise<LeadInsert[]> 
     }
   }
 
-  return leads.map((lead) => {
-    const deal = pickDeal(dealsByLead.get(lead.id) ?? []);
+  return leads.flatMap((lead): LeadInsert[] => {
+    const dealsDoLead = dealsByLead.get(lead.id) ?? [];
+    const deal = pickDeal(dealsDoLead);
     const meeting = meetingByLead.get(lead.id);
     const owners = ownerNamesByLead.get(lead.id);
     const raw = rawByLead.get(lead.id);
     const modelo = deal?.modelo === "TCV" || deal?.modelo === "MRR" ? deal.modelo : null;
 
-    return {
+    const principal: LeadInsert = {
       source: "crm",
       crm_lead_id: lead.id,
       crm_monday_item_id: lead.monday_item_id,
@@ -471,6 +486,34 @@ export async function buildCrmLeadRows(syncedAt: string): Promise<LeadInsert[]> 
       created_at: syncedAt,
       updated_at: syncedAt,
     };
+
+    // A venda extra é uma linha de FECHAMENTO e nada mais. `crm_lead_id` é o
+    // id do NEGÓCIO (uuid, único, nunca colide com um lead) para o upsert ter
+    // chave estável. Sem `dt_entrada` e sem `dt_agenda` de propósito: a
+    // pessoa entrou e foi agendada uma vez só, e a linha principal já conta
+    // isso — repetir as datas dobraria leads e reuniões. O preço é que ela
+    // fica fora das abas "Leads do mês"/"Outros meses" (a coorte lê
+    // dt_entrada) e aparece em "Todos". `crm_monday_item_id` nulo para
+    // dropClosingsReopenedByCrm não casá-la com fechamento antigo do board.
+    const extras = vendasExtras(dealsDoLead, deal).map(
+      (extra): LeadInsert => ({
+        ...principal,
+        crm_lead_id: extra.id,
+        crm_monday_item_id: null,
+        source_updated_at: extra.updated_at,
+        // O valor que getClosingsRawByDateRange filtra (`etapa = Fechado`).
+        etapa: "Fechado",
+        modelo: extra.modelo === "TCV" || extra.modelo === "MRR" ? extra.modelo : null,
+        mrr_value: extra.valor_bruto ?? null,
+        dt_entrada: null,
+        dt_agenda: null,
+        dt_fecha: extra.data_fechamento,
+        closer: (extra.closer_id && userNameById.get(extra.closer_id)) || principal.closer,
+        raw: { ...(principal.raw as Record<string, unknown>), crm_deal_id: extra.id, venda_extra: true },
+      })
+    );
+
+    return [principal, ...extras];
   });
 }
 
