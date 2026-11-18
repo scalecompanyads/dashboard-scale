@@ -8,6 +8,7 @@ import {
   monthRangeOf,
   ORIGEM_META_ADS,
   previousRange,
+  monthToDate,
   rangeLabel,
   statusHigherIsBetter,
   statusLowerIsBetter,
@@ -67,7 +68,8 @@ export default async function MarketingPage({
   // meia-noite "Hoje" apontaria para amanhã.
   const today = todayInSaoPaulo();
   const range = resolveRange(params, today);
-  const prev = previousRange(range);
+  const prev = previousRange(range, today);
+  const prevLabel = monthToDate(range, today) ? "vs mesmo período do mês anterior" : `vs ${rangeLabel(prev)}`;
 
   const supabase = await createClient();
 
@@ -119,7 +121,7 @@ export default async function MarketingPage({
         >
           {prevValorFechado > 0 && (
             <div className="flex justify-center">
-              <TrendBadge current={k.valorFechado} previous={prevValorFechado} />
+              <TrendBadge current={k.valorFechado} previous={prevValorFechado} label={prevLabel} />
             </div>
           )}
         </KpiCard>

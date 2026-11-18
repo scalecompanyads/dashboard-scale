@@ -323,12 +323,40 @@ export function fullMonthKey(range: DateRange): string | null {
 }
 
 /**
+ * Se `range` é um "mês até a data" — começa no dia 1 e termina dentro do
+ * mesmo mês, antes do último dia; ou é o mês inteiro mas `today` cai dentro
+ * dele (mês em andamento) — devolve o trecho efetivo (dia 1 até o dia de
+ * corte). Senão null.
+ */
+export function monthToDate(range: DateRange, today?: string): DateRange | null {
+  if (range.from.slice(8, 10) !== "01") return null;
+  if (range.from.slice(0, 7) !== range.to.slice(0, 7)) return null;
+  const to = today && today >= range.from && today < range.to ? today : range.to;
+  if (fullMonthKey({ from: range.from, to })) return null;
+  return { from: range.from, to };
+}
+
+/**
  * Janela imediatamente anterior, de mesmo tamanho — é contra ela que os
  * TrendBadges comparam. Para um mês inteiro devolve o mês anterior inteiro
  * (e não "os 31 dias anteriores"), que é a comparação que as pessoas
  * esperam ver quando o filtro está em "Agosto".
  */
-export function previousRange(range: DateRange): DateRange {
+export function previousRange(range: DateRange, today?: string): DateRange {
+  const mtd = monthToDate(range, today);
+  if (mtd) {
+    // Mês em andamento (ou recorte "dia 1 até dia N" de um mês só): compara
+    // com o MESMO trecho do mês anterior — 1–18 de nov contra 1–18 de out —
+    // e não contra o mês anterior inteiro, que já teve todos os dias para
+    // acumular e faria todo mês corrente parecer em queda até o último dia.
+    // O dia é limitado ao fim do mês anterior (30 de mar -> 28 de fev).
+    const from = parseISODate(range.from);
+    const year = from.getUTCFullYear();
+    const month = from.getUTCMonth() + 1;
+    const prev = month === 1 ? monthRangeOf(year - 1, 12) : monthRangeOf(year, month - 1);
+    const day = Math.min(Number(mtd.to.slice(8, 10)), Number(prev.to.slice(8, 10)));
+    return { from: prev.from, to: `${prev.to.slice(0, 8)}${pad(day)}` };
+  }
   const monthKey = fullMonthKey(range);
   if (monthKey) {
     const [year, month] = monthKey.split("-").map(Number);

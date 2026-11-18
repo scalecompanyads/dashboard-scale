@@ -4,6 +4,7 @@ import {
   MONTHS,
   monthKeyOf,
   monthRangeOf,
+  monthToDate,
   parseISODate,
   previousBusinessDay,
   previousRange,
@@ -196,8 +197,9 @@ export function resolveComercialPeriod(
       month: paramMonth,
       goalRange: range,
       goalPeriodKey: null,
-      previous: previousRange(range),
-      previousLabel: "vs mês anterior",
+      // Mês em andamento compara com o mesmo trecho do mês anterior (to date).
+      previous: previousRange(range, today),
+      previousLabel: monthToDate(range, today) ? "vs mesmo período do mês anterior" : "vs mês anterior",
       clipped: false,
       label: rangeLabel(range),
       goalLabel: "Meta do Mês",
@@ -259,7 +261,12 @@ export function resolveComercialPeriod(
   // A semana anterior fica INTEIRA, sem recorte: recortá-la também faria a
   // primeira semana do mês comparar uma lasca de um dia contra uma semana
   // cheia, o que só produz variações sem sentido.
-  const previous = weekRangeOf(addDays(fullWeek.from, -7));
+  const fullPrevious = weekRangeOf(addDays(fullWeek.from, -7));
+  // Semana em andamento compara "to date": de segunda até o mesmo dia da
+  // semana anterior (hoje é quinta -> seg–qui da semana passada), e não a
+  // semana passada inteira, que já teve todos os dias para acumular.
+  const weekInProgress = today >= range.from && today < range.to;
+  const previous = weekInProgress ? { from: fullPrevious.from, to: addDays(today, -7) } : fullPrevious;
 
   return {
     view,
@@ -275,7 +282,7 @@ export function resolveComercialPeriod(
     // semana que atravessa a virada do mês tem override próprio.
     goalPeriodKey: range.from,
     previous,
-    previousLabel: "vs semana anterior",
+    previousLabel: weekInProgress ? "vs mesmo período da semana anterior" : "vs semana anterior",
     clipped,
     label: weekLabel(range, month, clipped),
     ...WEEK_GOAL_LABELS,

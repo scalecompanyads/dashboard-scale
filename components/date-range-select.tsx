@@ -116,7 +116,7 @@ export function DateRangeSelect({ range, today }: { range: DateRange; today: str
   }
 
   const dias = rangeLength(range);
-  const anterior = previousRange(range);
+  const anterior = previousRange(range, today);
 
   return (
     <div className="flex flex-wrap items-center justify-end gap-2">
